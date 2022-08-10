@@ -32,7 +32,7 @@ fwb <- function(data, statistic, R = 999, simple = FALSE, cl = NULL, ...) {
   if (!is.numeric(t0) || !is.null(dim(t0))) {
     chk::err("the output of the function supplied to `statistic` must be a numeric vector")
   }
-
+##
   if (simple) {
     FUN <- function(i) {
         w <- rexp(n)
