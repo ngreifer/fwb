@@ -1,13 +1,30 @@
 Package: fwb
 Type: Package
-Title: What the Package Does (Title Case)
+Title: Fractional Weighted Bootstrap
 Version: 0.1.0
-Author: Who wrote it
-Maintainer: The package maintainer <yourself@somewhere.net>
-Description: More about what it does (maybe more than one line)
-    Use four spaces when indenting paragraphs within the Description.
-License: What license is it under?
+Authors@R: c(
+    person("Noah", "Greifer", role=c("aut", "cre"), 
+           email = "noah.greifer@gmail.com",
+	       comment=c(ORCID="0000-0003-3067-7154"))
+    )
+Description: An implementation of the fractional weighted bootstrap to be used as a drop-in for functions in
+   the 'boot' package. The fractional weighted bootstrap (also known as the Bayesian bootstrap) involves drawing
+   weights randomly that are applied to the data rather than resampling units from the data. See Xu et al. (2020)
+   <doi:10.1080/00031305.2020.1731599> for details.
+Depends: R (>= 3.0.0)
+Imports:
+    chk,
+    pbapply
+Suggests:
+    survival,
+    boot,
+    sandwich (>= 2.4-0),
+    lmtest,
+    parallel
+License: GPL (>=2)
 Encoding: UTF-8
-LazyData: true
 URL: https://github.com/ngreifer/fwb
 BugReports: https://github.com/ngreifer/fwb/issues
+RoxygenNote: 7.2.1
+Roxygen: list(markdown = TRUE)
+LazyData: true
