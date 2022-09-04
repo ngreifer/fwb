@@ -44,6 +44,9 @@
 <li class="nav-item">
   <a class="nav-link" href="reference/index.html">Reference</a>
 </li>
+<li class="nav-item">
+  <a class="nav-link" href="news/index.html">Changelog</a>
+</li>
       </ul>
 <form class="form-inline my-2 my-lg-0" role="search">
         <input type="search" class="form-control me-sm-2" aria-label="Toggle navigation" name="search-input" data-search-index="search.json" id="search-input" placeholder="Search for" autocomplete="off">
@@ -63,11 +66,175 @@
   </div>
 </nav><div class="container template-home">
 <div class="row">
-  <main id="main" class="col-md-9">
-An implementation of the fractional weighted bootstrap to be used as a drop-in for functions in
-   the 'boot' package. The fractional weighted bootstrap (also known as the Bayesian bootstrap) involves drawing
-   weights randomly that are applied to the data rather than resampling units from the data. See Xu et al. (2020)
-   &lt;<a href="https://doi.org/10.1080/00031305.2020.1731599" class="external-link">doi:10.1080/00031305.2020.1731599</a>&gt; for details.
+  <main id="main" class="col-md-9"><div class="section level1">
+<div class="page-header"><h1 id="fwb-fractional-weighted-bootstrap">
+<code>fwb</code>: Fractional Weighted Bootstrap<a class="anchor" aria-label="anchor" href="#fwb-fractional-weighted-bootstrap"></a>
+</h1></div>
+<!-- badges: start -->
+<p><code>fwb</code> implements the fraction weighted bootstrap, also known as the Bayesian bootstrap, following the treatment by Xu et al. (2020). The primary function is <code><a href="reference/fwb.html">fwb()</a></code>, which is essentially a drop-in for <code><a href="https://rdrr.io/pkg/boot/man/boot.html" class="external-link">boot::boot()</a></code> in that it takes in a dataset and a function and applies that function to the dataset, generating sets of weights from a uniform Dirichlet distribution to be applied to the statistic(s) computed in the function. Also included are <code><a href="reference/fwb.ci.html">fwb.ci()</a></code>, a drop-in for <code><a href="https://rdrr.io/pkg/boot/man/boot.ci.html" class="external-link">boot::boot.ci()</a></code> for computing various kinds of confidence intervals (e.g., percentile, normal, bias-corrected percentile, etc.), and <code><a href="reference/vcovFWB.html">vcovFWB()</a></code>, a drop-in for <code><a href="https://sandwich.R-Forge.R-project.org/reference/vcovBS.html" class="external-link">sandwich::vcovBS()</a></code> for computing a parameter covariance matrix from a regression model using the fractional weighted bootstrap.</p>
+<p>Check out the <code>fwb</code> <a href="https://ngreifer.github.io/fwb">website</a>!</p>
+<div class="section level2">
+<h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
+</h2>
+<p>You can install the development version of <code>fwb</code> from <a href="https://github.com/" class="external-link">GitHub</a> with:</p>
+<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># install.packages("devtools")</span></span>
+<span><span class="fu">devtools</span><span class="fu">::</span><span class="fu">install_github</span><span class="op">(</span><span class="st">"ngreifer/fwb"</span><span class="op">)</span></span></code></pre></div>
+</div>
+<div class="section level2">
+<h2 id="examples">Examples<a class="anchor" aria-label="anchor" href="#examples"></a>
+</h2>
+<p>Below are some examples of how to use <code>fwb</code>.</p>
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="st"><a href="https://github.com/ngreifer/fwb" class="external-link">"fwb"</a></span><span class="op">)</span></span></code></pre></div>
+<div class="section level3">
+<h3 id="bearing-cage-field-failure-weibull-analysis-from-xu-et-al-2000">Bearing cage field failure Weibull analysis from Xu et al. (2000)<a class="anchor" aria-label="anchor" href="#bearing-cage-field-failure-weibull-analysis-from-xu-et-al-2000"></a>
+</h3>
+<p>This example involves performing a Weibull analysis to estimate the <span class="math inline"><em>β</em></span> (shape) parameter of the Weibull distribution characterizing the time to failure of a set of aircraft engines. Among the 1703 engines, there were only 6 failures and 1697 right-censored observations. The traditional (resampling-based) bootstrap would fail if a bootstrap replication omitted the 6 failures, but all failures are retained when using the fractional weighted bootstrap, which makes it particularly effective for this analysis.</p>
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"bearingcage"</span>, package <span class="op">=</span> <span class="st">"fwb"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Function to compute the scale (eta) and shape (beta) parameters</span></span>
+<span><span class="co"># from weighted data</span></span>
+<span><span class="va">weibull_est</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">data</span>, <span class="va">w</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu">survival</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/survival/man/survreg.html" class="external-link">survreg</a></span><span class="op">(</span><span class="fu">survival</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/survival/man/Surv.html" class="external-link">Surv</a></span><span class="op">(</span><span class="va">hours</span>, <span class="va">failure</span><span class="op">)</span> <span class="op">~</span> <span class="fl">1</span>,</span>
+<span>                           data <span class="op">=</span> <span class="va">data</span>, weights <span class="op">=</span> <span class="va">w</span>,</span>
+<span>                           dist <span class="op">=</span> <span class="st">"weibull"</span><span class="op">)</span></span>
+<span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>eta <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/unname.html" class="external-link">unname</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">exp</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/coef.html" class="external-link">coef</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span><span class="op">)</span><span class="op">)</span>, beta <span class="op">=</span> <span class="fl">1</span><span class="op">/</span><span class="va">fit</span><span class="op">$</span><span class="va">scale</span><span class="op">)</span></span>
+<span><span class="op">}</span></span>
+<span></span>
+<span><span class="co"># 1999 bootstrap replications; more is always better</span></span>
+<span><span class="va">fwb_est</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/fwb.html">fwb</a></span><span class="op">(</span><span class="va">bearingcage</span>, statistic <span class="op">=</span> <span class="va">weibull_est</span>,</span>
+<span>                R <span class="op">=</span> <span class="fl">1999</span>, verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
+<span><span class="va">fwb_est</span></span>
+<span><span class="co">#&gt; FRACTIONAL WEIGHTED BOOTSTRAP</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Call:</span></span>
+<span><span class="co">#&gt; fwb(data = bearingcage, statistic = weibull_est, R = 1999, verbose = FALSE)</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Bootstrap Statistics :</span></span>
+<span><span class="co">#&gt;         original         bias   std. error</span></span>
+<span><span class="co">#&gt; t1* 11792.178173 6528.5275456 21092.241147</span></span>
+<span><span class="co">#&gt; t2*     2.035319    0.2540133     0.894168</span></span>
+<span></span>
+<span><span class="co"># Bias-corrected percentile confidence interval</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">fwb_est</span>, ci.type <span class="op">=</span> <span class="st">"bc"</span><span class="op">)</span></span>
+<span><span class="co">#&gt;      Estimate Std. Error CI 2.5 % CI 97.5 %</span></span>
+<span><span class="co">#&gt; eta  1.18e+04   2.11e+04 3.18e+03  7.21e+04</span></span>
+<span><span class="co">#&gt; beta 2.04e+00   8.94e-01 1.23e+00  4.58e+00</span></span>
+<span></span>
+<span><span class="co"># Plot the bootstrap distribution</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">fwb_est</span>, index <span class="op">=</span> <span class="st">"beta"</span>, qdist <span class="op">=</span> <span class="st">"chisq"</span><span class="op">)</span></span></code></pre></div>
+<p><img src="reference/figures/README-unnamed-chunk-3-1.png" width="80%" style="display: block; margin: auto;"></p>
+</div>
+<div class="section level3">
+<h3 id="infertility-logistic-regression-analysis-using-infert-dataset">Infertility logistic regression analysis using <code>infert</code> dataset<a class="anchor" aria-label="anchor" href="#infertility-logistic-regression-analysis-using-infert-dataset"></a>
+</h3>
+<p>This example demonstrates using <code><a href="reference/vcovFWB.html">vcovFWB()</a></code> to estimate standard errors for the effect of spontaneous and induced abortions on infertility as analyzed in Trichopoulos et al. (1976). Patients are organized into matched sets of 3 patients each. We use a fixed effects logistic regression to adjust for matched set membership (ignoring the potential bias in this approach for the sake of the example). The traditional bootstrap fails because many matched sets will fully omit either cases or non-cases, leading to perfect prediction and the failure of the model to converge, yielding invalid estimates. Because all units are retained when using the fractional weighted bootstrap, the model always converges and the estimates are reasonable.</p>
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"infert"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/glm.html" class="external-link">glm</a></span><span class="op">(</span><span class="va">case</span> <span class="op">~</span> <span class="va">spontaneous</span> <span class="op">+</span> <span class="va">induced</span> <span class="op">+</span> <span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">factor</a></span><span class="op">(</span><span class="va">stratum</span><span class="op">)</span>,</span>
+<span>           data <span class="op">=</span> <span class="va">infert</span>, family <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/family.html" class="external-link">quasibinomial</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span>
+<span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="st">"lmtest"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># The traditional bootstrap fails</span></span>
+<span><span class="fu"><a href="https://rdrr.io/pkg/lmtest/man/coeftest.html" class="external-link">coeftest</a></span><span class="op">(</span><span class="va">fit</span>, vcov <span class="op">=</span> <span class="fu">sandwich</span><span class="fu">::</span><span class="va"><a href="https://sandwich.R-Forge.R-project.org/reference/vcovBS.html" class="external-link">vcovBS</a></span><span class="op">)</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">3</span>,<span class="op">]</span></span>
+<span><span class="co">#&gt;              Estimate   Std. Error       z value  Pr(&gt;|z|)</span></span>
+<span><span class="co">#&gt; (Intercept) -6.904101 4.472792e+19 -1.543577e-19 1.0000000</span></span>
+<span><span class="co">#&gt; spontaneous  3.230286 3.167708e+06  1.019755e-06 0.9999992</span></span>
+<span><span class="co">#&gt; induced      2.190303 3.102472e+06  7.059862e-07 0.9999994</span></span>
+<span></span>
+<span><span class="co"># The fractional weighted bootstrap succeeds</span></span>
+<span><span class="fu"><a href="https://rdrr.io/pkg/lmtest/man/coeftest.html" class="external-link">coeftest</a></span><span class="op">(</span><span class="va">fit</span>, vcov <span class="op">=</span> <span class="va">vcovFWB</span><span class="op">)</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">3</span>,<span class="op">]</span></span>
+<span><span class="co">#&gt;              Estimate Std. Error   z value     Pr(&gt;|z|)</span></span>
+<span><span class="co">#&gt; (Intercept) -6.904101  1.8276925 -3.777496 1.584130e-04</span></span>
+<span><span class="co">#&gt; spontaneous  3.230286  0.7277096  4.438976 9.038774e-06</span></span>
+<span><span class="co">#&gt; induced      2.190303  0.6857453  3.194047 1.402932e-03</span></span></code></pre></div>
+<p>We can also perform cluster-robust inference by bootstrapping the strata. (Note in this case the traditional bootstrap does fine, but the fractional weighted bootstrap is still more accurate.)</p>
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Including stratum membership as a clustering variable</span></span>
+<span><span class="fu"><a href="https://rdrr.io/pkg/lmtest/man/coeftest.html" class="external-link">coeftest</a></span><span class="op">(</span><span class="va">fit</span>, vcov <span class="op">=</span> <span class="va">vcovFWB</span>, cluster <span class="op">=</span> <span class="op">~</span><span class="va">stratum</span><span class="op">)</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">3</span>,<span class="op">]</span></span>
+<span><span class="co">#&gt;              Estimate Std. Error   z value     Pr(&gt;|z|)</span></span>
+<span><span class="co">#&gt; (Intercept) -6.904101  1.6495855 -4.185355 2.847204e-05</span></span>
+<span><span class="co">#&gt; spontaneous  3.230286  0.7628024  4.234761 2.287951e-05</span></span>
+<span><span class="co">#&gt; induced      2.190303  0.6682861  3.277493 1.047335e-03</span></span></code></pre></div>
+<p>Let’s look more in-depth at the results of the traditional and fractional weighted bootstrap by comparing the output of <code><a href="reference/fwb.html">fwb()</a></code> and <code><a href="https://rdrr.io/pkg/boot/man/boot.html" class="external-link">boot::boot()</a></code>.</p>
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">fit_fun</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">data</span>, <span class="va">w</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/glm.html" class="external-link">glm</a></span><span class="op">(</span><span class="va">case</span> <span class="op">~</span> <span class="va">spontaneous</span> <span class="op">+</span> <span class="va">induced</span> <span class="op">+</span> <span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">factor</a></span><span class="op">(</span><span class="va">stratum</span><span class="op">)</span>,</span>
+<span>           data <span class="op">=</span> <span class="va">data</span>, weights <span class="op">=</span> <span class="va">w</span>, family <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/family.html" class="external-link">quasibinomial</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/stats/coef.html" class="external-link">coef</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">3</span><span class="op">]</span></span>
+<span><span class="op">}</span></span>
+<span></span>
+<span><span class="va">boot_est</span> <span class="op">&lt;-</span> <span class="fu">boot</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/boot/man/boot.html" class="external-link">boot</a></span><span class="op">(</span><span class="va">infert</span>, <span class="va">fit_fun</span>, R <span class="op">=</span> <span class="fl">999</span>, stype <span class="op">=</span> <span class="st">"f"</span><span class="op">)</span></span>
+<span><span class="va">boot_est</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; ORDINARY NONPARAMETRIC BOOTSTRAP</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Call:</span></span>
+<span><span class="co">#&gt; boot::boot(data = infert, statistic = fit_fun, R = 999, stype = "f")</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Bootstrap Statistics :</span></span>
+<span><span class="co">#&gt;      original        bias     std. error</span></span>
+<span><span class="co">#&gt; t1* -6.904101 -2.385907e+19 5.368296e+20</span></span>
+<span><span class="co">#&gt; t2*  3.230286  4.072669e+13 2.952474e+14</span></span>
+<span><span class="co">#&gt; t3*  2.190303  2.730053e+13 2.009225e+14</span></span>
+<span></span>
+<span><span class="va">fwb_est</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/fwb.html">fwb</a></span><span class="op">(</span><span class="va">infert</span>, <span class="va">fit_fun</span>, R <span class="op">=</span> <span class="fl">999</span>, verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
+<span><span class="va">fwb_est</span></span>
+<span><span class="co">#&gt; FRACTIONAL WEIGHTED BOOTSTRAP</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Call:</span></span>
+<span><span class="co">#&gt; fwb(data = infert, statistic = fit_fun, R = 999, verbose = FALSE)</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Bootstrap Statistics :</span></span>
+<span><span class="co">#&gt;      original       bias std. error</span></span>
+<span><span class="co">#&gt; t1* -6.904101 -1.6181838  1.8461133</span></span>
+<span><span class="co">#&gt; t2*  3.230286  0.6611793  0.7424671</span></span>
+<span><span class="co">#&gt; t3*  2.190303  0.5056567  0.6588132</span></span></code></pre></div>
+<p>Already the bias and standard errors indicate problems with the traditional bootstrap. Let’s plot histograms of the estimates to see where the failure is:</p>
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">boot_est</span>, index <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span></code></pre></div>
+<p><img src="reference/figures/README-unnamed-chunk-7-1.png" width="80%" style="display: block; margin: auto;"></p>
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">fwb_est</span>, index <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span></code></pre></div>
+<p><img src="reference/figures/README-unnamed-chunk-8-1.png" width="80%" style="display: block; margin: auto;"></p>
+<p>It is clear that the estimates from the traditional bootstrap are pathological, whereas the estimates from the fractional weighted bootstrap are more reasonable. The non-normality of the fractional weighted bootstrap distributions also suggests that the usual Wald-style confidence intervals may not be accurate, and a percentil interval should be computed instead.</p>
+</div>
+</div>
+<div class="section level2">
+<h2 id="when-to-use-the-fractional-weighted-bootstrap">When to use the fractional weighted bootstrap<a class="anchor" aria-label="anchor" href="#when-to-use-the-fractional-weighted-bootstrap"></a>
+</h2>
+<p>The fractional weighted bootstrap is uniformly more reliable than the traditional bootstrap when a weighted statistic can be computed (though this doesn’t mean the bootstrap is always valid). In most simple case, both methods will yield the same results. In some pathological examples like those above, the fractional weighted bootstrap dramatically outperforms the traditional bootstrap. This will be true when running regression models with sparse categorical variables either in the outcome or among the predictors, for example, when estimating fixed effects or when a binary outcome is rare. However, it is important to know when a weighted statistic can be computed; for example, computing the weighted median is not always straightforward, making the traditional bootstrap potentially more useful for computing it. Still, though, the fractional weighted bootstrap deserves a place in an analysts toolbox.</p>
+</div>
+<div class="section level2">
+<h2 id="related-packages">Related packages<a class="anchor" aria-label="anchor" href="#related-packages"></a>
+</h2>
+<ul>
+<li>
+<code>boot</code>, which provides the traditional bootstrap, including an interface that accepted frequency weights to compute weighted statistics, as was used above</li>
+<li>
+<code>bayesboot</code>, which also provides functionality for the Bayesian bootstrap but does so in a more explicitly Bayesian fashion and with returned objects that are less consistent with those from <code>boot</code>
+</li>
+</ul>
+</div>
+<div class="section level2">
+<h2 id="author">Author<a class="anchor" aria-label="anchor" href="#author"></a>
+</h2>
+<ul><li>Noah Greifer (<a href="mailto:noah.greifer@gmail.com" class="email">noah.greifer@gmail.com</a>)</li></ul>
+</div>
+<div class="section level2">
+<h2 id="references">References<a class="anchor" aria-label="anchor" href="#references"></a>
+</h2>
+<p>Trichopoulos, D., Handanos, N., Danezis, J., Kalandidi, A. and Kalapothaki, V. (1976), Induced Abortion and Secondary Infertility. <em>BJOG: An International Journal of Obstetrics &amp; Gynaecology</em>, 83, 645-650. <a href="https://doi.org/10.1111/j.1471-0528.1976.tb00904.x" class="external-link uri">https://doi.org/10.1111/j.1471-0528.1976.tb00904.x</a></p>
+<p>Xu, L., Gotwalt, C., Hong, Y., King, C. B., &amp; Meeker, W. Q. (2020). Applications of the Fractional-Random-Weight Bootstrap. <em>The American Statistician</em>, 74(4), 345–358. <a href="https://doi.org/10.1080/00031305.2020.1731599" class="external-link uri">https://doi.org/10.1080/00031305.2020.1731599</a></p>
+</div>
+</div>
   </main><aside class="col-md-3"><div class="links">
 <h2 data-toc-skip>Links</h2>
 <ul class="list-unstyled">
@@ -98,7 +265,12 @@ An implementation of the fractional weighted bootstrap to be used as a drop-in f
 </ul>
 </div>
 
-
+<div class="dev-status">
+<h2 data-toc-skip>Dev status</h2>
+<ul class="list-unstyled">
+<li><a href="https://CRAN.R-project.org/package=fwb" class="external-link"><img src="https://www.r-pkg.org/badges/version/fwb" alt="CRAN status"></a></li>
+</ul>
+</div>
 
   </aside>
 </div>
