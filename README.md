@@ -14,7 +14,7 @@ the Bayesian bootstrap, following the treatment by Xu et al. (2020). The
 FWB involves generating sets of weights from a uniform Dirichlet
 distribution to be used in estimating statistics of interest, which
 yields a posterior distribution that can be interpreted in the same way
-the traditional (resampling0based) bootstrap distribution can be. The
+the traditional (resampling-based) bootstrap distribution can be. The
 primary function is `fwb()`, which is essentially a drop-in for
 `boot::boot()` in that it takes in a dataset and a function and applies
 that function to the dataset and a randomly generated set of case
