@@ -9,17 +9,20 @@
 status](https://www.r-pkg.org/badges/version/fwb)](https://CRAN.R-project.org/package=fwb)
 <!-- badges: end -->
 
-`fwb` implements the fraction weighted bootstrap, also known as the
-Bayesian bootstrap, following the treatment by Xu et al. (2020). The
+`fwb` implements the fractional weighted bootstrap (FWB) , also known as
+the Bayesian bootstrap, following the treatment by Xu et al. (2020). The
+FWB involves generating sets of weights from a uniform Dirichlet
+distribution to be used in estimating statistics of interest, which
+yields a posterior distribution that can be interpreted in the same way
+the traditional (resampling0based) bootstrap distribution can be. The
 primary function is `fwb()`, which is essentially a drop-in for
 `boot::boot()` in that it takes in a dataset and a function and applies
-that function to the dataset, generating sets of weights from a uniform
-Dirichlet distribution to be applied to the statistic(s) computed in the
-function. Also included are `fwb.ci()`, a drop-in for `boot::boot.ci()`
+that function to the dataset and a randomly generated set of case
+weights. Also included are `fwb.ci()`, a drop-in for `boot::boot.ci()`
 for computing various kinds of confidence intervals (e.g., percentile,
 normal, bias-corrected percentile, etc.), and `vcovFWB()`, a drop-in for
-`sandwich::vcovBS()` for computing a parameter covariance matrix from a
-regression model using the fractional weighted bootstrap.
+`sandwich::vcovBS()` for computing a coefficient covariance matrix from
+a regression model using the FWB.
 
 Check out the `fwb` [website](https://ngreifer.github.io/fwb)!
 
@@ -49,8 +52,7 @@ time to failure of a set of aircraft engines. Among the 1703 engines,
 there were only 6 failures and 1697 right-censored observations. The
 traditional (resampling-based) bootstrap would fail if a bootstrap
 replication omitted the 6 failures, but all failures are retained when
-using the fractional weighted bootstrap, which makes it particularly
-effective for this analysis.
+using the FWB, which makes it particularly effective for this analysis.
 
 ``` r
 data("bearingcage", package = "fwb")
@@ -102,8 +104,8 @@ bias in this approach for the sake of the example). The traditional
 bootstrap fails because many matched sets will fully omit either cases
 or non-cases, leading to perfect prediction and the failure of the model
 to converge, yielding invalid estimates. Because all units are retained
-when using the fractional weighted bootstrap, the model always converges
-and the estimates are reasonable.
+when using the FWB, the model always converges and the estimates are
+reasonable.
 
 ``` r
 data("infert")
@@ -130,7 +132,7 @@ coeftest(fit, vcov = vcovFWB)[1:3,]
 
 We can also perform cluster-robust inference by bootstrapping the
 strata. (Note in this case the traditional bootstrap does fine, but the
-fractional weighted bootstrap is still more accurate.)
+FWB is still more accurate.)
 
 ``` r
 # Including stratum membership as a clustering variable
@@ -199,28 +201,25 @@ plot(fwb_est, index = 2)
 <img src="man/figures/README-unnamed-chunk-8-1.png" width="80%" style="display: block; margin: auto;" />
 
 It is clear that the estimates from the traditional bootstrap are
-pathological, whereas the estimates from the fractional weighted
-bootstrap are more reasonable. The non-normality of the fractional
-weighted bootstrap distributions also suggests that the usual Wald-style
-confidence intervals may not be accurate, and a percentil interval
-should be computed instead.
+pathological, whereas the estimates from the FWB are more reasonable.
+The non-normality of the FWB distributions also suggests that the usual
+Wald-style confidence intervals may not be accurate, and a percentile
+interval should be computed instead.
 
 ## When to use the fractional weighted bootstrap
 
-The fractional weighted bootstrap is uniformly more reliable than the
-traditional bootstrap when a weighted statistic can be computed (though
-this doesn’t mean the bootstrap is always valid). In most simple case,
-both methods will yield the same results. In some pathological examples
-like those above, the fractional weighted bootstrap dramatically
-outperforms the traditional bootstrap. This will be true when running
-regression models with sparse categorical variables either in the
-outcome or among the predictors, for example, when estimating fixed
-effects or when a binary outcome is rare. However, it is important to
-know when a weighted statistic can be computed; for example, computing
-the weighted median is not always straightforward, making the
-traditional bootstrap potentially more useful for computing it. Still,
-though, the fractional weighted bootstrap deserves a place in an
-analysts toolbox.
+The FWB is uniformly more reliable than the traditional bootstrap when a
+weighted statistic can be computed (though this doesn’t mean the
+bootstrap is always valid). In most simple cases, both methods will
+yield the same results. In some pathological examples like those above,
+the FWB dramatically outperforms the traditional bootstrap. This will be
+true when running regression models with sparse categorical variables
+either in the outcome or among the predictors, for example, when
+estimating fixed effects or when a binary outcome is rare. However, it
+is important to know when a weighted statistic can be computed; for
+example, computing the weighted median is not always straightforward,
+making the traditional bootstrap potentially more useful for computing
+it. Still, though, the FWB deserves a place in an analyst’s toolbox.
 
 ## Related packages
 
