@@ -32,12 +32,12 @@ fwb.ci(
 
 \item{...}{ignored}
 
-\item{x}{an \code{fwbci} object; the output fo a call to \code{fwb.ci()}.}
+\item{x}{an \code{fwbci} object; the output of a call to \code{fwb.ci()}.}
 }
 \value{
 An \code{fwbci} object, which inherits from \code{bootci} and has the following components:
 \item{R}{the number of bootstrap replications in the original call to \code{fwb()}.}
-\item{t0}{the observed value of the statistic on the same scale as the intervals (i.e., afetr applying \code{h} and then \code{hinv}.}
+\item{t0}{the observed value of the statistic on the same scale as the intervals (i.e., after applying \code{h} and then \code{hinv}.}
 \item{call}{the call to \code{fwb.ci()}.}
 
 There will be additional components named after each confidence interval type requested. For \code{"norm"}, this is a matrix with one row containing the confidence level and the two confidence interval limits. For the others, this is a matrix with one row containing the confidence level, the indices of the two order statistics used in the calculations, and the confidence interval limits.

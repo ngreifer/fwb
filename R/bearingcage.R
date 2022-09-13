@@ -4,7 +4,7 @@
 #' @format A data frame with 1703 rows and 2 variables:
 #' \describe{
 #'   \item{`hours`}{integer; the number of hours until failure or censoring}
-#'   \item{`failure`}{logical; whether a failure occured}
+#'   \item{`failure`}{logical; whether a failure occurred}
 #'}
 #' @references
 #' Abernethy, R. B., Breneman, J. E., Medlin, C. H., and Reinman, G. L. (1983), "Weibull Analysis Handbook," Technical Report, Air Force Wright Aeronautical Laboratories, available at \url{https://apps.dtic.mil/sti/citations/ADA143100}.

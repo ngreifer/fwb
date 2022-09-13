@@ -19,7 +19,7 @@
 #'
 #' See \pkgfun{sandwich}{vcovBS} and \pkgfun{sandwich}{vcovCL} for more information on clustering covariance matrices, and see [fwb()] for more information on how clusters work with the fractional weighted bootstrap. When clusters are specified, each cluster is given a bootstrap weight, and all members of the cluster are given that weight; estimation then proceeds as normal. By default, when `cluster` is unspecified, each unit is considered its own cluster.
 #'
-#' @seealso [fwb()] for performing the fractional weighted bootstrap on an arbitrary quantity; [fwb.ci()] for cmputing nonparametric confidence intervals for `fwb` objects; [summary.fwb()] for producing standard errors and confidence intervals for `fwb` objects; \pkgfun{sandwich}{vcovBS} for computing covariance matrices using the traditional bootstrap
+#' @seealso [fwb()] for performing the fractional weighted bootstrap on an arbitrary quantity; [fwb.ci()] for computing nonparametric confidence intervals for `fwb` objects; [summary.fwb()] for producing standard errors and confidence intervals for `fwb` objects; \pkgfun{sandwich}{vcovBS} for computing covariance matrices using the traditional bootstrap
 #'
 #' @export
 #'

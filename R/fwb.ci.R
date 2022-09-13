@@ -13,7 +13,7 @@
 #' @return
 #' An `fwbci` object, which inherits from `bootci` and has the following components:
 #' \item{R}{the number of bootstrap replications in the original call to `fwb()`.}
-#' \item{t0}{the observed value of the statistic on the same scale as the intervals (i.e., afetr applying `h` and then `hinv`.}
+#' \item{t0}{the observed value of the statistic on the same scale as the intervals (i.e., after applying `h` and then `hinv`.}
 #' \item{call}{the call to `fwb.ci()`.}
 #'
 #' There will be additional components named after each confidence interval type requested. For `"norm"`, this is a matrix with one row containing the confidence level and the two confidence interval limits. For the others, this is a matrix with one row containing the confidence level, the indices of the two order statistics used in the calculations, and the confidence interval limits.
@@ -125,7 +125,7 @@ fwb.ci <- function(fwb.out, conf = .95, type = "bc", index = 1L,
 
 #' @describeIn fwb.ci Print a bootstrap confidence interval
 #'
-#' @param x an `fwbci` object; the output fo a call to `fwb.ci()`.
+#' @param x an `fwbci` object; the output of a call to `fwb.ci()`.
 #'
 #' @export
 print.fwbci <- function (x, hinv = NULL, ...) {

@@ -8,7 +8,7 @@
 A data frame with 1703 rows and 2 variables:
 \describe{
 \item{\code{hours}}{integer; the number of hours until failure or censoring}
-\item{\code{failure}}{logical; whether a failure occured}
+\item{\code{failure}}{logical; whether a failure occurred}
 }
 }
 \usage{

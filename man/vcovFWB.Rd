@@ -75,5 +75,5 @@ cbind(
 \dontshow{\}) # examplesIf}
 }
 \seealso{
-\code{\link[=fwb]{fwb()}} for performing the fractional weighted bootstrap on an arbitrary quantity; \code{\link[=fwb.ci]{fwb.ci()}} for cmputing nonparametric confidence intervals for \code{fwb} objects; \code{\link[=summary.fwb]{summary.fwb()}} for producing standard errors and confidence intervals for \code{fwb} objects; \pkgfun{sandwich}{vcovBS} for computing covariance matrices using the traditional bootstrap
+\code{\link[=fwb]{fwb()}} for performing the fractional weighted bootstrap on an arbitrary quantity; \code{\link[=fwb.ci]{fwb.ci()}} for computing nonparametric confidence intervals for \code{fwb} objects; \code{\link[=summary.fwb]{summary.fwb()}} for producing standard errors and confidence intervals for \code{fwb} objects; \pkgfun{sandwich}{vcovBS} for computing covariance matrices using the traditional bootstrap
 }

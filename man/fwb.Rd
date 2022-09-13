@@ -64,7 +64,7 @@ The cluster bootstrap can be requested by supplying a vector of cluster membersh
 
 Ideally, \code{statistic} should not involve a random element, or else it will not be straightforward to replicate the bootstrap results using the \code{seed} included in the output object. Setting a seed using \code{\link[=set.seed]{set.seed()}} is always advised.
 
-The \code{print()} method displays the value of the statistics, the bias (the difference between the statistic and the mean of its bootstrap distribution), and the standard error (the standard deviation fo the bootstrap distribution).
+The \code{print()} method displays the value of the statistics, the bias (the difference between the statistic and the mean of its bootstrap distribution), and the standard error (the standard deviation of the bootstrap distribution).
 }
 \section{Methods (by generic)}{
 \itemize{
