@@ -72,7 +72,7 @@
 </h1></div>
 <!-- badges: start -->
 <p><code>fwb</code> implements the fractional weighted bootstrap (FWB), also known as the Bayesian bootstrap, following the treatment by Xu et al. (2020). The FWB involves generating sets of weights from a uniform Dirichlet distribution to be used in estimating statistics of interest, which yields a posterior distribution that can be interpreted in the same way the traditional (resampling-based) bootstrap distribution can be. The primary function is <code><a href="reference/fwb.html">fwb()</a></code>, which is essentially a drop-in for <code><a href="https://rdrr.io/pkg/boot/man/boot.html" class="external-link">boot::boot()</a></code> in that it takes in a dataset and a function and applies that function to the dataset and a randomly generated set of case weights. Also included are <code><a href="reference/fwb.ci.html">fwb.ci()</a></code>, a drop-in for <code><a href="https://rdrr.io/pkg/boot/man/boot.ci.html" class="external-link">boot::boot.ci()</a></code> for computing various kinds of confidence intervals (e.g., percentile, normal, bias-corrected percentile, etc.), and <code><a href="reference/vcovFWB.html">vcovFWB()</a></code>, a drop-in for <code><a href="https://sandwich.R-Forge.R-project.org/reference/vcovBS.html" class="external-link">sandwich::vcovBS()</a></code> for computing a coefficient covariance matrix from a regression model using the FWB.</p>
-<p>Check out the <code>fwb</code> <a href="https://ngreifer.github.io/fwb">website</a>!</p>
+<p>Check out the <code>fwb</code> <a href="https://ngreifer.github.io/fwb/">website</a>!</p>
 <div class="section level2">
 <h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
 </h2>
@@ -150,17 +150,17 @@
 <span><span class="co"># The fractional weighted bootstrap succeeds</span></span>
 <span><span class="fu"><a href="https://rdrr.io/pkg/lmtest/man/coeftest.html" class="external-link">coeftest</a></span><span class="op">(</span><span class="va">fit</span>, vcov <span class="op">=</span> <span class="va">vcovFWB</span><span class="op">)</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">3</span>,<span class="op">]</span></span>
 <span><span class="co">#&gt;              Estimate Std. Error   z value     Pr(&gt;|z|)</span></span>
-<span><span class="co">#&gt; (Intercept) -6.904101  1.8276925 -3.777496 1.584130e-04</span></span>
-<span><span class="co">#&gt; spontaneous  3.230286  0.7277096  4.438976 9.038774e-06</span></span>
-<span><span class="co">#&gt; induced      2.190303  0.6857453  3.194047 1.402932e-03</span></span></code></pre></div>
+<span><span class="co">#&gt; (Intercept) -6.904101  1.8282103 -3.776426 1.590946e-04</span></span>
+<span><span class="co">#&gt; spontaneous  3.230286  0.7282145  4.435899 9.168901e-06</span></span>
+<span><span class="co">#&gt; induced      2.190303  0.6856374  3.194549 1.400493e-03</span></span></code></pre></div>
 <p>We can also perform cluster-robust inference by bootstrapping the strata. (Note in this case the traditional bootstrap does fine, but the FWB is still more accurate.)</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Including stratum membership as a clustering variable</span></span>
 <span><span class="fu"><a href="https://rdrr.io/pkg/lmtest/man/coeftest.html" class="external-link">coeftest</a></span><span class="op">(</span><span class="va">fit</span>, vcov <span class="op">=</span> <span class="va">vcovFWB</span>, cluster <span class="op">=</span> <span class="op">~</span><span class="va">stratum</span><span class="op">)</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">3</span>,<span class="op">]</span></span>
 <span><span class="co">#&gt;              Estimate Std. Error   z value     Pr(&gt;|z|)</span></span>
-<span><span class="co">#&gt; (Intercept) -6.904101  1.6495855 -4.185355 2.847204e-05</span></span>
-<span><span class="co">#&gt; spontaneous  3.230286  0.7628024  4.234761 2.287951e-05</span></span>
-<span><span class="co">#&gt; induced      2.190303  0.6682861  3.277493 1.047335e-03</span></span></code></pre></div>
+<span><span class="co">#&gt; (Intercept) -6.904101  1.5157744 -4.554834 5.242687e-06</span></span>
+<span><span class="co">#&gt; spontaneous  3.230286  0.6993316  4.619105 3.853991e-06</span></span>
+<span><span class="co">#&gt; induced      2.190303  0.6204237  3.530334 4.150356e-04</span></span></code></pre></div>
 <p>Let’s look more in-depth at the results of the traditional and fractional weighted bootstrap by comparing the output of <code><a href="reference/fwb.html">fwb()</a></code> and <code><a href="https://rdrr.io/pkg/boot/man/boot.html" class="external-link">boot::boot()</a></code>.</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">fit_fun</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">data</span>, <span class="va">w</span><span class="op">)</span> <span class="op">{</span></span>
@@ -181,9 +181,9 @@
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Bootstrap Statistics :</span></span>
 <span><span class="co">#&gt;      original        bias     std. error</span></span>
-<span><span class="co">#&gt; t1* -6.904101 -2.385907e+19 5.368296e+20</span></span>
-<span><span class="co">#&gt; t2*  3.230286  4.072669e+13 2.952474e+14</span></span>
-<span><span class="co">#&gt; t3*  2.190303  2.730053e+13 2.009225e+14</span></span>
+<span><span class="co">#&gt; t1* -6.904101 -2.848293e+21 9.002587e+22</span></span>
+<span><span class="co">#&gt; t2*  3.230286  4.232722e+13 3.240252e+14</span></span>
+<span><span class="co">#&gt; t3*  2.190303  2.707355e+13 2.076940e+14</span></span>
 <span></span>
 <span><span class="va">fwb_est</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/fwb.html">fwb</a></span><span class="op">(</span><span class="va">infert</span>, <span class="va">fit_fun</span>, R <span class="op">=</span> <span class="fl">999</span>, verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
 <span><span class="va">fwb_est</span></span>
@@ -194,9 +194,9 @@
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Bootstrap Statistics :</span></span>
 <span><span class="co">#&gt;      original       bias std. error</span></span>
-<span><span class="co">#&gt; t1* -6.904101 -1.6181838  1.8461133</span></span>
-<span><span class="co">#&gt; t2*  3.230286  0.6611793  0.7424671</span></span>
-<span><span class="co">#&gt; t3*  2.190303  0.5056567  0.6588132</span></span></code></pre></div>
+<span><span class="co">#&gt; t1* -6.904101 -1.5663837  1.8587672</span></span>
+<span><span class="co">#&gt; t2*  3.230286  0.6722459  0.7356135</span></span>
+<span><span class="co">#&gt; t3*  2.190303  0.5044327  0.6825087</span></span></code></pre></div>
 <p>Already the bias and standard errors indicate problems with the traditional bootstrap. Let’s plot histograms of the estimates to see where the failure is:</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">boot_est</span>, index <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span></code></pre></div>
