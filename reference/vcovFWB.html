@@ -120,7 +120,7 @@
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
-    <div class="dont-index"><p><code><a href="fwb.html">fwb()</a></code> for performing the fractional weighted bootstrap on an arbitrary quantity; <code><a href="fwb.ci.html">fwb.ci()</a></code> for cmputing nonparametric confidence intervals for <code>fwb</code> objects; <code><a href="summary.fwb.html">summary.fwb()</a></code> for producing standard errors and confidence intervals for <code>fwb</code> objects; <code><a href="https://sandwich.R-Forge.R-project.org/reference/vcovBS.html" class="external-link">sandwich::vcovBS()</a></code> for computing covariance matrices using the traditional bootstrap</p></div>
+    <div class="dont-index"><p><code><a href="fwb.html">fwb()</a></code> for performing the fractional weighted bootstrap on an arbitrary quantity; <code><a href="fwb.ci.html">fwb.ci()</a></code> for computing nonparametric confidence intervals for <code>fwb</code> objects; <code><a href="summary.fwb.html">summary.fwb()</a></code> for producing standard errors and confidence intervals for <code>fwb</code> objects; <code><a href="https://sandwich.R-Forge.R-project.org/reference/vcovBS.html" class="external-link">sandwich::vcovBS()</a></code> for computing covariance matrices using the traditional bootstrap</p></div>
     </div>
 
     <div class="section level2">
@@ -133,9 +133,9 @@
 <span class="r-out co"><span class="r-pr">#&gt;</span> z test of coefficients:</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>             Estimate Std. Error z value  Pr(&gt;|z|)    </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> (Intercept) -1.70786    0.24465 -6.9808 2.935e-12 ***</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> spontaneous  1.19721    0.21821  5.4864 4.101e-08 ***</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> induced      0.41813    0.21158  1.9762   0.04813 *  </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> (Intercept) -1.70786    0.25570 -6.6791 2.405e-11 ***</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> spontaneous  1.19721    0.20097  5.9571 2.567e-09 ***</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> induced      0.41813    0.19783  2.1136   0.03455 *  </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> ---</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
@@ -152,8 +152,8 @@
 <span class="r-in"><span>  <span class="st">"FWB-cluster"</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">sqrt</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/diag.html" class="external-link">diag</a></span><span class="op">(</span><span class="fu">vcovFWB</span><span class="op">(</span><span class="va">m</span>, cluster <span class="op">=</span> <span class="op">~</span><span class="va">firm</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>                     BS        FWB BS-cluster FWB-cluster</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> (Intercept) 0.02746802 0.02858556 0.06772218  0.06818651</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> x           0.03051199 0.02820531 0.04671535  0.04812276</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> (Intercept) 0.02816487 0.02892635 0.06492170  0.06635723</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> x           0.02766769 0.02769456 0.04865597  0.05014865</span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc"><h2>On this page</h2>
