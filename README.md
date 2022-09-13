@@ -9,7 +9,7 @@
 status](https://www.r-pkg.org/badges/version/fwb)](https://CRAN.R-project.org/package=fwb)
 <!-- badges: end -->
 
-`fwb` implements the fractional weighted bootstrap (FWB) , also known as
+`fwb` implements the fractional weighted bootstrap (FWB), also known as
 the Bayesian bootstrap, following the treatment by Xu et al. (2020). The
 FWB involves generating sets of weights from a uniform Dirichlet
 distribution to be used in estimating statistics of interest, which
@@ -44,7 +44,7 @@ Below are some examples of how to use `fwb`.
 library("fwb")
 ```
 
-### Bearing cage field failure Weibull analysis from Xu et al. (2000)
+### Bearing cage field failure Weibull analysis from Xu et al. (2020)
 
 This example involves performing a Weibull analysis to estimate the
 $\beta$ (shape) parameter of the Weibull distribution characterizing the
@@ -224,7 +224,7 @@ it. Still, though, the FWB deserves a place in an analyst’s toolbox.
 ## Related packages
 
 -   `boot`, which provides the traditional bootstrap, including an
-    interface that accepted frequency weights to compute weighted
+    interface that accepts frequency weights to compute weighted
     statistics, as was used above
 -   `bayesboot`, which also provides functionality for the Bayesian
     bootstrap but does so in a more explicitly Bayesian fashion and with
