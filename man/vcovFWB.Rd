@@ -7,7 +7,7 @@
 vcovFWB(
   x,
   cluster = NULL,
-  R = 999,
+  R = 1000,
   start = FALSE,
   ...,
   fix = FALSE,
@@ -57,7 +57,7 @@ See \pkgfun{sandwich}{vcovBS} and \pkgfun{sandwich}{vcovCL} for more information
 data("infert")
 fit <- glm(case ~ spontaneous + induced, data = infert,
              family = "binomial")
-lmtest::coeftest(fit, vcov. = vcovFWB)
+lmtest::coeftest(fit, vcov. = vcovFWB, R = 200)
 \dontshow{\}) # examplesIf}
 \dontshow{if (requireNamespace("sandwich", quietly = TRUE)) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
 # Example from help("vcovBS", package = "sandwich")
@@ -69,8 +69,8 @@ m <- lm(y ~ x, data = PetersenCL)
 cbind(
   "BS" = sqrt(diag(sandwich::vcovBS(m))),
   "FWB" = sqrt(diag(vcovFWB(m))),
-  "BS-cluster" = sqrt(diag(sandwich::vcovBS(m, cluster = ~ firm))),
-  "FWB-cluster" = sqrt(diag(vcovFWB(m, cluster = ~ firm)))
+  "BS-cluster" = sqrt(diag(sandwich::vcovBS(m, cluster = ~firm))),
+  "FWB-cluster" = sqrt(diag(vcovFWB(m, cluster = ~firm)))
 )
 \dontshow{\}) # examplesIf}
 }

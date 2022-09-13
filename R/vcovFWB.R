@@ -27,7 +27,7 @@
 #' data("infert")
 #' fit <- glm(case ~ spontaneous + induced, data = infert,
 #'              family = "binomial")
-#' lmtest::coeftest(fit, vcov. = vcovFWB)
+#' lmtest::coeftest(fit, vcov. = vcovFWB, R = 200)
 #'
 #' @examplesIf requireNamespace("sandwich", quietly = TRUE)
 #' # Example from help("vcovBS", package = "sandwich")
@@ -39,11 +39,11 @@
 #' cbind(
 #'   "BS" = sqrt(diag(sandwich::vcovBS(m))),
 #'   "FWB" = sqrt(diag(vcovFWB(m))),
-#'   "BS-cluster" = sqrt(diag(sandwich::vcovBS(m, cluster = ~ firm))),
-#'   "FWB-cluster" = sqrt(diag(vcovFWB(m, cluster = ~ firm)))
+#'   "BS-cluster" = sqrt(diag(sandwich::vcovBS(m, cluster = ~firm))),
+#'   "FWB-cluster" = sqrt(diag(vcovFWB(m, cluster = ~firm)))
 #' )
 #'
-vcovFWB <- function(x, cluster = NULL, R = 999, start = FALSE, ..., fix = FALSE, use = "pairwise.complete.obs",
+vcovFWB <- function(x, cluster = NULL, R = 1000, start = FALSE, ..., fix = FALSE, use = "pairwise.complete.obs",
                     verbose = FALSE, cl = NULL) {
 
   #Check arguments

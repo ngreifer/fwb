@@ -48,7 +48,7 @@ There will be additional components named after each confidence interval type re
 \details{
 \code{fwb.ci()} functions similarly to \pkgfun{boot}{boot.ci} in that it takes in a bootstrapped object and computes confidence intervals. This interface is a bit old-fashioned, but was designed to mimic that of \code{boot.ci()}. For a more modern interface, see \code{\link[=summary.fwb]{summary.fwb()}}.
 
-The bootstrap intervals are defined as follows, with \eqn{\alpha =} 1 - \code{conf}, \eqn{t_0} the estimate in the original sample, \eqn{\hat{t}} the average of the bootstrap estimates, \eqn{s_t} the standard deviation of the bootstrap estimates, \eqn{\t^{(i)}} the set of ordered estimates with \eqn{i} corresponding to their quantile, and \eqn{z_\frac{\alpha}{2}} and \eqn{z_{1-\frac{\alpha}{2}}} the upper and lower critical \eqn{z} scores.
+The bootstrap intervals are defined as follows, with \eqn{\alpha =} 1 - \code{conf}, \eqn{t_0} the estimate in the original sample, \eqn{\hat{t}} the average of the bootstrap estimates, \eqn{s_t} the standard deviation of the bootstrap estimates, \eqn{t^{(i)}} the set of ordered estimates with \eqn{i} corresponding to their quantile, and \eqn{z_\frac{\alpha}{2}} and \eqn{z_{1-\frac{\alpha}{2}}} the upper and lower critical \eqn{z} scores.
 \itemize{
 \item \code{"norm"} (normal approximation): \eqn{[2t_0 - \hat{t} + s_t z_\frac{\alpha}{2}, 2t_0 - \hat{t} + s_t z_{1-\frac{\alpha}{2}}]}
 }
@@ -101,5 +101,5 @@ fwb.ci(fwb_out, index = "induced", type = "norm",
 
 }
 \seealso{
-\code{\link[=fwb]{fwb()}} for performing the fractional weighted bootstrap; \code{\link[=summary.fwb]{summary.fwb()}} for producing clean output from \code{fwb()} that includes confidence intervals calculated by \code{fwb.ci()}; \pkgfun{boot}{boot.ci} for computing confidence intervals from the traditional bootstrap; \code{\link[=vcovFWB]{vcovFWB()}} for computing parameter estimate covariance matrices using the fractional weighted bootstrap
+\code{\link[=fwb]{fwb()}} for performing the fractional weighted bootstrap; \code{\link[=get_ci]{get_ci()}} for extracting confidence intervals from an \code{fwbci} object; \code{\link[=summary.fwb]{summary.fwb()}} for producing clean output from \code{fwb()} that includes confidence intervals calculated by \code{fwb.ci()}; \pkgfun{boot}{boot.ci} for computing confidence intervals from the traditional bootstrap; \code{\link[=vcovFWB]{vcovFWB()}} for computing parameter estimate covariance matrices using the fractional weighted bootstrap
 }

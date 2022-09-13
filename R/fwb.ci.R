@@ -20,7 +20,7 @@
 #'
 #' @details `fwb.ci()` functions similarly to \pkgfun{boot}{boot.ci} in that it takes in a bootstrapped object and computes confidence intervals. This interface is a bit old-fashioned, but was designed to mimic that of `boot.ci()`. For a more modern interface, see [summary.fwb()].
 #'
-#' The bootstrap intervals are defined as follows, with \eqn{\alpha =} 1 - `conf`, \eqn{t_0} the estimate in the original sample, \eqn{\hat{t}} the average of the bootstrap estimates, \eqn{s_t} the standard deviation of the bootstrap estimates, \eqn{\t^{(i)}} the set of ordered estimates with \eqn{i} corresponding to their quantile, and \eqn{z_\frac{\alpha}{2}} and \eqn{z_{1-\frac{\alpha}{2}}} the upper and lower critical \eqn{z} scores.
+#' The bootstrap intervals are defined as follows, with \eqn{\alpha =} 1 - `conf`, \eqn{t_0} the estimate in the original sample, \eqn{\hat{t}} the average of the bootstrap estimates, \eqn{s_t} the standard deviation of the bootstrap estimates, \eqn{t^{(i)}} the set of ordered estimates with \eqn{i} corresponding to their quantile, and \eqn{z_\frac{\alpha}{2}} and \eqn{z_{1-\frac{\alpha}{2}}} the upper and lower critical \eqn{z} scores.
 #'
 #' * `"norm"` (normal approximation): \eqn{[2t_0 - \hat{t} + s_t z_\frac{\alpha}{2}, 2t_0 - \hat{t} + s_t z_{1-\frac{\alpha}{2}}]}
 #'
@@ -40,7 +40,7 @@
 #'
 #' Interpolation on the normal quantile scale is used when a non-integer order statistic is required, as in `boot::boot.ci()`. Note that unlike with `boot::boot.ci()`, studentized confidence intervals (`type = "stud"`) are not allowed.
 #'
-#' @seealso [fwb()] for performing the fractional weighted bootstrap; [summary.fwb()] for producing clean output from `fwb()` that includes confidence intervals calculated by `fwb.ci()`; \pkgfun{boot}{boot.ci} for computing confidence intervals from the traditional bootstrap; [vcovFWB()] for computing parameter estimate covariance matrices using the fractional weighted bootstrap
+#' @seealso [fwb()] for performing the fractional weighted bootstrap; [get_ci()] for extracting confidence intervals from an `fwbci` object; [summary.fwb()] for producing clean output from `fwb()` that includes confidence intervals calculated by `fwb.ci()`; \pkgfun{boot}{boot.ci} for computing confidence intervals from the traditional bootstrap; [vcovFWB()] for computing parameter estimate covariance matrices using the fractional weighted bootstrap
 #'
 #' @export
 #'
@@ -258,7 +258,7 @@ print.fwbci <- function (x, hinv = NULL, ...) {
 
 #' @title Extract Confidence Intervals from a `bootci` Object
 #' @description `get_ci()` extracts the confidence intervals from the output of a call to \pkgfun{boot}{boot.ci} or [fwb.ci()] in a clean way. Normally the confidence intervals can be a bit challenging to extract because of the unusual structure of the object.
-#' @param x an `bootci` object; the output fo a call to `boot::boot.ci()` or `fwb.ci()`.
+#' @param x an `bootci` object; the output of a call to `boot::boot.ci()` or `fwb.ci()`.
 #' @param type the type of confidence intervals to extract. Only those available in `x` are allowed. Should be a given as a subset of the types passed to `type` in `boot.ci()` or `fwb.ci()`. The default, `"all"`, extracts all confidence intervals in `x`.
 #' @return A list with an entry for each confidence interval type; each entry is a numeric vector of length 2 with names `"L"` and `"U"` for the lower and upper interval bounds, respectively. The `"conf"` attribute contains the confidence level.
 #' @examples

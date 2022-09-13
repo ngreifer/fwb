@@ -7,7 +7,7 @@
 get_ci(x, type = "all")
 }
 \arguments{
-\item{x}{an \code{bootci} object; the output fo a call to \code{boot::boot.ci()} or \code{fwb.ci()}.}
+\item{x}{an \code{bootci} object; the output of a call to \code{boot::boot.ci()} or \code{fwb.ci()}.}
 
 \item{type}{the type of confidence intervals to extract. Only those available in \code{x} are allowed. Should be a given as a subset of the types passed to \code{type} in \code{boot.ci()} or \code{fwb.ci()}. The default, \code{"all"}, extracts all confidence intervals in \code{x}.}
 }
