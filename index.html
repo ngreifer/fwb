@@ -71,7 +71,7 @@
 <code>fwb</code>: Fractional Weighted Bootstrap<a class="anchor" aria-label="anchor" href="#fwb-fractional-weighted-bootstrap"></a>
 </h1></div>
 <!-- badges: start -->
-<p><code>fwb</code> implements the fractional weighted bootstrap (FWB) , also known as the Bayesian bootstrap, following the treatment by Xu et al. (2020). The FWB involves generating sets of weights from a uniform Dirichlet distribution to be used in estimating statistics of interest, which yields a posterior distribution that can be interpreted in the same way the traditional (resampling-based) bootstrap distribution can be. The primary function is <code><a href="reference/fwb.html">fwb()</a></code>, which is essentially a drop-in for <code><a href="https://rdrr.io/pkg/boot/man/boot.html" class="external-link">boot::boot()</a></code> in that it takes in a dataset and a function and applies that function to the dataset and a randomly generated set of case weights. Also included are <code><a href="reference/fwb.ci.html">fwb.ci()</a></code>, a drop-in for <code><a href="https://rdrr.io/pkg/boot/man/boot.ci.html" class="external-link">boot::boot.ci()</a></code> for computing various kinds of confidence intervals (e.g., percentile, normal, bias-corrected percentile, etc.), and <code><a href="reference/vcovFWB.html">vcovFWB()</a></code>, a drop-in for <code><a href="https://sandwich.R-Forge.R-project.org/reference/vcovBS.html" class="external-link">sandwich::vcovBS()</a></code> for computing a coefficient covariance matrix from a regression model using the FWB.</p>
+<p><code>fwb</code> implements the fractional weighted bootstrap (FWB), also known as the Bayesian bootstrap, following the treatment by Xu et al. (2020). The FWB involves generating sets of weights from a uniform Dirichlet distribution to be used in estimating statistics of interest, which yields a posterior distribution that can be interpreted in the same way the traditional (resampling-based) bootstrap distribution can be. The primary function is <code><a href="reference/fwb.html">fwb()</a></code>, which is essentially a drop-in for <code><a href="https://rdrr.io/pkg/boot/man/boot.html" class="external-link">boot::boot()</a></code> in that it takes in a dataset and a function and applies that function to the dataset and a randomly generated set of case weights. Also included are <code><a href="reference/fwb.ci.html">fwb.ci()</a></code>, a drop-in for <code><a href="https://rdrr.io/pkg/boot/man/boot.ci.html" class="external-link">boot::boot.ci()</a></code> for computing various kinds of confidence intervals (e.g., percentile, normal, bias-corrected percentile, etc.), and <code><a href="reference/vcovFWB.html">vcovFWB()</a></code>, a drop-in for <code><a href="https://sandwich.R-Forge.R-project.org/reference/vcovBS.html" class="external-link">sandwich::vcovBS()</a></code> for computing a coefficient covariance matrix from a regression model using the FWB.</p>
 <p>Check out the <code>fwb</code> <a href="https://ngreifer.github.io/fwb">website</a>!</p>
 <div class="section level2">
 <h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
@@ -88,7 +88,7 @@
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="st"><a href="https://github.com/ngreifer/fwb" class="external-link">"fwb"</a></span><span class="op">)</span></span></code></pre></div>
 <div class="section level3">
-<h3 id="bearing-cage-field-failure-weibull-analysis-from-xu-et-al-2000">Bearing cage field failure Weibull analysis from Xu et al. (2000)<a class="anchor" aria-label="anchor" href="#bearing-cage-field-failure-weibull-analysis-from-xu-et-al-2000"></a>
+<h3 id="bearing-cage-field-failure-weibull-analysis-from-xu-et-al-2020">Bearing cage field failure Weibull analysis from Xu et al. (2020)<a class="anchor" aria-label="anchor" href="#bearing-cage-field-failure-weibull-analysis-from-xu-et-al-2020"></a>
 </h3>
 <p>This example involves performing a Weibull analysis to estimate the <span class="math inline"><em>β</em></span> (shape) parameter of the Weibull distribution characterizing the time to failure of a set of aircraft engines. Among the 1703 engines, there were only 6 failures and 1697 right-censored observations. The traditional (resampling-based) bootstrap would fail if a bootstrap replication omitted the 6 failures, but all failures are retained when using the FWB, which makes it particularly effective for this analysis.</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
@@ -217,7 +217,7 @@
 </h2>
 <ul>
 <li>
-<code>boot</code>, which provides the traditional bootstrap, including an interface that accepted frequency weights to compute weighted statistics, as was used above</li>
+<code>boot</code>, which provides the traditional bootstrap, including an interface that accepts frequency weights to compute weighted statistics, as was used above</li>
 <li>
 <code>bayesboot</code>, which also provides functionality for the Bayesian bootstrap but does so in a more explicitly Bayesian fashion and with returned objects that are less consistent with those from <code>boot</code>
 </li>
