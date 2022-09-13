@@ -3,7 +3,7 @@
 #' `fwb()` implements the fractional (random) weighted bootstrap, also known as the Bayesian bootstrap. Rather than resampling units to include in bootstrap samples, weights are drawn to be applied to a weighted estimator.
 #'
 #' @param data the dataset used to compute the statistic
-#' @param statistic a function, which, when applied to `data`, returns a vector containing the statistic(s) of interest. The function should take at least two arguments; the first argument should be `data` to accept the dataset and the second argument should be `w` to accept a vector of weights. Any further arguments can be passed to `statistic` through the `...` argument.
+#' @param statistic a function, which, when applied to `data`, returns a vector containing the statistic(s) of interest. The function should take at least two arguments; the first argument should correspond to the dataset and the second argument should correspond to a vector of weights. Any further arguments can be passed to `statistic` through the `...` argument.
 #' @param R the number of bootstrap replicates. Default is 999 but more is always better. For the percentile bootstrap confidence interval to be exact, it can be beneficial to use one less than a multiple of 100.
 #' @param cluster optional; a vector containing cluster membership. If supplied, will run the cluster bootstrap. See Details. Evaluated first in `data` and then in the global environment.
 #' @param simple `logical`; if `TRUE`, weights will be computed on-the-fly in each bootstrap replication rather than all at once. This can save memory at the cost of some speed.
@@ -75,9 +75,9 @@ fwb <- function(data, statistic, R = 999, cluster = NULL, simple = FALSE, verbos
     chk::err("`statistic` must be specified")
   }
   chk::chk_function(statistic)
-  if (!all(c("data", "w") %in% names(formals(statistic)))) {
-    chk::err("`statistic` must have a `data` argument and a `w` argument")
-  }
+  # if (!all(c("data", "w") %in% names(formals(statistic)))) {
+  #   chk::err("`statistic` must have a `data` argument and a `w` argument")
+  # }
 
   #Check R
   chk::chk_count(R)
@@ -97,7 +97,7 @@ fwb <- function(data, statistic, R = 999, cluster = NULL, simple = FALSE, verbos
   }
 
   #Test fun
-  t0 <- try(statistic(data = data, w = rep(1, n), ...))
+  t0 <- try(statistic(data, rep(1, n), ...))
   if (inherits(t0, "try-error")) {
     chk::err("there was an error running the function supplied to `statistic` on unit-weighted data. Error produced:\n\t",
              conditionMessage(attr(t0, "condition")))
@@ -115,14 +115,14 @@ fwb <- function(data, statistic, R = 999, cluster = NULL, simple = FALSE, verbos
       FUN <- function(i) {
         w <- rexp(n)
         w <- n*w/sum(w)
-        statistic(data = data, w = w, ...)
+        statistic(data, w, ...)
       }
     }
     else {
       w <- matrix(rexp(n * R), nrow = R, ncol = n, byrow = TRUE)
       w <- n*w/rowSums(w)
       FUN <- function(i) {
-        statistic(data = data, w = w[i,], ...)
+        statistic(data, w[i,], ...)
       }
     }
   }
@@ -136,7 +136,7 @@ fwb <- function(data, statistic, R = 999, cluster = NULL, simple = FALSE, verbos
         cluster_w <- rexp(nc)
         cluster_w <- nc * cluster_w / sum(cluster_w)
         w <- cluster_w[cluster_numeric]
-        statistic(data = data, w = w, ...)
+        statistic(data, w, ...)
       }
     }
     else {
@@ -147,7 +147,7 @@ fwb <- function(data, statistic, R = 999, cluster = NULL, simple = FALSE, verbos
         w[k,] <- cluster_w[k, cluster_numeric]
       }
       FUN <- function(i) {
-        statistic(data = data, w = w[i,], ...)
+        statistic(data, w[i,], ...)
       }
     }
   }
@@ -164,11 +164,9 @@ fwb <- function(data, statistic, R = 999, cluster = NULL, simple = FALSE, verbos
               data = data,
               seed = seed,
               statistic = statistic,
-              # sim = "ordinary",
               call = bcall,
               cluster = cluster)
 
-  # attr(out, "boot_type") <- "boot"
   class(out) <- c("fwb", "boot")
 
   out

@@ -21,7 +21,7 @@ fwb(
 \arguments{
 \item{data}{the dataset used to compute the statistic}
 
-\item{statistic}{a function, which, when applied to \code{data}, returns a vector containing the statistic(s) of interest. The function should take at least two arguments; the first argument should be \code{data} to accept the dataset and the second argument should be \code{w} to accept a vector of weights. Any further arguments can be passed to \code{statistic} through the \code{...} argument.}
+\item{statistic}{a function, which, when applied to \code{data}, returns a vector containing the statistic(s) of interest. The function should take at least two arguments; the first argument should correspond to the dataset and the second argument should correspond to a vector of weights. Any further arguments can be passed to \code{statistic} through the \code{...} argument.}
 
 \item{R}{the number of bootstrap replicates. Default is 999 but more is always better. For the percentile bootstrap confidence interval to be exact, it can be beneficial to use one less than a multiple of 100.}
 
