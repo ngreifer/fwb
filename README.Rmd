@@ -22,7 +22,7 @@ set.seed(123456)
 
 `fwb` implements the fractional weighted bootstrap (FWB), also known as the Bayesian bootstrap, following the treatment by Xu et al. (2020). The FWB involves generating sets of weights from a uniform Dirichlet distribution to be used in estimating statistics of interest, which yields a posterior distribution that can be interpreted in the same way the traditional (resampling-based) bootstrap distribution can be. The primary function is `fwb()`, which is essentially a drop-in for `boot::boot()` in that it takes in a dataset and a function and applies that function to the dataset and a randomly generated set of case weights. Also included are `fwb.ci()`, a drop-in for `boot::boot.ci()` for computing various kinds of confidence intervals (e.g., percentile, normal, bias-corrected percentile, etc.), and `vcovFWB()`, a drop-in for `sandwich::vcovBS()` for computing a coefficient covariance matrix from a regression model using the FWB.
 
-Check out the `fwb` [website](https://ngreifer.github.io/fwb)!
+Check out the `fwb` [website](https://ngreifer.github.io/fwb/)!
 
 ## Installation
 

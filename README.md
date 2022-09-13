@@ -24,7 +24,7 @@ normal, bias-corrected percentile, etc.), and `vcovFWB()`, a drop-in for
 `sandwich::vcovBS()` for computing a coefficient covariance matrix from
 a regression model using the FWB.
 
-Check out the `fwb` [website](https://ngreifer.github.io/fwb)!
+Check out the `fwb` [website](https://ngreifer.github.io/fwb/)!
 
 ## Installation
 
@@ -125,9 +125,9 @@ coeftest(fit, vcov = sandwich::vcovBS)[1:3,]
 # The fractional weighted bootstrap succeeds
 coeftest(fit, vcov = vcovFWB)[1:3,]
 #>              Estimate Std. Error   z value     Pr(>|z|)
-#> (Intercept) -6.904101  1.8276925 -3.777496 1.584130e-04
-#> spontaneous  3.230286  0.7277096  4.438976 9.038774e-06
-#> induced      2.190303  0.6857453  3.194047 1.402932e-03
+#> (Intercept) -6.904101  1.8282103 -3.776426 1.590946e-04
+#> spontaneous  3.230286  0.7282145  4.435899 9.168901e-06
+#> induced      2.190303  0.6856374  3.194549 1.400493e-03
 ```
 
 We can also perform cluster-robust inference by bootstrapping the
@@ -138,9 +138,9 @@ FWB is still more accurate.)
 # Including stratum membership as a clustering variable
 coeftest(fit, vcov = vcovFWB, cluster = ~stratum)[1:3,]
 #>              Estimate Std. Error   z value     Pr(>|z|)
-#> (Intercept) -6.904101  1.6495855 -4.185355 2.847204e-05
-#> spontaneous  3.230286  0.7628024  4.234761 2.287951e-05
-#> induced      2.190303  0.6682861  3.277493 1.047335e-03
+#> (Intercept) -6.904101  1.5157744 -4.554834 5.242687e-06
+#> spontaneous  3.230286  0.6993316  4.619105 3.853991e-06
+#> induced      2.190303  0.6204237  3.530334 4.150356e-04
 ```
 
 Let’s look more in-depth at the results of the traditional and
@@ -166,9 +166,9 @@ boot_est
 #> 
 #> Bootstrap Statistics :
 #>      original        bias     std. error
-#> t1* -6.904101 -2.385907e+19 5.368296e+20
-#> t2*  3.230286  4.072669e+13 2.952474e+14
-#> t3*  2.190303  2.730053e+13 2.009225e+14
+#> t1* -6.904101 -2.848293e+21 9.002587e+22
+#> t2*  3.230286  4.232722e+13 3.240252e+14
+#> t3*  2.190303  2.707355e+13 2.076940e+14
 
 fwb_est <- fwb(infert, fit_fun, R = 999, verbose = FALSE)
 fwb_est
@@ -179,9 +179,9 @@ fwb_est
 #> 
 #> Bootstrap Statistics :
 #>      original       bias std. error
-#> t1* -6.904101 -1.6181838  1.8461133
-#> t2*  3.230286  0.6611793  0.7424671
-#> t3*  2.190303  0.5056567  0.6588132
+#> t1* -6.904101 -1.5663837  1.8587672
+#> t2*  3.230286  0.6722459  0.7356135
+#> t3*  2.190303  0.5044327  0.6825087
 ```
 
 Already the bias and standard errors indicate problems with the
