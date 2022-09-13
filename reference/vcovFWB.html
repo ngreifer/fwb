@@ -54,7 +54,7 @@
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">vcovFWB</span><span class="op">(</span></span>
 <span>  <span class="va">x</span>,</span>
 <span>  cluster <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  R <span class="op">=</span> <span class="fl">999</span>,</span>
+<span>  R <span class="op">=</span> <span class="fl">1000</span>,</span>
 <span>  start <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  <span class="va">...</span>,</span>
 <span>  fix <span class="op">=</span> <span class="cn">FALSE</span>,</span>
@@ -128,14 +128,14 @@
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"infert"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/glm.html" class="external-link">glm</a></span><span class="op">(</span><span class="va">case</span> <span class="op">~</span> <span class="va">spontaneous</span> <span class="op">+</span> <span class="va">induced</span>, data <span class="op">=</span> <span class="va">infert</span>,</span></span>
 <span class="r-in"><span>             family <span class="op">=</span> <span class="st">"binomial"</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="fu">lmtest</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/lmtest/man/coeftest.html" class="external-link">coeftest</a></span><span class="op">(</span><span class="va">fit</span>, vcov. <span class="op">=</span> <span class="va">vcovFWB</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu">lmtest</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/lmtest/man/coeftest.html" class="external-link">coeftest</a></span><span class="op">(</span><span class="va">fit</span>, vcov. <span class="op">=</span> <span class="va">vcovFWB</span>, R <span class="op">=</span> <span class="fl">200</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> z test of coefficients:</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>             Estimate Std. Error z value  Pr(&gt;|z|)    </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> (Intercept) -1.70786    0.24926 -6.8517 7.298e-12 ***</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> spontaneous  1.19721    0.20056  5.9694 2.382e-09 ***</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> induced      0.41813    0.19965  2.0943   0.03623 *  </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> (Intercept) -1.70786    0.24465 -6.9808 2.935e-12 ***</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> spontaneous  1.19721    0.21821  5.4864 4.101e-08 ***</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> induced      0.41813    0.21158  1.9762   0.04813 *  </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> ---</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
@@ -148,12 +148,12 @@
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">cbind</a></span><span class="op">(</span></span></span>
 <span class="r-in"><span>  <span class="st">"BS"</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">sqrt</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/diag.html" class="external-link">diag</a></span><span class="op">(</span><span class="fu">sandwich</span><span class="fu">::</span><span class="fu"><a href="https://sandwich.R-Forge.R-project.org/reference/vcovBS.html" class="external-link">vcovBS</a></span><span class="op">(</span><span class="va">m</span><span class="op">)</span><span class="op">)</span><span class="op">)</span>,</span></span>
 <span class="r-in"><span>  <span class="st">"FWB"</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">sqrt</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/diag.html" class="external-link">diag</a></span><span class="op">(</span><span class="fu">vcovFWB</span><span class="op">(</span><span class="va">m</span><span class="op">)</span><span class="op">)</span><span class="op">)</span>,</span></span>
-<span class="r-in"><span>  <span class="st">"BS-cluster"</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">sqrt</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/diag.html" class="external-link">diag</a></span><span class="op">(</span><span class="fu">sandwich</span><span class="fu">::</span><span class="fu"><a href="https://sandwich.R-Forge.R-project.org/reference/vcovBS.html" class="external-link">vcovBS</a></span><span class="op">(</span><span class="va">m</span>, cluster <span class="op">=</span> <span class="op">~</span> <span class="va">firm</span><span class="op">)</span><span class="op">)</span><span class="op">)</span>,</span></span>
-<span class="r-in"><span>  <span class="st">"FWB-cluster"</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">sqrt</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/diag.html" class="external-link">diag</a></span><span class="op">(</span><span class="fu">vcovFWB</span><span class="op">(</span><span class="va">m</span>, cluster <span class="op">=</span> <span class="op">~</span> <span class="va">firm</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  <span class="st">"BS-cluster"</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">sqrt</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/diag.html" class="external-link">diag</a></span><span class="op">(</span><span class="fu">sandwich</span><span class="fu">::</span><span class="fu"><a href="https://sandwich.R-Forge.R-project.org/reference/vcovBS.html" class="external-link">vcovBS</a></span><span class="op">(</span><span class="va">m</span>, cluster <span class="op">=</span> <span class="op">~</span><span class="va">firm</span><span class="op">)</span><span class="op">)</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>  <span class="st">"FWB-cluster"</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">sqrt</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/diag.html" class="external-link">diag</a></span><span class="op">(</span><span class="fu">vcovFWB</span><span class="op">(</span><span class="va">m</span>, cluster <span class="op">=</span> <span class="op">~</span><span class="va">firm</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>                     BS        FWB BS-cluster FWB-cluster</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> (Intercept) 0.02767103 0.02815661 0.06815248  0.06479178</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> x           0.02966421 0.02840269 0.04692202  0.04809324</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> (Intercept) 0.02746802 0.02858556 0.06772218  0.06818651</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> x           0.03051199 0.02820531 0.04671535  0.04812276</span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc"><h2>On this page</h2>

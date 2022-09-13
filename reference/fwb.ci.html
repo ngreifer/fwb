@@ -119,7 +119,7 @@
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
     <p><code>fwb.ci()</code> functions similarly to <code><a href="https://rdrr.io/pkg/boot/man/boot.ci.html" class="external-link">boot::boot.ci()</a></code> in that it takes in a bootstrapped object and computes confidence intervals. This interface is a bit old-fashioned, but was designed to mimic that of <code>boot.ci()</code>. For a more modern interface, see <code><a href="summary.fwb.html">summary.fwb()</a></code>.</p>
-<p>The bootstrap intervals are defined as follows, with \(\alpha =\) 1 - <code>conf</code>, \(t_0\) the estimate in the original sample, \(\hat{t}\) the average of the bootstrap estimates, \(s_t\) the standard deviation of the bootstrap estimates, \(\t^{(i)}\) the set of ordered estimates with \(i\) corresponding to their quantile, and \(z_\frac{\alpha}{2}\) and \(z_{1-\frac{\alpha}{2}}\) the upper and lower critical \(z\) scores.</p><ul><li><p><code>"norm"</code> (normal approximation): \([2t_0 - \hat{t} + s_t z_\frac{\alpha}{2}, 2t_0 - \hat{t} + s_t z_{1-\frac{\alpha}{2}}]\)</p></li>
+<p>The bootstrap intervals are defined as follows, with \(\alpha =\) 1 - <code>conf</code>, \(t_0\) the estimate in the original sample, \(\hat{t}\) the average of the bootstrap estimates, \(s_t\) the standard deviation of the bootstrap estimates, \(t^{(i)}\) the set of ordered estimates with \(i\) corresponding to their quantile, and \(z_\frac{\alpha}{2}\) and \(z_{1-\frac{\alpha}{2}}\) the upper and lower critical \(z\) scores.</p><ul><li><p><code>"norm"</code> (normal approximation): \([2t_0 - \hat{t} + s_t z_\frac{\alpha}{2}, 2t_0 - \hat{t} + s_t z_{1-\frac{\alpha}{2}}]\)</p></li>
 </ul><p>This involves subtracting the "bias" (\(\hat{t} - t_0\)) from the estimate \(t_0\) and using a standard Wald-type confidence interval. This method is valid when the statistic is normally distributed.</p><ul><li><p><code>"basic"</code>: \([2t_0 - t^{(1-\frac{\alpha}{2})}, 2t_0 - t^{(\frac{\alpha}{2})}]\)</p></li>
 <li><p><code>"perc"</code> (percentile confidence interval): \([t^{(\frac{\alpha}{2})}, t^{(1-\frac{\alpha}{2})}]\)</p></li>
 <li><p><code>"bc"</code> (bias-corrected percentile confidence interval): \([t^{(l)}, t^{(u)}]\)</p></li>
@@ -134,7 +134,7 @@
 </ul></div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
-    <div class="dont-index"><p><code><a href="fwb.html">fwb()</a></code> for performing the fractional weighted bootstrap; <code><a href="summary.fwb.html">summary.fwb()</a></code> for producing clean output from <code><a href="fwb.html">fwb()</a></code> that includes confidence intervals calculated by <code>fwb.ci()</code>; <code><a href="https://rdrr.io/pkg/boot/man/boot.ci.html" class="external-link">boot::boot.ci()</a></code> for computing confidence intervals from the traditional bootstrap; <code><a href="vcovFWB.html">vcovFWB()</a></code> for computing parameter estimate covariance matrices using the fractional weighted bootstrap</p></div>
+    <div class="dont-index"><p><code><a href="fwb.html">fwb()</a></code> for performing the fractional weighted bootstrap; <code><a href="get_ci.html">get_ci()</a></code> for extracting confidence intervals from an <code>fwbci</code> object; <code><a href="summary.fwb.html">summary.fwb()</a></code> for producing clean output from <code><a href="fwb.html">fwb()</a></code> that includes confidence intervals calculated by <code>fwb.ci()</code>; <code><a href="https://rdrr.io/pkg/boot/man/boot.ci.html" class="external-link">boot::boot.ci()</a></code> for computing confidence intervals from the traditional bootstrap; <code><a href="vcovFWB.html">vcovFWB()</a></code> for computing parameter estimate covariance matrices using the fractional weighted bootstrap</p></div>
     </div>
 
     <div class="section level2">
@@ -161,7 +161,7 @@
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Intervals : </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Level BC Percentile  </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 95%   ( 0.846,  1.613 )  </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 95%   ( 0.810,  1.598 )  </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Calculations and Intervals on Original Scale</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Some bias-corrected percentile intervals may be unstable</span>
 <span class="r-in"><span></span></span>
@@ -169,8 +169,8 @@
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="fu"><a href="get_ci.html">get_ci</a></span><span class="op">(</span><span class="va">bcci</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $bc</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>        L        U </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 0.846294 1.612914 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>         L         U </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 0.8103235 1.5977092 </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> attr(,"conf")</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.95</span>
@@ -187,7 +187,7 @@
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Intervals : </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Level       Normal   </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 95%   ( 1.026,  2.338 )  </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 95%   ( 1.005,  2.255 )  </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Calculations on Original Scale  but Intervals Transformed</span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
