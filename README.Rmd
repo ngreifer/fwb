@@ -63,8 +63,9 @@ fwb_est <- fwb(bearingcage, statistic = weibull_est,
                 R = 1999, verbose = FALSE)
 fwb_est
 
-# Bias-corrected percentile confidence interval
-summary(fwb_est, ci.type = "bc")
+# Bias-corrected accelerated percentile
+# confidence interval
+summary(fwb_est, ci.type = "bca")
 
 # Plot the bootstrap distribution
 plot(fwb_est, index = "beta", qdist = "chisq")

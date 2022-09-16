@@ -81,11 +81,12 @@ fwb_est
 #> t1* 11792.178173 6528.5275456 21092.241147
 #> t2*     2.035319    0.2540133     0.894168
 
-# Bias-corrected percentile confidence interval
-summary(fwb_est, ci.type = "bc")
+# Bias-corrected accelerated percentile
+# confidence interval
+summary(fwb_est, ci.type = "bca")
 #>      Estimate Std. Error CI 2.5 % CI 97.5 %
 #> eta  1.18e+04   2.11e+04 3.18e+03  7.21e+04
-#> beta 2.04e+00   8.94e-01 1.23e+00  4.58e+00
+#> beta 2.04e+00   8.94e-01 1.23e+00  4.66e+00
 
 # Plot the bootstrap distribution
 plot(fwb_est, index = "beta", qdist = "chisq")
