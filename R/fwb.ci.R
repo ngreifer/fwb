@@ -402,22 +402,26 @@ empinf.reg <- function(boot.out, t) {
 }
 
 boot.array <- function(boot.out) {
-  if (exists(".Random.seed", envir = .GlobalEnv, inherits = FALSE))
-    temp <- get(".Random.seed", envir = .GlobalEnv, inherits = FALSE)
-  else temp <- NULL
-  assign(".Random.seed", boot.out[["seed"]], envir = .GlobalEnv)
+  genv <- globalenv()
+
+  #Return seed to its prior state after generating weights using seed from boot.out
+  old_seed <- genv$.Random.seed
+  on.exit(suspendInterrupts({
+    if (is.null(old_seed)) {
+      rm(".Random.seed", envir = genv, inherits = FALSE)
+    } else {
+      assign(".Random.seed", value = old_seed, envir = genv, inherits = FALSE)
+    }
+  }))
+
+  assign(".Random.seed", value = boot.out[["seed"]], envir = genv)
+
 
   n <- nrow(boot.out[["data"]])
   R <- boot.out[["R"]]
 
-  w <- matrix(rexp(n * R), nrow = R, ncol = n)
-  out <- w/rowMeans(w)
-
-  if (!is.null(temp))
-    assign(".Random.seed", temp, envir = .GlobalEnv)
-  else rm(.Random.seed, pos = 1)
-
-  out
+  w <- matrix(rexp(n * R), nrow = R, ncol = n, byrow = TRUE)
+  return(w/rowMeans(w))
 }
 
 

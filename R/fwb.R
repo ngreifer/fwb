@@ -106,9 +106,9 @@ fwb <- function(data, statistic, R = 999, cluster = NULL, simple = FALSE, verbos
     chk::err("the output of the function supplied to `statistic` must be a numeric vector")
   }
 
-  if (!exists(".Random.seed", envir = .GlobalEnv, inherits = FALSE))
+  if (!exists(".Random.seed", envir = globalenv(), inherits = FALSE))
     runif(1)
-  seed <- get(".Random.seed", envir = .GlobalEnv, inherits = FALSE)
+  seed <- get(".Random.seed", envir = globalenv(), inherits = FALSE)
 
   if (is.null(cluster)) {
     if (simple) {
@@ -140,7 +140,7 @@ fwb <- function(data, statistic, R = 999, cluster = NULL, simple = FALSE, verbos
       }
     }
     else {
-      cluster_w <- matrix(rexp(R * nc), nrow = R, ncol = nc)
+      cluster_w <- matrix(rexp(R * nc), nrow = R, ncol = nc, byrow = TRUE)
       cluster_w <- nc * cluster_w / rowSums(cluster_w)
       w <- matrix(0, nrow = R, ncol = n)
       for (k in seq_len(R)) {
