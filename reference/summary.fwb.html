@@ -117,14 +117,14 @@
 <span class="r-in"><span><span class="co"># Basic confidence interval for both estimates</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">fwb_out</span>, ci.type <span class="op">=</span> <span class="st">"basic"</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>             Estimate Std. Error CI 2.5 % CI 97.5 %</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> (Intercept)  -1.7079     0.2551  -2.2147   -1.1107</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> spontaneous   1.1972     0.1940   0.8066    1.5850</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> induced       0.4181     0.2091  -0.0265    0.7947</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> (Intercept)  -1.7079     0.2322  -2.1459   -1.2612</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> spontaneous   1.1972     0.1816   0.8237    1.4949</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> induced       0.4181     0.2045   0.0159    0.8792</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Just for "induced" coefficient; p-values requested</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">fwb_out</span>, index <span class="op">=</span> <span class="st">"induced"</span>, p.value <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>         Estimate Std. Error CI 2.5 % CI 97.5 % z value Pr(&gt;|z|)  </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> induced   0.4181     0.2091   0.0712    0.9819       2    0.046 *</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> induced   0.4181     0.2045  -0.0807    0.7186    2.04    0.041 *</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> ---</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1</span>
 <span class="r-in"><span></span></span>
