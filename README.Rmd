@@ -26,9 +26,15 @@ Check out the `fwb` [website](https://ngreifer.github.io/fwb/)!
 
 ## Installation
 
+You can install the current stable version of `fwb` from CRAN with:
+
+```{r, eval = FALSE}
+install.packages("fwb")
+```
+
 You can install the development version of `fwb` from [GitHub](https://github.com/) with:
 
-``` r
+```{r, eval = FALSE}
 # install.packages("devtools")
 devtools::install_github("ngreifer/fwb")
 ```

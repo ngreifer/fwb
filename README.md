@@ -28,6 +28,12 @@ Check out the `fwb` [website](https://ngreifer.github.io/fwb/)!
 
 ## Installation
 
+You can install the current stable version of `fwb` from CRAN with:
+
+``` r
+install.packages("fwb")
+```
+
 You can install the development version of `fwb` from
 [GitHub](https://github.com/) with:
 
@@ -92,7 +98,7 @@ summary(fwb_est, ci.type = "bca")
 plot(fwb_est, index = "beta", qdist = "chisq")
 ```
 
-<img src="man/figures/README-unnamed-chunk-3-1.png" width="80%" style="display: block; margin: auto;" />
+<img src="man/figures/README-unnamed-chunk-5-1.png" width="80%" style="display: block; margin: auto;" />
 
 ### Infertility logistic regression analysis using `infert` dataset
 
@@ -193,13 +199,13 @@ where the failure is:
 plot(boot_est, index = 2)
 ```
 
-<img src="man/figures/README-unnamed-chunk-7-1.png" width="80%" style="display: block; margin: auto;" />
+<img src="man/figures/README-unnamed-chunk-9-1.png" width="80%" style="display: block; margin: auto;" />
 
 ``` r
 plot(fwb_est, index = 2)
 ```
 
-<img src="man/figures/README-unnamed-chunk-8-1.png" width="80%" style="display: block; margin: auto;" />
+<img src="man/figures/README-unnamed-chunk-10-1.png" width="80%" style="display: block; margin: auto;" />
 
 It is clear that the estimates from the traditional bootstrap are
 pathological, whereas the estimates from the FWB are more reasonable.
