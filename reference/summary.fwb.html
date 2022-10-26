@@ -10,7 +10,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">fwb</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.1</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -117,14 +117,14 @@
 <span class="r-in"><span><span class="co"># Basic confidence interval for both estimates</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">fwb_out</span>, ci.type <span class="op">=</span> <span class="st">"basic"</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>             Estimate Std. Error CI 2.5 % CI 97.5 %</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> (Intercept)  -1.7079     0.2322  -2.1459   -1.2612</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> spontaneous   1.1972     0.1816   0.8237    1.4949</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> induced       0.4181     0.2045   0.0159    0.8792</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> (Intercept) -1.70786    0.24145 -2.19496  -1.16947</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> spontaneous  1.19721    0.20544  0.72194   1.61673</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> induced      0.41813    0.19916  0.00922   0.73679</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Just for "induced" coefficient; p-values requested</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">fwb_out</span>, index <span class="op">=</span> <span class="st">"induced"</span>, p.value <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>         Estimate Std. Error CI 2.5 % CI 97.5 % z value Pr(&gt;|z|)  </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> induced   0.4181     0.2045  -0.0807    0.7186    2.04    0.041 *</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> induced    0.418      0.199    0.077     0.813     2.1    0.036 *</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> ---</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1</span>
 <span class="r-in"><span></span></span>

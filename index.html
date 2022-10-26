@@ -32,7 +32,7 @@
     
     <a class="navbar-brand me-2" href="index.html">fwb</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.1</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -71,6 +71,7 @@
 <code>fwb</code>: Fractional Weighted Bootstrap<a class="anchor" aria-label="anchor" href="#fwb-fractional-weighted-bootstrap"></a>
 </h1></div>
 <!-- badges: start -->
+
 <p><code>fwb</code> implements the fractional weighted bootstrap (FWB), also known as the Bayesian bootstrap, following the treatment by Xu et al. (2020). The FWB involves generating sets of weights from a uniform Dirichlet distribution to be used in estimating statistics of interest, which yields a posterior distribution that can be interpreted in the same way the traditional (resampling-based) bootstrap distribution can be. The primary function is <code><a href="reference/fwb.html">fwb()</a></code>, which is essentially a drop-in for <code><a href="https://rdrr.io/pkg/boot/man/boot.html" class="external-link">boot::boot()</a></code> in that it takes in a dataset and a function and applies that function to the dataset and a randomly generated set of case weights. Also included are <code><a href="reference/fwb.ci.html">fwb.ci()</a></code>, a drop-in for <code><a href="https://rdrr.io/pkg/boot/man/boot.ci.html" class="external-link">boot::boot.ci()</a></code> for computing various kinds of confidence intervals (e.g., percentile, normal, bias-corrected percentile, etc.), and <code><a href="reference/vcovFWB.html">vcovFWB()</a></code>, a drop-in for <code><a href="https://sandwich.R-Forge.R-project.org/reference/vcovBS.html" class="external-link">sandwich::vcovBS()</a></code> for computing a coefficient covariance matrix from a regression model using the FWB.</p>
 <p>Check out the <code>fwb</code> <a href="https://ngreifer.github.io/fwb/">website</a>!</p>
 <div class="section level2">
@@ -87,9 +88,10 @@
 <div class="section level2">
 <h2 id="examples">Examples<a class="anchor" aria-label="anchor" href="#examples"></a>
 </h2>
-<p>Below are some examples of how to use <code>fwb</code>.</p>
+<p>Below are some examples of how to use <code>fwb</code>. We set a seed to ensure all results are replicable. (Note that when parallel processing is used, a special kind of seed needs to be set; see <code><a href="https://rdrr.io/r/base/Random.html" class="external-link">?set.seed</a></code> for details.)</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="st"><a href="https://github.com/ngreifer/fwb" class="external-link">"fwb"</a></span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="st"><a href="https://github.com/ngreifer/fwb" class="external-link">"fwb"</a></span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">123456</span><span class="op">)</span></span></code></pre></div>
 <div class="section level3">
 <h3 id="bearing-cage-field-failure-weibull-analysis-from-xu-et-al-2020">Bearing cage field failure Weibull analysis from Xu et al. (2020)<a class="anchor" aria-label="anchor" href="#bearing-cage-field-failure-weibull-analysis-from-xu-et-al-2020"></a>
 </h3>
@@ -117,9 +119,9 @@
 <span><span class="co">#&gt; fwb(data = bearingcage, statistic = weibull_est, R = 1999, verbose = FALSE)</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Bootstrap Statistics :</span></span>
-<span><span class="co">#&gt;         original         bias   std. error</span></span>
-<span><span class="co">#&gt; t1* 11792.178173 6528.5275456 21092.241147</span></span>
-<span><span class="co">#&gt; t2*     2.035319    0.2540133     0.894168</span></span>
+<span><span class="co">#&gt;          original         bias   std. error</span></span>
+<span><span class="co">#&gt; eta  11792.178173 6528.5275456 21092.241147</span></span>
+<span><span class="co">#&gt; beta     2.035319    0.2540133     0.894168</span></span>
 <span></span>
 <span><span class="co"># Bias-corrected accelerated percentile</span></span>
 <span><span class="co"># confidence interval</span></span>
@@ -197,10 +199,10 @@
 <span><span class="co">#&gt; fwb(data = infert, statistic = fit_fun, R = 999, verbose = FALSE)</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Bootstrap Statistics :</span></span>
-<span><span class="co">#&gt;      original       bias std. error</span></span>
-<span><span class="co">#&gt; t1* -6.904101 -1.5663837  1.8587672</span></span>
-<span><span class="co">#&gt; t2*  3.230286  0.6722459  0.7356135</span></span>
-<span><span class="co">#&gt; t3*  2.190303  0.5044327  0.6825087</span></span></code></pre></div>
+<span><span class="co">#&gt;              original       bias std. error</span></span>
+<span><span class="co">#&gt; (Intercept) -6.904101 -1.5663837  1.8587672</span></span>
+<span><span class="co">#&gt; spontaneous  3.230286  0.6722459  0.7356135</span></span>
+<span><span class="co">#&gt; induced      2.190303  0.5044327  0.6825087</span></span></code></pre></div>
 <p>Already the bias and standard errors indicate problems with the traditional bootstrap. Let’s plot histograms of the estimates to see where the failure is:</p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">boot_est</span>, index <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span></code></pre></div>
@@ -230,7 +232,9 @@
 <div class="section level2">
 <h2 id="author">Author<a class="anchor" aria-label="anchor" href="#author"></a>
 </h2>
-<ul><li>Noah Greifer (<a href="mailto:noah.greifer@gmail.com" class="email">noah.greifer@gmail.com</a>)</li></ul>
+<ul>
+<li>Noah Greifer (<a href="mailto:noah.greifer@gmail.com" class="email">noah.greifer@gmail.com</a>)</li>
+</ul>
 </div>
 <div class="section level2">
 <h2 id="references">References<a class="anchor" aria-label="anchor" href="#references"></a>
