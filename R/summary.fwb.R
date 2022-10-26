@@ -45,7 +45,7 @@ summary.fwb <- function(object, conf = .95, ci.type = "bc", p.value = FALSE, ind
   chk::chk_string(ci.type)
   chk::chk_flag(p.value)
 
-  index <- check_index(index, colnames(object[["t"]]), several.ok = TRUE)
+  index <- check_index(index, object[["t"]], several.ok = TRUE)
 
   ci.type <- match.arg(ci.type, c("perc", "bc", "norm", "basic", "bca"))
 

@@ -80,10 +80,10 @@ vcovFWB <- function(x, cluster = NULL, R = 1000, start = FALSE, ..., fix = FALSE
     cluster <- cluster[-x$na.action, , drop = FALSE]
   }
 
-  if (nrow(cluster) != n) chk::err("number of observations in 'cluster' and 'nobs()' do not match")
+  if (nrow(cluster) != n) .err("number of observations in 'cluster' and 'nobs()' do not match")
 
   ## catch NAs in cluster -> need to be addressed in the model object by the user
-  if (anyNA(cluster)) chk::err("cannot handle NAs in 'cluster': either refit the model without the NA observations in 'cluster' or impute the NAs")
+  if (anyNA(cluster)) .err("cannot handle NAs in 'cluster': either refit the model without the NA observations in 'cluster' or impute the NAs")
 
   ## for multi-way clustering: set up interaction patterns
   p <- ncol(cluster)
@@ -179,11 +179,11 @@ make.bootfit <- function(fit, cli, start, ...) {
       fit.fun <- get0(fit[["method"]], envir = environment(fit[["terms"]]),
                       mode = "function")
       if (is.null(fit.fun)) {
-        chk::err(sprintf("the `method` used to fit the original model (\"%s\") is unavailable", fit[["method"]]))
+        .err(sprintf("the `method` used to fit the original model (\"%s\") is unavailable", fit[["method"]]))
       }
     }
     else {
-      chk::err("unrecognized fitting method; the model cannot be re-fit")
+      .err("unrecognized fitting method; the model cannot be re-fit")
     }
 
     bootfit <- function(j, ...) {

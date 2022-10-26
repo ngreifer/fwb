@@ -66,17 +66,17 @@ fwb <- function(data, statistic, R = 999, cluster = NULL, simple = FALSE, verbos
 
   #Check data
   if (missing(data)) {
-    chk::err("`data` must be specified")
+    .err("`data` must be specified")
   }
   chk::chk_data(data)
 
   #Check statistic
   if (missing(statistic)) {
-    chk::err("`statistic` must be specified")
+    .err("`statistic` must be specified")
   }
   chk::chk_function(statistic)
   # if (!all(c("data", "w") %in% names(formals(statistic)))) {
-  #   chk::err("`statistic` must have a `data` argument and a `w` argument")
+  #   .err("`statistic` must have a `data` argument and a `w` argument")
   # }
 
   #Check R
@@ -93,17 +93,21 @@ fwb <- function(data, statistic, R = 999, cluster = NULL, simple = FALSE, verbos
 
   n <- nrow(data)
   if (is.null(n) || !chk::vld_count(n)) {
-    chk::err("`data` must be present")
+    .err("`data` must be present")
   }
 
   #Test fun
   t0 <- try(statistic(data, rep(1, n), ...))
   if (inherits(t0, "try-error")) {
-    chk::err("there was an error running the function supplied to `statistic` on unit-weighted data. Error produced:\n\t",
+    .err("there was an error running the function supplied to `statistic` on unit-weighted data. Error produced:\n\t",
              conditionMessage(attr(t0, "condition")))
   }
   if (!is.numeric(t0) || !is.null(dim(t0))) {
-    chk::err("the output of the function supplied to `statistic` must be a numeric vector")
+    .err("the output of the function supplied to `statistic` must be a numeric vector")
+  }
+
+  if (is.null(names(t0))) {
+    names(t0) <- paste0("t", seq_along(t))
   }
 
   if (!exists(".Random.seed", envir = globalenv(), inherits = FALSE))
@@ -157,6 +161,7 @@ fwb <- function(data, statistic, R = 999, cluster = NULL, simple = FALSE, verbos
 
   #Run bootstrap
   t <- do.call("rbind", pbapply::pblapply(seq_len(R), FUN, cl = cl))
+  colnames(t) <- names(t0)
 
   out <- list(t0 = t0,
               t = t,
@@ -180,25 +185,26 @@ fwb <- function(data, statistic, R = 999, cluster = NULL, simple = FALSE, verbos
 #'
 #' @export
 print.fwb <- function(x, digits = getOption("digits"), index = 1L:ncol(x$t), ...) {
+  index <- check_index(index, x[["t"]], several.ok = TRUE)
   cl <- x$call
-  t <- matrix(x$t[, index], nrow = nrow(x$t))
-  allNA <- apply(t, 2L, function(t) all(is.na(t)))
+  t <- x[["t"]][, index, drop = FALSE]
+  allNA <- apply(t, 2L, function(t_) all(is.na(t_)))
   ind1 <- index[allNA]
   index <- index[!allNA]
-  t <- matrix(t[, !allNA], nrow = nrow(t))
-  rn <- paste("t", index, "*", sep = "")
+  t <- t[, !allNA, drop = FALSE]
+  rn <- colnames(t)
 
   if (length(index) == 0L)
     op <- NULL
   else if (is.null(t0 <- x$t0)) {
-    op <- cbind(apply(t, 2L, mean, na.rm = TRUE),
+    op <- cbind(colMeans(t, na.rm = TRUE),
                 apply(t, 2L, sd, na.rm = TRUE))
     dimnames(op) <- list(rn, c("mean", "std. error"))
   }
   else {
     t0 <- x$t0[index]
     op <- cbind(t0,
-                apply(t, 2L, mean, na.rm = TRUE) - t0,
+                colMeans(t, na.rm = TRUE) - t0,
                 apply(t, 2L, sd, na.rm = TRUE))
     dimnames(op) <- list(rn, c("original", "bias", "std. error"))
 
@@ -212,7 +218,7 @@ print.fwb <- function(x, digits = getOption("digits"), index = 1L:ncol(x$t), ...
   if (!is.null(op))
     print(op, digits = digits)
   if (length(ind1) > 0L)
-    for (j in ind1) cat(sprintf("WARNING: All values of t%s* are NA\n", j))
+    for (j in ind1) cat(sprintf("WARNING: All values of %s* are NA\n", colnames(x[["t"]])[j]))
   invisible(x)
 }
 

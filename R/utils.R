@@ -9,11 +9,11 @@ fmt.prc <- function(probs, digits = 3) {
   paste(format(100 * probs, trim = TRUE, scientific = FALSE, digits = digits), "%")
 }
 
-check_index <- function(index, names, several.ok = FALSE) {
+check_index <- function(index, t, several.ok = FALSE) {
   if (length(index) == 0) return(1L)
-  else if (length(names) == 1) {
+  else if (ncol(t) == 1) {
     if (!((is.numeric(index) && chk::vld_whole_number(index) && index == 1) ||
-          (chk::vld_string(index) && index == names[1]))) {
+          (chk::vld_string(index) && !is.null(colnames(t)) && index == colnames(t)[1]))) {
       chk::wrn("only one statistic is available; ignoring `index`")
     }
     return(1L)
@@ -21,37 +21,40 @@ check_index <- function(index, names, several.ok = FALSE) {
 
   if (!((is.character(index) || is.numeric(index)) && is.null(dim(index)))) {
     if (!several.ok) {
-      chk::err("`index` must be a string or number indicating the name or index of the desired statistic")
+      .err("`index` must be a string or number indicating the name or index of the desired statistic")
     }
     else {
-      chk::err("`index` must be a character or numeric vector indicating the names or indices of the desired statistics")
+      .err("`index` must be a character or numeric vector indicating the names or indices of the desired statistics")
     }
   }
 
   index <- unique(drop(index))
 
   if (!several.ok && length(index) > 1) {
-    chk::err("`index` must have length one")
+    .err("`index` must have length one")
   }
 
   if (is.numeric(index)) {
     if (!chk::vld_whole_numeric(index)) {
       if (!several.ok) {
-        chk::err("`index` must be a positive integer")
+        .err("`index` must be a positive integer")
       }
       else {
-        chk::err("`index` must be a vector of positive integers")
+        .err("`index` must be a vector of positive integers")
       }
     }
-    if (any(index > length(names))) {
-      chk::err("`index` must be between 1 and ", length(names))
+    if (any(index > ncol(t))) {
+      .err("`index` must be between 1 and ", ncol(t))
     }
   }
   else {
-    if (!all(index %in% names)) {
-      chk::err("all entries in `index` must be the names of available statistics to compute. The following are allowed:\n", paste(dQuote(names, FALSE)))
+    if (is.null(colnames(t))) {
+      .err("the estimates don't have names, so `index` must be numeric")
     }
-    index <- match(index, names)
+    if (!all(index %in% colnames(t))) {
+      .err("all entries in `index` must be the names of available statistics to compute.\n  The following are allowed: ", paste(dQuote(colnames(t), FALSE), collapse = ", "))
+    }
+    index <- match(index, colnames(t))
   }
 
   index
@@ -111,7 +114,7 @@ match_arg <- function(arg, choices, several.ok = FALSE) {
   #Replaces match.arg() but gives cleaner error message and processing
   #of arg.
   if (missing(arg))
-    chk::err("No argument was supplied to `match_arg()`.", call. = FALSE)
+    .err("No argument was supplied to `match_arg()`.", call. = FALSE)
   arg.name <- deparse1(substitute(arg), width.cutoff = 500L)
 
   if (missing(choices)) {
@@ -123,24 +126,41 @@ match_arg <- function(arg, choices, several.ok = FALSE) {
   if (is.null(arg))
     return(choices[1L])
   else if (!is.character(arg))
-    chk::err(sprintf("The argument to `%s` must be `NULL` or a character vector", arg.name), call. = FALSE)
+    .err(sprintf("The argument to `%s` must be `NULL` or a character vector", arg.name), call. = FALSE)
   if (!several.ok) {
     if (identical(arg, choices))
       return(arg[1L])
     if (length(arg) > 1L)
-      chk::err(sprintf("The argument to `%s` must be of length 1", arg.name), call. = FALSE)
+      .err(sprintf("The argument to `%s` must be of length 1", arg.name), call. = FALSE)
   }
   else if (length(arg) == 0)
-    chk::err(sprintf("The argument to `%s` must be of length >= 1", arg.name), call. = FALSE)
+    .err(sprintf("The argument to `%s` must be of length >= 1", arg.name), call. = FALSE)
 
   i <- pmatch(arg, choices, nomatch = 0L, duplicates.ok = TRUE)
   if (all(i == 0L))
-    chk::err(sprintf("The argument to `%s` should be %s %s.",
+    .err(sprintf("The argument to `%s` should be %s %s.",
                  arg.name, ngettext(length(choices), "", if (several.ok) "at least one of " else "one of "),
                  word_list(choices, and.or = "or", quotes = 2)),
          call. = FALSE)
   i <- i[i > 0L]
   if (!several.ok && length(i) > 1)
-    chk::err("There is more than one match in `match_arg`")
+    .err("There is more than one match in `match_arg`")
   choices[i]
+}
+
+pkg_caller_call <- function(start = 1) {
+  package.funs <- c(getNamespaceExports(utils::packageName()),
+                    .getNamespaceInfo(asNamespace(utils::packageName()), "S3methods")[,3])
+  k <- start #skip checking pkg_caller_call()
+  e_max <- NULL
+  while(!is.null(e <- rlang::caller_call(k))) {
+    if (!is.null(n <- rlang::call_name(e)) &&
+        n %in% package.funs) e_max <- k
+    k <- k + 1
+  }
+  rlang::caller_call(e_max)
+}
+
+.err <- function(...) {
+  chk::err(..., call = pkg_caller_call(start = 2))
 }

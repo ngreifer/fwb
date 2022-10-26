@@ -22,7 +22,7 @@
 #' # See examples at help("fwb")
 plot.fwb <- function(x, index = 1, qdist = "norm", nclass = NULL, df, type = c("hist", "qq"), ...) {
 
-  index <- check_index(index, colnames(x[["t"]]))
+  index <- check_index(index, x[["t"]])
 
   chk::chk_string(qdist)
 
@@ -38,7 +38,7 @@ plot.fwb <- function(x, index = 1, qdist = "norm", nclass = NULL, df, type = c("
   chk::chk_character(type)
   type <- tryCatch(match.arg(tolower(type), c("hist", "qq"), several.ok = TRUE),
                    error = function(e) {
-                     chk::err("`type` must be one or more of \"hist\" or \"qq\"")
+                     .err("`type` must be one or more of \"hist\" or \"qq\"")
                    })
 
   opar <- graphics::par(mfrow = c(1, length(type)))
@@ -64,7 +64,9 @@ plot.fwb <- function(x, index = 1, qdist = "norm", nclass = NULL, df, type = c("
       n2 <- ceiling((rg[2L] - t0)/lc)
       bks <- t0 + (-n1:n2) * lc
 
-      graphics::hist(t, breaks = bks, probability = TRUE, xlab = "t*")
+      graphics::hist(t, breaks = bks, probability = TRUE,
+                     xlab = colnames(x[["t"]])[index],
+                     main = sprintf("Histogram of %s", colnames(x[["t"]])[index]))
 
       graphics::abline(v = t0, lty = 2)
     }
@@ -86,11 +88,11 @@ plot.fwb <- function(x, index = 1, qdist = "norm", nclass = NULL, df, type = c("
         qlab <- "Quantiles of Standard Normal"
       }
       else {
-        chk::err(sprintf("\"%s\" distribution not supported: using normal instead",
+        .err(sprintf("\"%s\" distribution not supported: using normal instead",
                          qdist))
       }
 
-      qqplot(qf(p), t, xlab = qlab, ylab = "t*")
+      qqplot(qf(p), t, xlab = qlab, ylab = colnames(x[["t"]])[index])
       qqline(t, distribution = qf, qtype = 5, lty = 2)
     }
   }

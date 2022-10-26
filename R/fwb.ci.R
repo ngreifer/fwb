@@ -76,22 +76,22 @@ fwb.ci <- function(fwb.out, conf = .95, type = "bc", index = 1L,
 
   chk::chk_is(fwb.out, "fwb")
   if (!chk::vld_number(conf) || conf <= .5 || conf >= 1) {
-    chk::err("`conf` must be a single number between .5 and 1")
+    .err("`conf` must be a single number between .5 and 1")
   }
   chk::chk_character(type)
   type <- match.arg(type, c("perc", "bc", "norm", "basic", "bca", "all"), several.ok = TRUE)
 
-  index <- check_index(index, colnames(fwb.out[["t"]]))
+  index <- check_index(index, fwb.out[["t"]])
 
   t0 <- fwb.out[["t0"]][index]
   t <- fwb.out[["t"]][, index]
 
   if (all_the_same(t)) {
-    chk::err(sprintf("all values of t are equal to %s\n Cannot calculate confidence intervals",
+    .err(sprintf("all values of t are equal to %s\n Cannot calculate confidence intervals",
                      mean(t, na.rm = TRUE)))
   }
   if (length(t) != fwb.out[["R"]]) {
-    chk::err(gettextf("'t' must be of length %d", fwb.out[["R"]]), domain = NA)
+    .err(gettextf("'t' must be of length %d", fwb.out[["R"]]), domain = NA)
   }
 
   fins <- seq_along(t)[is.finite(t)]
@@ -365,7 +365,7 @@ basic.ci <- function (t, t0, conf = 0.95, hinv = identity) {
 
 bca.ci <- function(t, t0, boot.out, index, conf = .95, hinv = identity, h = identity) {
   if (!is.null(boot.out[["cluster"]])) {
-    chk::err("the BCa confidence interval cannot be used with clusters")
+    .err("the BCa confidence interval cannot be used with clusters")
   }
 
   alpha <- (1 + c(-conf, conf))/2
@@ -379,7 +379,7 @@ bca.ci <- function(t, t0, boot.out, index, conf = .95, hinv = identity, h = iden
   a <- sum(L^3)/(6 * sum(L^2)^1.5)
 
   if (!is.finite(a))
-    chk::err("estimated adjustment 'a' is NA")
+    .err("estimated adjustment 'a' is NA")
 
   adj.alpha <- pnorm(w + (w + zalpha)/(1 - a * (w + zalpha)))
   qq <- norm.inter(t, adj.alpha)
