@@ -44,10 +44,13 @@ devtools::install_github("ngreifer/fwb")
 
 ## Examples
 
-Below are some examples of how to use `fwb`.
+Below are some examples of how to use `fwb`. We set a seed to ensure all
+results are replicable. (Note that when parallel processing is used, a
+special kind of seed needs to be set; see `?set.seed` for details.)
 
 ``` r
 library("fwb")
+set.seed(123456)
 ```
 
 ### Bearing cage field failure Weibull analysis from Xu et al. (2020)
@@ -83,9 +86,9 @@ fwb_est
 #> fwb(data = bearingcage, statistic = weibull_est, R = 1999, verbose = FALSE)
 #> 
 #> Bootstrap Statistics :
-#>         original         bias   std. error
-#> t1* 11792.178173 6528.5275456 21092.241147
-#> t2*     2.035319    0.2540133     0.894168
+#>          original         bias   std. error
+#> eta  11792.178173 6528.5275456 21092.241147
+#> beta     2.035319    0.2540133     0.894168
 
 # Bias-corrected accelerated percentile
 # confidence interval
@@ -185,10 +188,10 @@ fwb_est
 #> fwb(data = infert, statistic = fit_fun, R = 999, verbose = FALSE)
 #> 
 #> Bootstrap Statistics :
-#>      original       bias std. error
-#> t1* -6.904101 -1.5663837  1.8587672
-#> t2*  3.230286  0.6722459  0.7356135
-#> t3*  2.190303  0.5044327  0.6825087
+#>              original       bias std. error
+#> (Intercept) -6.904101 -1.5663837  1.8587672
+#> spontaneous  3.230286  0.6722459  0.7356135
+#> induced      2.190303  0.5044327  0.6825087
 ```
 
 Already the bias and standard errors indicate problems with the
@@ -230,16 +233,16 @@ it. Still, though, the FWB deserves a place in an analyst’s toolbox.
 
 ## Related packages
 
--   `boot`, which provides the traditional bootstrap, including an
-    interface that accepts frequency weights to compute weighted
-    statistics, as was used above
--   `bayesboot`, which also provides functionality for the Bayesian
-    bootstrap but does so in a more explicitly Bayesian fashion and with
-    returned objects that are less consistent with those from `boot`
+- `boot`, which provides the traditional bootstrap, including an
+  interface that accepts frequency weights to compute weighted
+  statistics, as was used above
+- `bayesboot`, which also provides functionality for the Bayesian
+  bootstrap but does so in a more explicitly Bayesian fashion and with
+  returned objects that are less consistent with those from `boot`
 
 ## Author
 
--   Noah Greifer (noah.greifer@gmail.com)
+- Noah Greifer (noah.greifer@gmail.com)
 
 ## References
 
