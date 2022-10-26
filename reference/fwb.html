@@ -183,16 +183,16 @@
 <span class="r-out co"><span class="r-pr">#&gt;</span> fwb(data = bearingcage, statistic = weibull_est, R = 199, verbose = FALSE)</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Bootstrap Statistics :</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>          original       bias   std. error</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> eta  11792.178173 4786.94826 1.586351e+04</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> beta     2.035319    0.26471 8.269473e-01</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>          original         bias   std. error</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> eta  11792.178173 9545.5405642 2.670076e+04</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> beta     2.035319    0.2814736 9.953201e-01</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co">#Get standard errors and CIs; uses bias-corrected</span></span></span>
 <span class="r-in"><span><span class="co">#percentile CI by default</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">boot_est</span>, ci.type <span class="op">=</span> <span class="st">"bc"</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>      Estimate Std. Error CI 2.5 % CI 97.5 %</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> eta  1.18e+04   1.59e+04 3.79e+03  7.57e+04</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> beta 2.04e+00   8.27e-01 1.24e+00  4.36e+00</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> eta  1.18e+04   2.67e+04 2.87e+03  1.01e+05</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> beta 2.04e+00   9.95e-01 1.14e+00  4.92e+00</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co">#Plot statistic distributions</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">boot_est</span>, index <span class="op">=</span> <span class="st">"beta"</span>, type <span class="op">=</span> <span class="st">"hist"</span><span class="op">)</span></span></span>
