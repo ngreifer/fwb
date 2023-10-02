@@ -75,7 +75,7 @@ Interpolation on the normal quantile scale is used when a non-integer order stat
 
 }}
 \examples{
-
+set.seed(123)
 data("infert")
 
 fit_fun <- function(data, w) {

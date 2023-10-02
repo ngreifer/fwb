@@ -75,6 +75,7 @@ The \code{print()} method displays the value of the statistics, the bias (the di
 \dontshow{if (requireNamespace("survival", quietly = TRUE)) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
 # Performing a Weibull analysis of the Bearing Cage
 # failure data as done in Xu et al. (2020)
+set.seed(123)
 data("bearingcage")
 
 weibull_est <- function(data, w) {

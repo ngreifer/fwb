@@ -21,6 +21,7 @@
 #' @export
 #'
 #' @examples
+#' set.seed(123)
 #' data("infert")
 #'
 #' fit_fun <- function(data, w) {

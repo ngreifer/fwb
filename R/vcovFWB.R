@@ -24,6 +24,7 @@
 #' @export
 #'
 #' @examplesIf requireNamespace("lmtest", quietly = TRUE)
+#' set.seed(123)
 #' data("infert")
 #' fit <- glm(case ~ spontaneous + induced, data = infert,
 #'              family = "binomial")
@@ -71,7 +72,8 @@ vcovFWB <- function(x, cluster = NULL, R = 1000, start = FALSE, ..., fix = FALSE
   if (inherits(cluster, "formula")) {
     cluster_tmp <- suppressWarnings(expand.model.frame(x, cluster, na.expand = FALSE))
     cluster <- model.frame(cluster, cluster_tmp, na.action = na.pass)
-  } else {
+  }
+  else {
     cluster <- as.data.frame(cluster)
   }
 
@@ -93,9 +95,10 @@ vcovFWB <- function(x, cluster = NULL, R = 1000, start = FALSE, ..., fix = FALSE
     sign <- sapply(clu, function(i) (-1L)^(length(i) + 1L))
     paste_ <- function(...) paste(..., sep = "_")
     for (i in (p + 1L):length(clu)) {
-      cluster <- cbind(cluster, Reduce(paste_, unclass(cluster[, clu[[i]] ]))) ## faster than: interaction()
+      cluster <- cbind(cluster, Reduce(paste_, unclass(cluster[, clu[[i]]]))) ## faster than: interaction()
     }
-  } else {
+  }
+  else {
     clu <- list(1)
     sign <- 1
   }
@@ -134,7 +137,8 @@ vcovFWB <- function(x, cluster = NULL, R = 1000, start = FALSE, ..., fix = FALSE
     eig$values <- pmax(eig$values, 0)
     rval[] <- crossprod(sqrt(eig$values) * t(eig$vectors))
   }
-  return(rval)
+
+  rval
 }
 
 nobs0 <- function (x, ...) {
@@ -143,7 +147,8 @@ nobs0 <- function (x, ...) {
   rval <- try(nobs1(x, ...), silent = TRUE)
   if (inherits(rval, "try-error") || is.null(rval))
     rval <- nobs2(x, ...)
-  return(rval)
+
+  rval
 }
 
 make.bootfit <- function(fit, cli, start, ...) {

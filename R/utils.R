@@ -11,7 +11,8 @@ fmt.prc <- function(probs, digits = 3) {
 
 check_index <- function(index, t, several.ok = FALSE) {
   if (length(index) == 0) return(1L)
-  else if (ncol(t) == 1) {
+
+  if (ncol(t) == 1) {
     if (!((is.numeric(index) && chk::vld_whole_number(index) && index == 1) ||
           (chk::vld_string(index) && !is.null(colnames(t)) && index == colnames(t)[1]))) {
       chk::wrn("only one statistic is available; ignoring `index`")
@@ -125,8 +126,10 @@ match_arg <- function(arg, choices, several.ok = FALSE) {
 
   if (is.null(arg))
     return(choices[1L])
-  else if (!is.character(arg))
+
+  if (!is.character(arg))
     .err(sprintf("The argument to `%s` must be `NULL` or a character vector", arg.name), call. = FALSE)
+
   if (!several.ok) {
     if (identical(arg, choices))
       return(arg[1L])
@@ -163,4 +166,21 @@ pkg_caller_call <- function(start = 1) {
 
 .err <- function(...) {
   chk::err(..., call = pkg_caller_call(start = 2))
+}
+
+.wrn <- function(..., immediate = TRUE) {
+  if (immediate && isTRUE(all.equal(getOption("warn"), 0))) {
+    op <- options(warn = 1)
+    on.exit(options(op))
+  }
+  chk::wrn(...)
+}
+
+.chk_atomic_vector <- function(x, x_name = NULL) {
+  if (is.atomic(x) && !is.matrix(x) && !is.array(x)) {
+    return(invisible(x))
+  }
+  if (is.null(x_name))
+    x_name <- chk::deparse_backtick_chk(substitute(x))
+  chk::abort_chk(x_name, " must be an atomic vector", x = x)
 }

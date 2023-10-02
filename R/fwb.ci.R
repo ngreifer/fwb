@@ -45,7 +45,7 @@
 #' @export
 #'
 #' @examples
-#'
+#' set.seed(123)
 #' data("infert")
 #'
 #' fit_fun <- function(data, w) {
@@ -258,7 +258,7 @@ print.fwbci <- function (x, hinv = NULL, ...) {
 
 #' @title Extract Confidence Intervals from a `bootci` Object
 #' @description `get_ci()` extracts the confidence intervals from the output of a call to \pkgfun{boot}{boot.ci} or [fwb.ci()] in a clean way. Normally the confidence intervals can be a bit challenging to extract because of the unusual structure of the object.
-#' @param x an `bootci` object; the output of a call to `boot::boot.ci()` or `fwb.ci()`.
+#' @param x a `bootci` object; the output of a call to `boot::boot.ci()` or `fwb.ci()`.
 #' @param type the type of confidence intervals to extract. Only those available in `x` are allowed. Should be a given as a subset of the types passed to `type` in `boot.ci()` or `fwb.ci()`. The default, `"all"`, extracts all confidence intervals in `x`.
 #' @return A list with an entry for each confidence interval type; each entry is a numeric vector of length 2 with names `"L"` and `"U"` for the lower and upper interval bounds, respectively. The `"conf"` attribute contains the confidence level.
 #' @examples

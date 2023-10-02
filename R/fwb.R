@@ -38,6 +38,7 @@
 #' @examplesIf requireNamespace("survival", quietly = TRUE)
 #' # Performing a Weibull analysis of the Bearing Cage
 #' # failure data as done in Xu et al. (2020)
+#' set.seed(123)
 #' data("bearingcage")
 #'
 #' weibull_est <- function(data, w) {
@@ -81,10 +82,14 @@ fwb <- function(data, statistic, R = 999, cluster = NULL, simple = FALSE, verbos
 
   #Check R
   chk::chk_count(R)
+  chk::chk_gt(R, 0)
 
   clus <- substitute(cluster)
   cluster <- eval(clus, data, parent.frame())
-  chk::chk_atomic(cluster)
+
+  if (!is.null(cluster)) {
+    .chk_atomic_vector(cluster)
+  }
 
   #Check simple
   chk::chk_flag(simple)

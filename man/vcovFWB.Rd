@@ -54,6 +54,7 @@ See \pkgfun{sandwich}{vcovBS} and \pkgfun{sandwich}{vcovCL} for more information
 }
 \examples{
 \dontshow{if (requireNamespace("lmtest", quietly = TRUE)) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
+set.seed(123)
 data("infert")
 fit <- glm(case ~ spontaneous + induced, data = infert,
              family = "binomial")
