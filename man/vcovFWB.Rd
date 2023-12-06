@@ -9,6 +9,7 @@ vcovFWB(
   cluster = NULL,
   R = 1000,
   start = FALSE,
+  wtype = getOption("fwb_wtype", "exp"),
   ...,
   fix = FALSE,
   use = "pairwise.complete.obs",
@@ -28,6 +29,8 @@ vcovFWB(
 \item{R}{the number of bootstrap replications.}
 
 \item{start}{\code{logical}; should \code{coef(x)} be passed as \code{start} to the \code{update(x, weights = ...)} call? In case the model \code{x} is computed by some numeric iteration, this may speed up the bootstrapping.}
+
+\item{wtype}{string; the type of weights to use. Allowable options include \code{"exp"} (the default), \code{"pois"}, \code{"multinom"}, and \code{"mammen"}. See \code{\link[=fwb]{fwb()}} for details. See \code{\link[=set_fwb_wtype]{set_fwb_wtype()}} to set a global default.}
 
 \item{...}{ignored.}
 
@@ -73,6 +76,15 @@ cbind(
   "BS-cluster" = sqrt(diag(sandwich::vcovBS(m, cluster = ~firm))),
   "FWB-cluster" = sqrt(diag(vcovFWB(m, cluster = ~firm)))
 )
+
+# Using `wtype = "multinom"` exactly reproduces
+# `sandwich::vcovBS()`
+set.seed(11)
+s <- sandwich::vcovBS(m, R = 200)
+set.seed(11)
+f <- vcovFWB(m, R = 200, wtype = "multinom")
+
+all.equal(s, f)
 \dontshow{\}) # examplesIf}
 }
 \seealso{

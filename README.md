@@ -127,10 +127,10 @@ library("lmtest")
 
 # The traditional bootstrap fails
 coeftest(fit, vcov = sandwich::vcovBS)[1:3,]
-#>              Estimate   Std. Error       z value  Pr(>|z|)
-#> (Intercept) -6.904101 4.472792e+19 -1.543577e-19 1.0000000
-#> spontaneous  3.230286 3.167708e+06  1.019755e-06 0.9999992
-#> induced      2.190303 3.102472e+06  7.059862e-07 0.9999994
+#>              Estimate   Std. Error       z value Pr(>|z|)
+#> (Intercept) -6.904101 4.692763e+14 -1.471223e-14        1
+#> spontaneous  3.230286 1.879336e+14  1.718844e-14        1
+#> induced      2.190303 1.443840e+14  1.516998e-14        1
 
 # The fractional weighted bootstrap succeeds
 coeftest(fit, vcov = vcovFWB)[1:3,]
@@ -155,7 +155,9 @@ coeftest(fit, vcov = vcovFWB, cluster = ~stratum)[1:3,]
 
 Let’s look more in-depth at the results of the traditional and
 fractional weighted bootstrap by comparing the output of `fwb()` and
-`boot::boot()`.
+`boot::boot()`. (Note the traditional bootstrap can also be requested
+using `fwb(., wtype = "multinom")`, which will give identical results to
+`boot::boot()` when the same seed is set.)
 
 ``` r
 fit_fun <- function(data, w) {
@@ -176,9 +178,9 @@ boot_est
 #> 
 #> Bootstrap Statistics :
 #>      original        bias     std. error
-#> t1* -6.904101 -2.848293e+21 9.002587e+22
-#> t2*  3.230286  4.232722e+13 3.240252e+14
-#> t3*  2.190303  2.707355e+13 2.076940e+14
+#> t1* -6.904101 -1.069692e+21 3.380971e+22
+#> t2*  3.230286  4.446726e+13 3.182984e+14
+#> t3*  2.190303  2.719013e+13 1.954091e+14
 
 fwb_est <- fwb(infert, fit_fun, R = 999, verbose = FALSE)
 fwb_est

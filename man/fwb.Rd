@@ -11,6 +11,7 @@ fwb(
   R = 999,
   cluster = NULL,
   simple = FALSE,
+  wtype = getOption("fwb_wtype", "exp"),
   verbose = TRUE,
   cl = NULL,
   ...
@@ -28,6 +29,8 @@ fwb(
 \item{cluster}{optional; a vector containing cluster membership. If supplied, will run the cluster bootstrap. See Details. Evaluated first in \code{data} and then in the global environment.}
 
 \item{simple}{\code{logical}; if \code{TRUE}, weights will be computed on-the-fly in each bootstrap replication rather than all at once. This can save memory at the cost of some speed.}
+
+\item{wtype}{string; the type of weights to use. Allowable options include \code{"exp"} (the default), \code{"pois"}, \code{"multinom"}, and \code{"mammen"}. See Details. See \code{\link[=set_fwb_wtype]{set_fwb_wtype()}} to set a global default.}
 
 \item{verbose}{\code{logical}; whether to display a progress bar.}
 
@@ -51,12 +54,13 @@ A \code{fwb} object, which also inherits from \code{boot}, with the following co
 \item{statistic}{The function \code{statistic} as passed to \code{fwb()}.}
 \item{call}{The original call to \code{fwb()}.}
 \item{cluster}{The vector passed to \code{cluster}, if any.}
+\item{wtype}{The type of weights used as determined by the \code{wtype} argument.}
 }
 \description{
 \code{fwb()} implements the fractional (random) weighted bootstrap, also known as the Bayesian bootstrap. Rather than resampling units to include in bootstrap samples, weights are drawn to be applied to a weighted estimator.
 }
 \details{
-\code{fwb()} implements the fractional weighted bootstrap and is meant to function as a drop-in for \code{boot::boot(., stype = "f")} (i.e., the usual bootstrap but with frequency weights representing the number of times each unit is drawn). In each bootstrap replication, the weights are sampled from independent exponential distributions with rate parameter 1 and then normalized to have a mean of 1, equivalent to drawing the weights from a Dirichlet distribution. The function supplied to \code{statistic} must incorporate the weights to compute a weighted statistic. For example, if the output is a regression coefficient, the weights supplied to the \code{w} argument of \code{statistic} should be supplied to the \code{weights} argument of \code{lm()}. These weights should be used any time frequency weights would be, since they are meant to function like frequency weights (which, in the case of the traditional bootstrap, would be integers). Unfortunately, there is no way for \code{fwb()} to know whether you are using the weights correctly, so care should be taken to ensure weights are correctly incorporated into the estimator.
+\code{fwb()} implements the fractional weighted bootstrap and is meant to function as a drop-in for \code{boot::boot(., stype = "f")} (i.e., the usual bootstrap but with frequency weights representing the number of times each unit is drawn). In each bootstrap replication, when \code{wtype = "exp"} (the default), the weights are sampled from independent exponential distributions with rate parameter 1 and then normalized to have a mean of 1, equivalent to drawing the weights from a Dirichlet distribution. Other weights are allowed as determined by the \code{wtype} argument (see \code{\link[=set_fwb_wtype]{set_fwb_wtype()}} for details). The function supplied to \code{statistic} must incorporate the weights to compute a weighted statistic. For example, if the output is a regression coefficient, the weights supplied to the \code{w} argument of \code{statistic} should be supplied to the \code{weights} argument of \code{lm()}. These weights should be used any time frequency weights would be, since they are meant to function like frequency weights (which, in the case of the traditional bootstrap, would be integers). Unfortunately, there is no way for \code{fwb()} to know whether you are using the weights correctly, so care should be taken to ensure weights are correctly incorporated into the estimator.
 
 When fitting binomial regression models (e.g., logistic) using \code{\link[=glm]{glm()}}, it may be useful to change the \code{family} to a "quasi" variety (e.g., \code{\link[=quasibinomial]{quasibinomial()}}) to avoid a spurious warning about "non-integer #successes".
 
@@ -65,6 +69,32 @@ The cluster bootstrap can be requested by supplying a vector of cluster membersh
 Ideally, \code{statistic} should not involve a random element, or else it will not be straightforward to replicate the bootstrap results using the \code{seed} included in the output object. Setting a seed using \code{\link[=set.seed]{set.seed()}} is always advised.
 
 The \code{print()} method displays the value of the statistics, the bias (the difference between the statistic and the mean of its bootstrap distribution), and the standard error (the standard deviation of the bootstrap distribution).
+\subsection{Weight types}{
+
+Different types of weights can be supplied to the \code{wtype} argument. A global default can be set using \code{\link[=set_fwb_wtype]{set_fwb_wtype()}}. The allowable weight types are described below.
+\itemize{
+\item \code{"exp"}
+}
+
+Draws weights from an exponential distribution with rate parameter 1 using \code{\link[=rexp]{rexp()}}. These weights are the usual "Bayesian bootstrap" weights described in Xu et al. (2020). They are equivalent to drawing weights from a uniform Dirichlet distribution, which is what gives these weights the interpretation of a Bayesian prior.
+\itemize{
+\item \code{"multinom"}
+}
+
+Draws integer weights using \code{\link[=sample]{sample()}}, which samples unit indices with replacement and uses the tabulation of the indices as frequency weights. This is equivalent to drawing weights from a multinomial distribution. Using \code{wtype = "multinom"} is the same as using \code{boot::boot(., stype = "f")} instead of \code{fwb()} (i.e., the resulting estimates will be identical).
+\itemize{
+\item \code{"poisson"}
+}
+
+Draws integer weights from a Poisson distribution with 1 degree of freedom using \code{\link[=rpois]{rpois()}}. This is an alternative to the multinomial weights that yields similar estimates (especially as the sample size grows) but can be faster.
+\itemize{
+\item \code{"mammen"}
+}
+
+Draws weights from a modification of the distribution described by Mammen (1983) for use in the wild bootstrap. These positive weights have a mean, variance, and skewness of 1, making them second-order accurate (in contrast to the usual exponential weights, which are only first-order accurate). The weights \eqn{w} are drawn such that \eqn{P(w=(3+\sqrt{5})/2)=(\sqrt{5}-1)/2\sqrt{5}} and \eqn{P(w=(3-\sqrt{5})/2)=(\sqrt{5}+1)/2\sqrt{5}}.
+
+In general, \code{"mammen"} should be used for all cases. \code{"exp"} is the default due to it being the formulation described in Xu et al. (2020) and in the original formulation of the Bayesian bootstrap by Rubin (2000); it should be used if one wants to remain in line with these guidelines or to maintain a Bayesian flavor to the analysis, whereas \code{"mammen"}should be preferred for its frequentist operating characteristics. \code{"multinom"} and \code{"poisson"} should only be used for comparison purposes.
+}
 }
 \section{Methods (by generic)}{
 \itemize{
@@ -99,6 +129,15 @@ plot(boot_est, index = "beta", type = "hist")
 
 \dontshow{\}) # examplesIf}
 }
+\references{
+Mammen, E. (1993). Bootstrap and Wild Bootstrap for High Dimensional Linear Models. \emph{The Annals of Statistics}, 21(1). \doi{10.1214/aos/1176349025}
+
+Rubin, D. B. (1981). The Bayesian Bootstrap. \emph{The Annals of Statistics}, 9(1), 130–134. \doi{10.1214/aos/1176345338}
+
+Xu, L., Gotwalt, C., Hong, Y., King, C. B., & Meeker, W. Q. (2020). Applications of the Fractional-Random-Weight Bootstrap. \emph{The American Statistician}, 74(4), 345–358. \doi{10.1080/00031305.2020.1731599}
+
+The use of the \code{"mammen"} formulation of the bootstrap weights was suggested by Lihua Lei \href{https://twitter.com/lihua_lei_stat/status/1641538993090351106}{here}.
+}
 \seealso{
-\code{\link[=fwb.ci]{fwb.ci()}} for calculating confidence intervals; \code{\link[=summary.fwb]{summary.fwb()}} for displaying output in a clean way; \code{\link[=plot.fwb]{plot.fwb()}} for plotting the bootstrap distributions; \code{\link[=vcovFWB]{vcovFWB()}} for estimating the covariance matrix of estimates using the FWB; \pkgfun{boot}{boot} for the traditional bootstrap.
+\code{\link[=fwb.ci]{fwb.ci()}} for calculating confidence intervals; \code{\link[=summary.fwb]{summary.fwb()}} for displaying output in a clean way; \code{\link[=plot.fwb]{plot.fwb()}} for plotting the bootstrap distributions; \code{\link[=vcovFWB]{vcovFWB()}} for estimating the covariance matrix of estimates using the FWB; \code{\link[=set_fwb_wtype]{set_fwb_wtype()}} for an example of using weights other than the default exponential weights; \pkgfun{boot}{boot} for the traditional bootstrap.
 }
