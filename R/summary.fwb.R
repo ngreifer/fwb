@@ -18,8 +18,6 @@
 #'
 #' @seealso [fwb()] for performing the fractional weighted bootstrap; [fwb.ci()] for computing multiple confidence intervals for a single bootstrapped quantity
 #'
-#' @export
-#'
 #' @examples
 #' set.seed(123)
 #' data("infert")
@@ -38,6 +36,8 @@
 #' # Just for "induced" coefficient; p-values requested
 #' summary(fwb_out, index = "induced", p.value = TRUE)
 #'
+
+#' @exportS3Method summary fwb
 summary.fwb <- function(object, conf = .95, ci.type = "bc", p.value = FALSE, index = 1L:ncol(object$t), ...) {
 
   chk::chk_number(conf)
@@ -79,7 +79,7 @@ summary.fwb <- function(object, conf = .95, ci.type = "bc", p.value = FALSE, ind
   out
 }
 
-#' @export
+#' @exportS3Method print summary.fwb
 print.summary.fwb <- function(x, digits = 3, ...) {
   has.p <- ncol(x) > 4
   stats::printCoefmat(x, digits = digits, cs.ind = 1:4,

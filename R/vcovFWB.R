@@ -7,6 +7,7 @@
 #' @param x a fitted model object, such as the output of a call to `lm()` or `glm()`. The model object must result from a function that can be updated using [update()] and has a `weights` argument to input non-integer case weights.
 #' @param R the number of bootstrap replications.
 #' @param start `logical`; should `coef(x)` be passed as `start` to the `update(x, weights = ...)` call? In case the model `x` is computed by some numeric iteration, this may speed up the bootstrapping.
+#' @param wtype string; the type of weights to use. Allowable options include `"exp"` (the default), `"pois"`, `"multinom"`, and `"mammen"`. See [fwb()] for details. See [set_fwb_wtype()] to set a global default.
 #' @param ... ignored.
 #' @param fix `logical`; if `TRUE`, the covariance matrix is fixed to be positive semi-definite in case it is not.
 #' @param use `character`; specification passed to [stats::cov()] for handling missing coefficients/parameters.
@@ -20,8 +21,6 @@
 #' See \pkgfun{sandwich}{vcovBS} and \pkgfun{sandwich}{vcovCL} for more information on clustering covariance matrices, and see [fwb()] for more information on how clusters work with the fractional weighted bootstrap. When clusters are specified, each cluster is given a bootstrap weight, and all members of the cluster are given that weight; estimation then proceeds as normal. By default, when `cluster` is unspecified, each unit is considered its own cluster.
 #'
 #' @seealso [fwb()] for performing the fractional weighted bootstrap on an arbitrary quantity; [fwb.ci()] for computing nonparametric confidence intervals for `fwb` objects; [summary.fwb()] for producing standard errors and confidence intervals for `fwb` objects; \pkgfun{sandwich}{vcovBS} for computing covariance matrices using the traditional bootstrap
-#'
-#' @export
 #'
 #' @examplesIf requireNamespace("lmtest", quietly = TRUE)
 #' set.seed(123)
@@ -44,15 +43,29 @@
 #'   "FWB-cluster" = sqrt(diag(vcovFWB(m, cluster = ~firm)))
 #' )
 #'
-vcovFWB <- function(x, cluster = NULL, R = 1000, start = FALSE, ..., fix = FALSE, use = "pairwise.complete.obs",
+#' # Using `wtype = "multinom"` exactly reproduces
+#' # `sandwich::vcovBS()`
+#' set.seed(11)
+#' s <- sandwich::vcovBS(m, R = 200)
+#' set.seed(11)
+#' f <- vcovFWB(m, R = 200, wtype = "multinom")
+#'
+#' all.equal(s, f)
+
+#' @export
+vcovFWB <- function(x, cluster = NULL, R = 1000, start = FALSE, wtype = getOption("fwb_wtype", "exp"),
+                    ..., fix = FALSE, use = "pairwise.complete.obs",
                     verbose = FALSE, cl = NULL) {
 
   #Check arguments
   chk::chk_count(R)
   chk::chk_flag(start)
+  chk::chk_string(wtype)
   chk::chk_flag(fix)
   chk::chk_string(use)
   chk::chk_flag(verbose)
+
+  gen_weights <- make_gen_weights(wtype)
 
   ## set up return value with correct dimension and names
   cf <- coef(x)
@@ -118,7 +131,7 @@ vcovFWB <- function(x, cluster = NULL, R = 1000, start = FALSE, ..., fix = FALSE
     cli <- factor(cluster[[i]])
 
     ## bootstrap fitting function
-    bootfit <- make.bootfit(x, cli, start)
+    bootfit <- make.bootfit(x, cli, start, gen_weights)
 
     ## actually refit
     cf <- do.call("rbind", applyfun(seq_len(R), bootfit, ...))
@@ -151,7 +164,7 @@ nobs0 <- function (x, ...) {
   rval
 }
 
-make.bootfit <- function(fit, cli, start, ...) {
+make.bootfit <- function(fit, cli, start, gen_weights, ...) {
   if (!is.factor(cli)) cli <- factor(cli)
   nc <- nlevels(cli)
   cluster_numeric <- as.integer(cli)
@@ -164,8 +177,7 @@ make.bootfit <- function(fit, cli, start, ...) {
 
     bootfit <- function(j, ...) {
       #Generate cluster weights, assign to units
-      cluster_w <- rexp(nc)
-      cluster_w <- nc * cluster_w / sum(cluster_w)
+      cluster_w <- drop(gen_weights(nc, 1))
       w <- cluster_w[cluster_numeric]
 
       if (!is.null(w0 <- weights(fit))) w <- w * w0
@@ -193,8 +205,7 @@ make.bootfit <- function(fit, cli, start, ...) {
 
     bootfit <- function(j, ...) {
       #Generate cluster weights, assign to units
-      cluster_w <- rexp(nc)
-      cluster_w <- nc * cluster_w / sum(cluster_w)
+      cluster_w <- drop(gen_weights(nc, 1))
       w <- cluster_w[cluster_numeric]
 
       if (!is.null(w0 <- weights(fit))) w <- w * w0
@@ -208,8 +219,7 @@ make.bootfit <- function(fit, cli, start, ...) {
   else {
     bootfit <- function(j, ...) {
       #Generate cluster weights, assign to units
-      cluster_w <- rexp(nc)
-      cluster_w <- nc * cluster_w / sum(cluster_w)
+      cluster_w <- drop(gen_weights(nc, 1))
       w <- cluster_w[cluster_numeric]
 
       if (!is.null(w0 <- weights(fit))) w <- w * w0

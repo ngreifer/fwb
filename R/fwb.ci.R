@@ -42,7 +42,6 @@
 #'
 #' @seealso [fwb()] for performing the fractional weighted bootstrap; [get_ci()] for extracting confidence intervals from an `fwbci` object; [summary.fwb()] for producing clean output from `fwb()` that includes confidence intervals calculated by `fwb.ci()`; \pkgfun{boot}{boot.ci} for computing confidence intervals from the traditional bootstrap; [vcovFWB()] for computing parameter estimate covariance matrices using the fractional weighted bootstrap
 #'
-#' @export
 #'
 #' @examples
 #' set.seed(123)
@@ -69,12 +68,13 @@
 #' fwb.ci(fwb_out, index = "induced", type = "norm",
 #'        hinv = exp)
 #'
+#' @export
 fwb.ci <- function(fwb.out, conf = .95, type = "bc", index = 1L,
                    h = base::identity, hinv = base::identity, ...) {
 
   call <- match.call()
 
-  chk::chk_is(fwb.out, "fwb")
+  chk::chk_is(fwb.out, "boot")
   if (!chk::vld_number(conf) || conf <= .5 || conf >= 1) {
     .err("`conf` must be a single number between .5 and 1")
   }
@@ -127,7 +127,7 @@ fwb.ci <- function(fwb.out, conf = .95, type = "bc", index = 1L,
 #'
 #' @param x an `fwbci` object; the output of a call to `fwb.ci()`.
 #'
-#' @export
+#' @exportS3Method print fwbci
 print.fwbci <- function (x, hinv = NULL, ...) {
   ci.out <- x
   cl <- ci.out[["call"]]
@@ -265,6 +265,7 @@ print.fwbci <- function (x, hinv = NULL, ...) {
 #' #See example at help("fwb.ci")
 #'
 #' @seealso [fwb.ci()], \pkgfun{boot}{boot.ci}
+
 #' @export
 get_ci <- function(x, type = "all") {
   chk::chk_is(x, "bootci")
@@ -293,8 +294,9 @@ get_ci <- function(x, type = "all") {
     nc <- ncol(x[[t]])
     setNames(x[[t]][, c(nc - 1, nc)], c("L", "U"))
   }), type)
+
   attr(out, "conf") <- {
-    if (inherits(x, "fwbci")) attr(x, "conf")
+    if (!is.null(attr(x, "conf"))) attr(x, "conf")
     else x[[4L]][, 1L]
   }
 
@@ -348,13 +350,10 @@ bc.ci <- function(t, t0, conf = .95, hinv = identity) {
 }
 
 norm.ci <- function(t, t0, conf = 0.95, hinv = identity) {
-
-  var.t0 <- var(t)
   bias <- mean(t) - t0
 
-  merr <- sqrt(var.t0) * qnorm((1 + conf)/2)
-  out <- cbind(conf, hinv(t0 - bias - merr), hinv(t0 - bias + merr))
-  out
+  merr <- sd(t) * qnorm((1 + conf)/2)
+  cbind(conf, hinv(t0 - bias - merr), hinv(t0 - bias + merr))
 }
 
 basic.ci <- function (t, t0, conf = 0.95, hinv = identity) {
@@ -394,14 +393,19 @@ empinf.reg <- function(boot.out, t) {
   f <- boot.array(boot.out)[fins, ]
   X <- f/n
   X <- X[, -1]
-  beta <- lm.fit(x = cbind(1, X), y = t)$coefficients[-1L]
+  beta <- .lm.fit(x = cbind(1, X), y = t)$coefficients[-1L]
   l <- rep(0, n)
   l[-1] <- beta
-  l <- l - mean(l)
-  l
+
+  l - mean(l)
 }
 
 boot.array <- function(boot.out) {
+  if (identical(attr(boot.out, "boot_type"), "boot")) {
+    rlang::check_installed("boot")
+    return(boot::boot.array(boot.out))
+  }
+
   genv <- globalenv()
 
   #Return seed to its prior state after generating weights using seed from boot.out
@@ -409,19 +413,20 @@ boot.array <- function(boot.out) {
   on.exit(suspendInterrupts({
     if (is.null(old_seed)) {
       rm(".Random.seed", envir = genv, inherits = FALSE)
-    } else {
+    }
+    else {
       assign(".Random.seed", value = old_seed, envir = genv, inherits = FALSE)
     }
   }))
 
   assign(".Random.seed", value = boot.out[["seed"]], envir = genv)
 
+  gen_weights <- make_gen_weights(boot.out[["wtype"]])
 
   n <- nrow(boot.out[["data"]])
   R <- boot.out[["R"]]
 
-  w <- matrix(rexp(n * R), nrow = R, ncol = n, byrow = TRUE)
-  return(w/rowMeans(w))
+  gen_weights(n, R)
 }
 
 

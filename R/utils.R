@@ -1,7 +1,39 @@
+make_gen_weights <- function(wtype) {
+  wtype <- tolower(wtype)
+  wtype <- match_arg(wtype, c("exp", "multinom", "poisson", "mammen"))
+
+  fun <- switch(wtype,
+         "exp" = function(n, R) {
+           w <- matrix(rexp(n * R), nrow = R, ncol = n, byrow = TRUE)
+           n * w/rowSums(w)
+         },
+         "poisson" = function(n, R) {
+           matrix(rpois(n * R, 1), nrow = R, ncol = n, byrow = TRUE)
+         },
+         # "multinom" = function(n, R) {
+         #   rmultinom(R, n, rep(1/n, n))
+         # },
+         "multinom" = function(n, R) {
+           i <- sample.int(n, n * R, replace = TRUE)
+           dim(i) <- c(R, n)
+           t(apply(i, 1, tabulate, n))
+         },
+         "mammen" = function(n, R) {
+           sqrt5 <- sqrt(5)
+           w <- matrix((3-sqrt5)/2 + sqrt5 * rbinom(n * R, 1, .5 - 1/(2*sqrt5)),
+                       nrow = R, ncol = n, byrow = TRUE)
+           n * w/rowSums(w)
+         })
+
+  attr(fun, "wtype") <- wtype
+  fun
+}
+
 #Check if all values are the same
 all_the_same <- function(x) {
   if (is.numeric(x)) return(abs(max(x) - min(x)) < 1e-9)
-  return(length(unique(x)) == 1)
+
+  length(unique(x)) == 1
 }
 
 #Format percentage for CI labels
