@@ -93,7 +93,7 @@ Draws integer weights from a Poisson distribution with 1 degree of freedom using
 
 Draws weights from a modification of the distribution described by Mammen (1983) for use in the wild bootstrap. These positive weights have a mean, variance, and skewness of 1, making them second-order accurate (in contrast to the usual exponential weights, which are only first-order accurate). The weights \eqn{w} are drawn such that \eqn{P(w=(3+\sqrt{5})/2)=(\sqrt{5}-1)/2\sqrt{5}} and \eqn{P(w=(3-\sqrt{5})/2)=(\sqrt{5}+1)/2\sqrt{5}}.
 
-In general, \code{"mammen"} should be used for all cases. \code{"exp"} is the default due to it being the formulation described in Xu et al. (2020) and in the original formulation of the Bayesian bootstrap by Rubin (2000); it should be used if one wants to remain in line with these guidelines or to maintain a Bayesian flavor to the analysis, whereas \code{"mammen"}should be preferred for its frequentist operating characteristics. \code{"multinom"} and \code{"poisson"} should only be used for comparison purposes.
+In general, \code{"mammen"} should be used for all cases. \code{"exp"} is the default due to it being the formulation described in Xu et al. (2020) and in the most formulations of the Bayesian bootstrap; it should be used if one wants to remain in line with these guidelines or to maintain a Bayesian flavor to the analysis, whereas \code{"mammen"}should be preferred for its frequentist operating characteristics. \code{"multinom"} and \code{"poisson"} should only be used for comparison purposes.
 }
 }
 \section{Methods (by generic)}{
