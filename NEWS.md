@@ -1,6 +1,12 @@
 `cobalt` News and Updates
 ======
 
+# `fwb` (development version)
+
+* Add a new `.coef` argument to `vcovFWB()`. A function can be supplied to extract a vector of coefficients from the fitted model in each bootstrap iteration if the default (`stats::coef()`) doesn't return a numeric vector (e.g., for `nnet::multinom()` models). An error message is now thrown if `.coef` doesn't return a numeric vector.
+
+* Fixed a bug where the names of quantities produced by `fwb()` when `statistic` returns an unnamed vector were incorrect.
+
 # `fwb` 0.2.0
 
 * `fwb()` and `vcovFWB()` now take an additional argument, `wtype`, which specifies how the weights are drawn. The default, `"exp"` is still to draw weights from an $\text{Exp}(1)$ distribution but other options, namely `"multinom"` for multinomial integer weights (which reproduce `boot::boot()` results exactly), `"poisson"` for Poisson integer weights, and `"mammen"` for second-order accurate Mammen weights as recommended by Lihua Lei [here](https://twitter.com/lihua_lei_stat/status/1641538993090351106). (#4)

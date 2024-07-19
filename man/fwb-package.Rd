@@ -3,7 +3,6 @@
 \docType{package}
 \name{fwb-package}
 \alias{fwb-package}
-\alias{_PACKAGE}
 \title{fwb: Fractional Weighted Bootstrap}
 \description{
 An implementation of the fractional weighted bootstrap to be used as a drop-in for functions in the 'boot' package. The fractional weighted bootstrap (also known as the Bayesian bootstrap) involves drawing weights randomly that are applied to the data rather than resampling units from the data. See Xu et al. (2020) \doi{10.1080/00031305.2020.1731599} for details.

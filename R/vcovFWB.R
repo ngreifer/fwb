@@ -6,15 +6,16 @@
 #' @inheritParams fwb
 #' @param x a fitted model object, such as the output of a call to `lm()` or `glm()`. The model object must result from a function that can be updated using [update()] and has a `weights` argument to input non-integer case weights.
 #' @param R the number of bootstrap replications.
-#' @param start `logical`; should `coef(x)` be passed as `start` to the `update(x, weights = ...)` call? In case the model `x` is computed by some numeric iteration, this may speed up the bootstrapping.
+#' @param start `logical`; should `.coef(x)` be passed as `start` to the `update(x, weights = ...)` call? In case the model `x` is computed by some numeric iteration, this may speed up the bootstrapping.
 #' @param wtype string; the type of weights to use. Allowable options include `"exp"` (the default), `"pois"`, `"multinom"`, and `"mammen"`. See [fwb()] for details. See [set_fwb_wtype()] to set a global default.
 #' @param ... ignored.
 #' @param fix `logical`; if `TRUE`, the covariance matrix is fixed to be positive semi-definite in case it is not.
 #' @param use `character`; specification passed to [stats::cov()] for handling missing coefficients/parameters.
+#' @param .coef a function used to extract the coefficients from each fitted model. Must return a numeric vector. By default, [`stats::coef`] is used, but `marginaleffects::get_coef` can be a more reliable choice for some models that have a non-standard `coef()` method, like that for `nnet::multinom()` models.
 #'
 #' @inherit sandwich::vcovBS return
 #'
-#' @details `vcovFWB()` functions like other `vcov()`-like functions, such as those in the `sandwich` package, in particular, \pkgfun{sandwich}{vcovBS}, which implements the traditional bootstrap (and a few other bootstrap varieties for linear models). Sets of weights are generated as described in the documentation for [fwb()], and the supplied model is re-fit using those weights. When the fitted model already has weights, these are multiplied by the bootstrap weights.
+#' @details `vcovFWB()` functions like other `vcov()`-like functions, such as those in the \pkg{sandwich} package, in particular, \pkgfun{sandwich}{vcovBS}, which implements the traditional bootstrap (and a few other bootstrap varieties for linear models). Sets of weights are generated as described in the documentation for [fwb()], and the supplied model is re-fit using those weights. When the fitted model already has weights, these are multiplied by the bootstrap weights.
 #'
 #' For `lm` objects, the model is re-fit using [.lm.fit()] for speed, and, similarly, `glm` objects are re-fit using [glm.fit()] (or whichever fitting method was originally used). For other objects, [update()] is used to populate the weights and re-fit the model (this assumes the fitting function accepts non-integer case weights through a `weights` argument). If a model accepts weights in some other way, [fwb()] should be used instead; `vcovFWB()` is inherently limited in its ability to handle all possible models. It is important that the original model was not fit using frequency weights (i.e., weights that allow one row of data to represent multiple full, identical, individual units).
 #'
@@ -51,10 +52,36 @@
 #' f <- vcovFWB(m, R = 200, wtype = "multinom")
 #'
 #' all.equal(s, f)
+#' @examplesIf requireNamespace("nnet", quietly = TRUE)
+#' # Using a custom argument to `.coef`
+#' set.seed(123)
+#' data("infert")
+#'
+#' fit <- nnet::multinom(education ~ age, data = infert,
+#'                       trace = FALSE)
+#'
+#' # vcovFWB(fit, R = 200) ## error
+#' coef(fit) # coef() returns a matrix
+#'
+#' # Write a custom function to extract vector of
+#' # coefficients (can also use marginaleffects::get_coef())
+#' coef_multinom <- function(x) {
+#'   p <- t(coef(x))
+#'
+#'   setNames(as.vector(p),
+#'            paste(colnames(p)[col(p)],
+#'                  rownames(p)[row(p)],
+#'                  sep = ":"))
+#' }
+#' coef_multinom(fit) # returns a vector
+#'
+#' vcovFWB(fit, R = 200, .coef = coef_multinom)
 
 #' @export
-vcovFWB <- function(x, cluster = NULL, R = 1000, start = FALSE, wtype = getOption("fwb_wtype", "exp"),
+vcovFWB <- function(x, cluster = NULL, R = 1000, start = FALSE,
+                    wtype = getOption("fwb_wtype", "exp"),
                     ..., fix = FALSE, use = "pairwise.complete.obs",
+                    .coef = stats::coef,
                     verbose = FALSE, cl = NULL) {
 
   #Check arguments
@@ -64,11 +91,22 @@ vcovFWB <- function(x, cluster = NULL, R = 1000, start = FALSE, wtype = getOptio
   chk::chk_flag(fix)
   chk::chk_string(use)
   chk::chk_flag(verbose)
+  chk::chk_function(.coef)
 
   gen_weights <- make_gen_weights(wtype)
 
   ## set up return value with correct dimension and names
-  cf <- coef(x)
+  cf <- .coef(x)
+
+  if (!is.numeric(cf) || length(dim(cf)) > 1) {
+    if (identical(.coef, eval(formals()[[".coef"]]))) {
+      .err("the coefficients extracted using `coef()` from the supplied model are not in the form of a numeric vector; see the `.coef` argument at `help(\"vcovFWB\")`")
+    }
+    else {
+      .err("the function supplied to `.coef` must return a numeric vector")
+    }
+  }
+
   k <- length(cf)
   n <- nobs0(x)
   rval <- matrix(0, nrow = k, ncol = k, dimnames = list(names(cf), names(cf)))
@@ -123,7 +161,7 @@ vcovFWB <- function(x, cluster = NULL, R = 1000, start = FALSE, wtype = getOptio
   applyfun <- function(X, FUN, ...) pbapply::pblapply(X, FUN, ..., cl = cl)
 
   ## use starting values?
-  start <- if (start && inherits(x, "glm")) coef(x) else NULL
+  start <- if (start && inherits(x, "glm")) .coef(x) else NULL
 
   ## bootstrap for each cluster dimension
   for (i in seq_along(clu)) {
@@ -131,7 +169,7 @@ vcovFWB <- function(x, cluster = NULL, R = 1000, start = FALSE, wtype = getOptio
     cli <- factor(cluster[[i]])
 
     ## bootstrap fitting function
-    bootfit <- make.bootfit(x, cli, start, gen_weights)
+    bootfit <- make.bootfit(x, cli, start, gen_weights, .coef)
 
     ## actually refit
     cf <- do.call("rbind", applyfun(seq_len(R), bootfit, ...))
@@ -164,12 +202,13 @@ nobs0 <- function (x, ...) {
   rval
 }
 
-make.bootfit <- function(fit, cli, start, gen_weights, ...) {
+make.bootfit <- function(fit, cli, start, gen_weights, .coef) {
   if (!is.factor(cli)) cli <- factor(cli)
   nc <- nlevels(cli)
   cluster_numeric <- as.integer(cli)
+  special_coef <- !identical(.coef(fit), try(coef(fit), silent = TRUE))
 
-  if (identical(class(fit), "lm")) {
+  if (!special_coef && identical(class(fit), "lm")) {
     mf <- model.frame(fit)
     x <- model.matrix(fit)
     y <- model.response(mf)
@@ -186,7 +225,7 @@ make.bootfit <- function(fit, cli, start, gen_weights, ...) {
       .lm.fit(x * ws, y = y * ws)$coefficients
     }
   }
-  else if (inherits(fit, "glm")) {
+  else if (!special_coef && inherits(fit, "glm")) {
     x <- model.matrix(fit)
     y <- fit[["y"]]
 
@@ -224,13 +263,14 @@ make.bootfit <- function(fit, cli, start, gen_weights, ...) {
 
       if (!is.null(w0 <- weights(fit))) w <- w * w0
 
-      up <- if (is.null(start)) {
-        update(fit, weights = w, evaluate = TRUE)
-      } else {
-        update(fit, weights = w, start = start, evaluate = TRUE)
-      }
+      utils::capture.output({
+        up <- {
+          if (is.null(start)) update(fit, weights = w, evaluate = TRUE)
+          else update(fit, weights = w, start = start, evaluate = TRUE)
+        }
+      })
 
-      coef(up)
+      .coef(up)
     }
   }
 

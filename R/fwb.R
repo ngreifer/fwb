@@ -140,17 +140,18 @@ fwb <- function(data, statistic, R = 999, cluster = NULL, simple = FALSE,
   }
 
   #Test fun
-  t0 <- try(statistic(data, rep(1, n), ...))
+  t0 <- try(statistic(data, rep.int(1, n), ...))
   if (inherits(t0, "try-error")) {
-    .err("there was an error running the function supplied to `statistic` on unit-weighted data. Error produced:\n\t",
-             conditionMessage(attr(t0, "condition")))
+    .err("There was an error running the function supplied to `statistic` on unit-weighted data. Error produced:\n\t",
+             conditionMessage(attr(t0, "condition")),
+         tidy = FALSE)
   }
   if (!is.numeric(t0) || !is.null(dim(t0))) {
     .err("the output of the function supplied to `statistic` must be a numeric vector")
   }
 
   if (is.null(names(t0))) {
-    names(t0) <- paste0("t", seq_along(t))
+    names(t0) <- paste0("t", seq_along(t0))
   }
 
   if (!exists(".Random.seed", envir = globalenv(), inherits = FALSE))
