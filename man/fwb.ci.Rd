@@ -65,7 +65,7 @@ This involves subtracting the "bias" (\eqn{\hat{t} - t_0}) from the estimate \eq
 \item \code{"bca"} (bias-corrected and accelerated confidence interval): \eqn{[t^{(l)}, t^{(u)}]}
 }
 
-\eqn{l = \Phi\left(z_0 + \frac{z_0 + z_\frac{\alpha}{2}}{1-a(z_0+z_\frac{\alpha}{2})}\right)}, \eqn{u = \Phi\left(z_0 + \frac{z_0 + z_{1-\frac{\alpha}{2}}}{1-a(z_0+z_{1-\frac{\alpha}{2}})}\right)}, using the same definitions as above, but with the additional acceleration parameter \eqn{a}, where \eqn{a = \frac{1}{6}\frac{\sum{L^3}}{(\sum{L^2})^{3/2}}}. \eqn{L} is the empirical influence value of each unit, which is computed using the regression method described in \pkgfun{boot}{empinf}. The acceleration parameter corrects for bias and skewness in the statistic. It can only be used when clusters are absent and the number of bootstrap replications is larger than the sample size. When \eqn{a=0}, the \code{"bca"} and \code{"bc"} intervals coincide.
+\eqn{l = \Phi\left(z_0 + \frac{z_0 + z_\frac{\alpha}{2}}{1-a(z_0+z_\frac{\alpha}{2})}\right)}, \eqn{u = \Phi\left(z_0 + \frac{z_0 + z_{1-\frac{\alpha}{2}}}{1-a(z_0+z_{1-\frac{\alpha}{2}})}\right)}, using the same definitions as above, but with the additional acceleration parameter \eqn{a}, where \eqn{a = \frac{1}{6}\frac{\sum{L^3}}{(\sum{L^2})^{3/2}}}. \eqn{L} is the empirical influence value of each unit, which is computed using the regression method described in \pkgfun{boot}{empinf}. When \eqn{a=0}, the \code{"bca"} and \code{"bc"} intervals coincide. The acceleration parameter corrects for bias and skewness in the statistic. It can only be used when clusters are absent and the number of bootstrap replications is larger than the sample size. Note that when \code{cl = "future"} and \code{simple = TRUE} in the original call to \code{fwb()}
 
 Interpolation on the normal quantile scale is used when a non-integer order statistic is required, as in \code{boot::boot.ci()}. Note that unlike with \code{boot::boot.ci()}, studentized confidence intervals (\code{type = "stud"}) are not allowed.
 }
@@ -98,7 +98,6 @@ get_ci(bcci)
 # then transformed by exponentiation to be on OR
 fwb.ci(fwb_out, index = "induced", type = "norm",
        hinv = exp)
-
 }
 \seealso{
 \code{\link[=fwb]{fwb()}} for performing the fractional weighted bootstrap; \code{\link[=get_ci]{get_ci()}} for extracting confidence intervals from an \code{fwbci} object; \code{\link[=summary.fwb]{summary.fwb()}} for producing clean output from \code{fwb()} that includes confidence intervals calculated by \code{fwb.ci()}; \pkgfun{boot}{boot.ci} for computing confidence intervals from the traditional bootstrap; \code{\link[=vcovFWB]{vcovFWB()}} for computing parameter estimate covariance matrices using the fractional weighted bootstrap

@@ -16,10 +16,10 @@
 #'
 #' @seealso [fwb()], [summary.fwb()], \pkgfun{boot}{plot.boot}, [hist()], [qqplot()]
 #'
-#' @export
-#'
 #' @examples
 #' # See examples at help("fwb")
+
+#' @exportS3Method plot fwb
 plot.fwb <- function(x, index = 1, qdist = "norm", nclass = NULL, df, type = c("hist", "qq"), ...) {
 
   index <- check_index(index, x[["t"]])
@@ -31,7 +31,7 @@ plot.fwb <- function(x, index = 1, qdist = "norm", nclass = NULL, df, type = c("
 
   t <- t[is.finite(t)]
   if (all_the_same(t)) {
-    chk::wrn("All values of t* are equal to ", mean(t, na.rm = TRUE))
+    .wrn(sprintf("all values of t* are equal to %s", mean(t, na.rm = TRUE)))
     return(invisible(x))
   }
 
@@ -46,7 +46,7 @@ plot.fwb <- function(x, index = 1, qdist = "norm", nclass = NULL, df, type = c("
 
   for (i in type) {
     if (i == "hist") {
-      if (is.null(nclass)) {
+      if (is_null(nclass)) {
         nclass <- min(max(ceiling(length(t)/25), 10), 100)
       }
       else {
@@ -88,8 +88,8 @@ plot.fwb <- function(x, index = 1, qdist = "norm", nclass = NULL, df, type = c("
         qlab <- "Quantiles of Standard Normal"
       }
       else {
-        .err(sprintf("\"%s\" distribution not supported: using normal instead",
-                         qdist))
+        .err(sprintf("%s distribution not supported: using normal instead",
+                         add_quotes(qdist)))
       }
 
       qqplot(qf(p), t, xlab = qlab, ylab = colnames(x[["t"]])[index])

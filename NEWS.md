@@ -5,6 +5,10 @@
 
 * Add a new `.coef` argument to `vcovFWB()`. A function can be supplied to extract a vector of coefficients from the fitted model in each bootstrap iteration if the default (`stats::coef()`) doesn't return a numeric vector (e.g., for `nnet::multinom()` models). An error message is now thrown if `.coef` doesn't return a numeric vector.
 
+* Added support for using `future` backend for `fwb()` by supplying `cl = "future"`. Thanks to Katya Zelevinsky for the suggestion.
+
+* A warning is now thrown when using `fwb()` with `simple = TRUE` with non-`NULL` `cl` when the random number generator kind is not `"L'Ecuyer-CMRG"`. Under these circumstances, results may not replicate and the BCa confidence interval will be inaccurate.
+
 * Fixed a bug where the names of quantities produced by `fwb()` when `statistic` returns an unnamed vector were incorrect.
 
 # `fwb` 0.2.0

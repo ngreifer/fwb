@@ -45,7 +45,7 @@ Below are some examples of how to use `fwb`. We set a seed to ensure all results
 
 ```{r}
 library("fwb")
-set.seed(123456)
+set.seed(123456, "L'Ecuyer-CMRG")
 ```
 
 ### Bearing cage field failure Weibull analysis from Xu et al. (2020)

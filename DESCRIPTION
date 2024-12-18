@@ -1,7 +1,7 @@
 Package: fwb
 Type: Package
 Title: Fractional Weighted Bootstrap
-Version: 0.2.0.9000
+Version: 0.2.0.9001
 Authors@R: c(
     person("Noah", "Greifer", role=c("aut", "cre"), 
            email = "noah.greifer@gmail.com",
@@ -29,6 +29,6 @@ Encoding: UTF-8
 URL: https://github.com/ngreifer/fwb,
     https://ngreifer.github.io/fwb/
 BugReports: https://github.com/ngreifer/fwb/issues
-RoxygenNote: 7.3.1
+RoxygenNote: 7.3.2
 Roxygen: list(markdown = TRUE)
 LazyData: true

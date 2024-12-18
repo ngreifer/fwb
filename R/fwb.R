@@ -9,7 +9,7 @@
 #' @param simple `logical`; if `TRUE`, weights will be computed on-the-fly in each bootstrap replication rather than all at once. This can save memory at the cost of some speed.
 #' @param wtype string; the type of weights to use. Allowable options include `"exp"` (the default), `"pois"`, `"multinom"`, and `"mammen"`. See Details. See [set_fwb_wtype()] to set a global default.
 #' @param verbose `logical`; whether to display a progress bar.
-#' @param cl a cluster object created by \pkgfun{parallel}{makeCluster}, or an integer to indicate the number of child-processes (integer values are ignored on Windows) for parallel evaluations. See \pkgfun{pbapply}{pblapply} for details. If `NULL`, no parallelization will take place.
+#' @param cl a cluster object created by \pkgfun{parallel}{makeCluster}, an integer to indicate the number of child-processes (integer values are ignored on Windows) for parallel evaluations, or the string `"future"` to use a `future` backend. See the `cl` argument of \pkgfun{pbapply}{pblapply} for details. If `NULL`, no parallelization will take place.
 #' @param ... other arguments passed to `statistic`.
 #'
 #' @return A `fwb` object, which also inherits from `boot`, with the following components:
@@ -66,12 +66,10 @@
 #'
 #' The use of the `"mammen"` formulation of the bootstrap weights was suggested by Lihua Lei [here](https://twitter.com/lihua_lei_stat/status/1641538993090351106).
 #'
-#' @export
-#'
 #' @examplesIf requireNamespace("survival", quietly = TRUE)
 #' # Performing a Weibull analysis of the Bearing Cage
 #' # failure data as done in Xu et al. (2020)
-#' set.seed(123)
+#' set.seed(123, "L'Ecuyer-CMRG")
 #' data("bearingcage")
 #'
 #' weibull_est <- function(data, w) {
@@ -92,8 +90,8 @@
 #'
 #' #Plot statistic distributions
 #' plot(boot_est, index = "beta", type = "hist")
-#'
-#'
+
+#' @export
 fwb <- function(data, statistic, R = 999, cluster = NULL, simple = FALSE,
                 wtype = getOption("fwb_wtype", "exp"), verbose = TRUE,
                 cl = NULL, ...) {
@@ -105,6 +103,11 @@ fwb <- function(data, statistic, R = 999, cluster = NULL, simple = FALSE,
     .err("`data` must be specified")
   }
   chk::chk_data(data)
+
+  n <- nrow(data)
+  if (is_null(n) || !chk::vld_count(n)) {
+    .err("`data` must be present")
+  }
 
   #Check statistic
   if (missing(statistic)) {
@@ -122,7 +125,7 @@ fwb <- function(data, statistic, R = 999, cluster = NULL, simple = FALSE,
   clus <- substitute(cluster)
   cluster <- eval(clus, data, parent.frame())
 
-  if (!is.null(cluster)) {
+  if (is_not_null(cluster)) {
     .chk_atomic_vector(cluster)
   }
 
@@ -134,9 +137,15 @@ fwb <- function(data, statistic, R = 999, cluster = NULL, simple = FALSE,
 
   chk::chk_flag(verbose)
 
-  n <- nrow(data)
-  if (is.null(n) || !chk::vld_count(n)) {
-    .err("`data` must be present")
+  future.seed <- NULL
+  if (is_not_null(cl)) {
+    if (simple && !isTRUE(all.equal(cl, 1)) && !identical(RNGkind()[1L], "L'Ecuyer-CMRG")) {
+      .wrn('`cl` was supplied but the random number generator is not suitable for parallelization. Set an appropriate seed using `set.seed(###, "L\'Ecuyer-CMRG")`, where ### is your favorite integer. See `?set.seed` for details')
+    }
+
+    if (identical(cl, "future")) {
+      future.seed <- TRUE
+    }
   }
 
   #Test fun
@@ -146,16 +155,19 @@ fwb <- function(data, statistic, R = 999, cluster = NULL, simple = FALSE,
              conditionMessage(attr(t0, "condition")),
          tidy = FALSE)
   }
-  if (!is.numeric(t0) || !is.null(dim(t0))) {
+
+  if (!is.numeric(t0) || is_not_null(dim(t0))) {
     .err("the output of the function supplied to `statistic` must be a numeric vector")
   }
 
-  if (is.null(names(t0))) {
+  if (is_null(names(t0))) {
     names(t0) <- paste0("t", seq_along(t0))
   }
 
-  if (!exists(".Random.seed", envir = globalenv(), inherits = FALSE))
+  if (!exists(".Random.seed", envir = globalenv(), inherits = FALSE)) {
     runif(1)
+  }
+
   seed <- get(".Random.seed", envir = globalenv(), inherits = FALSE)
 
   gen_weights <- make_gen_weights(wtype)
@@ -165,7 +177,7 @@ fwb <- function(data, statistic, R = 999, cluster = NULL, simple = FALSE,
     .err("`simple` cannot be `TRUE` when `wtype = \"multinom\"`")
   }
 
-  if (is.null(cluster)) {
+  if (is_null(cluster)) {
     if (simple) {
       FUN <- function(i) {
         w <- drop(gen_weights(n, 1))
@@ -204,7 +216,13 @@ fwb <- function(data, statistic, R = 999, cluster = NULL, simple = FALSE,
   on.exit(pbapply::pboptions(opb))
 
   #Run bootstrap
-  t <- do.call("rbind", pbapply::pblapply(seq_len(R), FUN, cl = cl))
+  t <- {
+    if (is_not_null(future.seed))
+      do.call("rbind", pbapply::pblapply(seq_len(R), FUN, cl = cl, future.seed = future.seed))
+    else
+      do.call("rbind", pbapply::pblapply(seq_len(R), FUN, cl = cl))
+  }
+
   colnames(t) <- names(t0)
 
   out <- list(t0 = t0,
@@ -218,7 +236,10 @@ fwb <- function(data, statistic, R = 999, cluster = NULL, simple = FALSE,
               wtype = wtype)
 
   class(out) <- c("fwb", "boot")
+
   attr(out, "boot_type") <- "fwb"
+  attr(out, "cl") <- cl
+  attr(out, "simple") <- simple
 
   out
 }
@@ -240,8 +261,9 @@ print.fwb <- function(x, digits = getOption("digits"), index = 1L:ncol(x$t), ...
   t <- t[, !allNA, drop = FALSE]
   rn <- colnames(t)
 
-  if (length(index) == 0L)
+  if (is_null(index)) {
     op <- NULL
+  }
   else if (is.null(t0 <- x$t0)) {
     op <- cbind(colMeans(t, na.rm = TRUE),
                 apply(t, 2L, sd, na.rm = TRUE))
@@ -261,10 +283,16 @@ print.fwb <- function(x, digits = getOption("digits"), index = 1L:ncol(x$t), ...
   cat("\nCall:\n")
   dput(cl, control = NULL)
   cat("\nBootstrap Statistics :\n")
-  if (!is.null(op))
+  if (is_not_null(op)) {
     print(op, digits = digits)
-  if (length(ind1) > 0L)
-    for (j in ind1) cat(sprintf("WARNING: All values of %s* are NA\n", colnames(x[["t"]])[j]))
+  }
+
+  if (is_not_null(ind1)) {
+    for (j in ind1) {
+      cat(sprintf("WARNING: All values of %s* are NA\n", colnames(x[["t"]])[j]))
+    }
+  }
+
   invisible(x)
 }
 

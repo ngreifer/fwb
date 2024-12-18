@@ -34,7 +34,7 @@ fwb(
 
 \item{verbose}{\code{logical}; whether to display a progress bar.}
 
-\item{cl}{a cluster object created by \pkgfun{parallel}{makeCluster}, or an integer to indicate the number of child-processes (integer values are ignored on Windows) for parallel evaluations. See \pkgfun{pbapply}{pblapply} for details. If \code{NULL}, no parallelization will take place.}
+\item{cl}{a cluster object created by \pkgfun{parallel}{makeCluster}, an integer to indicate the number of child-processes (integer values are ignored on Windows) for parallel evaluations, or the string \code{"future"} to use a \code{future} backend. See the \code{cl} argument of \pkgfun{pbapply}{pblapply} for details. If \code{NULL}, no parallelization will take place.}
 
 \item{...}{other arguments passed to \code{statistic}.}
 
@@ -105,7 +105,7 @@ In general, \code{"mammen"} should be used for all cases. \code{"exp"} is the de
 \dontshow{if (requireNamespace("survival", quietly = TRUE)) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
 # Performing a Weibull analysis of the Bearing Cage
 # failure data as done in Xu et al. (2020)
-set.seed(123)
+set.seed(123, "L'Ecuyer-CMRG")
 data("bearingcage")
 
 weibull_est <- function(data, w) {
@@ -126,7 +126,6 @@ summary(boot_est, ci.type = "bc")
 
 #Plot statistic distributions
 plot(boot_est, index = "beta", type = "hist")
-
 \dontshow{\}) # examplesIf}
 }
 \references{

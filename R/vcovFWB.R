@@ -21,7 +21,7 @@
 #'
 #' See \pkgfun{sandwich}{vcovBS} and \pkgfun{sandwich}{vcovCL} for more information on clustering covariance matrices, and see [fwb()] for more information on how clusters work with the fractional weighted bootstrap. When clusters are specified, each cluster is given a bootstrap weight, and all members of the cluster are given that weight; estimation then proceeds as normal. By default, when `cluster` is unspecified, each unit is considered its own cluster.
 #'
-#' @seealso [fwb()] for performing the fractional weighted bootstrap on an arbitrary quantity; [fwb.ci()] for computing nonparametric confidence intervals for `fwb` objects; [summary.fwb()] for producing standard errors and confidence intervals for `fwb` objects; \pkgfun{sandwich}{vcovBS} for computing covariance matrices using the traditional bootstrap
+#' @seealso [fwb()] for performing the fractional weighted bootstrap on an arbitrary quantity; [fwb.ci()] for computing nonparametric confidence intervals for `fwb` objects; [summary.fwb()] for producing standard errors and confidence intervals for `fwb` objects; \pkgfun{sandwich}{vcovBS} for computing covariance matrices using the traditional bootstrap (the fractional weighted bootstrap is also available but with limited options).
 #'
 #' @examplesIf requireNamespace("lmtest", quietly = TRUE)
 #' set.seed(123)
@@ -98,7 +98,7 @@ vcovFWB <- function(x, cluster = NULL, R = 1000, start = FALSE,
   ## set up return value with correct dimension and names
   cf <- .coef(x)
 
-  if (!is.numeric(cf) || length(dim(cf)) > 1) {
+  if (!is.numeric(cf) || length(dim(cf)) > 1L) {
     if (identical(.coef, eval(formals()[[".coef"]]))) {
       .err("the coefficients extracted using `coef()` from the supplied model are not in the form of a numeric vector; see the `.coef` argument at `help(\"vcovFWB\")`")
     }
@@ -114,10 +114,14 @@ vcovFWB <- function(x, cluster = NULL, R = 1000, start = FALSE,
 
   ## cluster can either be supplied explicitly or
   ## be an attribute of the model...
-  if (is.null(cluster)) cluster <- attr(x, "cluster")
+  if (is_null(cluster)) {
+    cluster <- attr(x, "cluster")
+  }
 
   ## resort to cross-section if no clusters are supplied
-  if (is.null(cluster)) cluster <- seq_len(n)
+  if (is_null(cluster)) {
+    cluster <- seq_len(n)
+  }
 
   ## collect 'cluster' variables in a data frame
   if (inherits(cluster, "formula")) {
@@ -133,10 +137,14 @@ vcovFWB <- function(x, cluster = NULL, R = 1000, start = FALSE,
     cluster <- cluster[-x$na.action, , drop = FALSE]
   }
 
-  if (nrow(cluster) != n) .err("number of observations in 'cluster' and 'nobs()' do not match")
+  if (nrow(cluster) != n) {
+    .err("number of observations in 'cluster' and 'nobs()' do not match")
+  }
 
   ## catch NAs in cluster -> need to be addressed in the model object by the user
-  if (anyNA(cluster)) .err("cannot handle NAs in 'cluster': either refit the model without the NA observations in 'cluster' or impute the NAs")
+  if (anyNA(cluster)) {
+    .err("cannot handle NAs in 'cluster': either refit the model without the NA observations in 'cluster' or impute the NAs")
+  }
 
   ## for multi-way clustering: set up interaction patterns
   p <- ncol(cluster)
@@ -158,7 +166,12 @@ vcovFWB <- function(x, cluster = NULL, R = 1000, start = FALSE,
   on.exit(pbapply::pboptions(opb))
 
   ## apply infrastructure for refitting models
-  applyfun <- function(X, FUN, ...) pbapply::pblapply(X, FUN, ..., cl = cl)
+  applyfun <- {
+    if (identical(cl, "future"))
+      function(X, FUN, ...) pbapply::pblapply(X, FUN, ..., cl = cl, future.seed = TRUE)
+    else
+      function(X, FUN, ...) pbapply::pblapply(X, FUN, ..., cl = cl)
+  }
 
   ## use starting values?
   start <- if (start && inherits(x, "glm")) .coef(x) else NULL
@@ -179,7 +192,7 @@ vcovFWB <- function(x, cluster = NULL, R = 1000, start = FALSE,
   }
 
   if (all_the_same(c(0, rval))) {
-    chk::wrn("all variances and covariances are 0, indicating that the model failed to incorporate the bootstrapped weights")
+    .wrn("all variances and covariances are 0, indicating that the model failed to incorporate the bootstrapped weights")
     fix <- FALSE
   }
 
@@ -196,14 +209,15 @@ nobs0 <- function (x, ...) {
   nobs1 <- stats::nobs
   nobs2 <- function(x, ...) NROW(residuals(x, ...))
   rval <- try(nobs1(x, ...), silent = TRUE)
-  if (inherits(rval, "try-error") || is.null(rval))
+  if (inherits(rval, "try-error") || is_null(rval)) {
     rval <- nobs2(x, ...)
+  }
 
   rval
 }
 
 make.bootfit <- function(fit, cli, start, gen_weights, .coef) {
-  if (!is.factor(cli)) cli <- factor(cli)
+  cli <- as.factor(cli)
   nc <- nlevels(cli)
   cluster_numeric <- as.integer(cli)
   special_coef <- !identical(.coef(fit), try(coef(fit), silent = TRUE))
@@ -212,16 +226,21 @@ make.bootfit <- function(fit, cli, start, gen_weights, .coef) {
     mf <- model.frame(fit)
     x <- model.matrix(fit)
     y <- model.response(mf)
-    if (!is.null(fit$offset)) y <- y - fit$offset
+    if (is_not_null(fit$offset)) {
+      y <- y - fit$offset
+    }
 
     bootfit <- function(j, ...) {
       #Generate cluster weights, assign to units
       cluster_w <- drop(gen_weights(nc, 1))
       w <- cluster_w[cluster_numeric]
 
-      if (!is.null(w0 <- weights(fit))) w <- w * w0
+      if (is_not_null(w0 <- weights(fit))) {
+        w <- w * w0
+      }
 
       ws <- sqrt(w)
+
       .lm.fit(x * ws, y = y * ws)$coefficients
     }
   }
@@ -229,12 +248,12 @@ make.bootfit <- function(fit, cli, start, gen_weights, .coef) {
     x <- model.matrix(fit)
     y <- fit[["y"]]
 
-    if (is.null(fit[["method"]])) fit.fun <- stats::glm.fit
+    if (is_null(fit[["method"]])) fit.fun <- stats::glm.fit
     else if (is.function(fit[["method"]])) fit.fun <- fit[["method"]]
     else if (is.character(fit[["method"]])) {
       fit.fun <- get0(fit[["method"]], envir = environment(fit[["terms"]]),
                       mode = "function")
-      if (is.null(fit.fun)) {
+      if (is_null(fit.fun)) {
         .err(sprintf("the `method` used to fit the original model (\"%s\") is unavailable", fit[["method"]]))
       }
     }
@@ -247,7 +266,9 @@ make.bootfit <- function(fit, cli, start, gen_weights, .coef) {
       cluster_w <- drop(gen_weights(nc, 1))
       w <- cluster_w[cluster_numeric]
 
-      if (!is.null(w0 <- weights(fit))) w <- w * w0
+      if (is_not_null(w0 <- weights(fit))) {
+        w <- w * w0
+      }
 
       safe.glm.fit(fit.fun, x = x, y = y, weights = w, start = start,
                    offset = fit$offset, family = fit$family,
@@ -261,11 +282,13 @@ make.bootfit <- function(fit, cli, start, gen_weights, .coef) {
       cluster_w <- drop(gen_weights(nc, 1))
       w <- cluster_w[cluster_numeric]
 
-      if (!is.null(w0 <- weights(fit))) w <- w * w0
+      if (is_not_null(w0 <- weights(fit))) {
+        w <- w * w0
+      }
 
       utils::capture.output({
         up <- {
-          if (is.null(start)) update(fit, weights = w, evaluate = TRUE)
+          if (is_null(start)) update(fit, weights = w, evaluate = TRUE)
           else update(fit, weights = w, start = start, evaluate = TRUE)
         }
       })
