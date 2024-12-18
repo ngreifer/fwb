@@ -19,7 +19,7 @@
 #' @seealso [fwb()] for performing the fractional weighted bootstrap; [fwb.ci()] for computing multiple confidence intervals for a single bootstrapped quantity
 #'
 #' @examples
-#' set.seed(123)
+#' set.seed(123, "L'Ecuyer-CMRG")
 #' data("infert")
 #'
 #' fit_fun <- function(data, w) {

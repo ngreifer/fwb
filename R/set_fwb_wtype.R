@@ -14,7 +14,7 @@
 #' @examplesIf requireNamespace("survival", quietly = TRUE)
 #' # Performing a Weibull analysis of the Bearing Cage
 #' # failure data as done in Xu et al. (2020)
-#' set.seed(123)
+#' set.seed(123, "L'Ecuyer-CMRG")
 #' data("bearingcage")
 #'
 #' #Set fwb type to "mammen"

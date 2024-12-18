@@ -24,7 +24,7 @@
 #' @seealso [fwb()] for performing the fractional weighted bootstrap on an arbitrary quantity; [fwb.ci()] for computing nonparametric confidence intervals for `fwb` objects; [summary.fwb()] for producing standard errors and confidence intervals for `fwb` objects; \pkgfun{sandwich}{vcovBS} for computing covariance matrices using the traditional bootstrap (the fractional weighted bootstrap is also available but with limited options).
 #'
 #' @examplesIf requireNamespace("lmtest", quietly = TRUE)
-#' set.seed(123)
+#' set.seed(123, "L'Ecuyer-CMRG")
 #' data("infert")
 #' fit <- glm(case ~ spontaneous + induced, data = infert,
 #'              family = "binomial")

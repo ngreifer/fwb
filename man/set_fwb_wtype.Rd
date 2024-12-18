@@ -27,7 +27,7 @@ Set the default for the type of weights used in the weighted bootstrap computed 
 \dontshow{if (requireNamespace("survival", quietly = TRUE)) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
 # Performing a Weibull analysis of the Bearing Cage
 # failure data as done in Xu et al. (2020)
-set.seed(123)
+set.seed(123, "L'Ecuyer-CMRG")
 data("bearingcage")
 
 #Set fwb type to "mammen"

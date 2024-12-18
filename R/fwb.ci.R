@@ -44,7 +44,7 @@
 #'
 #'
 #' @examples
-#' set.seed(123)
+#' set.seed(123, "L'Ecuyer-CMRG")
 #' data("infert")
 #'
 #' fit_fun <- function(data, w) {

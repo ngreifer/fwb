@@ -60,7 +60,7 @@ See \pkgfun{sandwich}{vcovBS} and \pkgfun{sandwich}{vcovCL} for more information
 }
 \examples{
 \dontshow{if (requireNamespace("lmtest", quietly = TRUE)) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
-set.seed(123)
+set.seed(123, "L'Ecuyer-CMRG")
 data("infert")
 fit <- glm(case ~ spontaneous + induced, data = infert,
              family = "binomial")
@@ -116,5 +116,5 @@ vcovFWB(fit, R = 200, .coef = coef_multinom)
 \dontshow{\}) # examplesIf}
 }
 \seealso{
-\code{\link[=fwb]{fwb()}} for performing the fractional weighted bootstrap on an arbitrary quantity; \code{\link[=fwb.ci]{fwb.ci()}} for computing nonparametric confidence intervals for \code{fwb} objects; \code{\link[=summary.fwb]{summary.fwb()}} for producing standard errors and confidence intervals for \code{fwb} objects; \pkgfun{sandwich}{vcovBS} for computing covariance matrices using the traditional bootstrap
+\code{\link[=fwb]{fwb()}} for performing the fractional weighted bootstrap on an arbitrary quantity; \code{\link[=fwb.ci]{fwb.ci()}} for computing nonparametric confidence intervals for \code{fwb} objects; \code{\link[=summary.fwb]{summary.fwb()}} for producing standard errors and confidence intervals for \code{fwb} objects; \pkgfun{sandwich}{vcovBS} for computing covariance matrices using the traditional bootstrap (the fractional weighted bootstrap is also available but with limited options).
 }

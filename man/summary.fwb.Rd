@@ -40,7 +40,7 @@ When \code{p.value = TRUE}, two additional columns, \verb{z value} and \verb{Pr(
 \code{summary()} creates a regression summary-like table that displays the bootstrap estimates, their empirical standard errors, and their confidence intervals, which are computed using \code{\link[=fwb.ci]{fwb.ci()}}.
 }
 \examples{
-set.seed(123)
+set.seed(123, "L'Ecuyer-CMRG")
 data("infert")
 
 fit_fun <- function(data, w) {
