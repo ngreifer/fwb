@@ -1,8 +1,8 @@
 pandoc: 3.1.11
-pkgdown: 2.1.0
+pkgdown: 2.1.1
 pkgdown_sha: ~
 articles: {}
-last_built: 2024-07-19T17:15Z
+last_built: 2024-12-18T07:27Z
 urls:
   reference: https://ngreifer.github.io/fwb/reference
   article: https://ngreifer.github.io/fwb/articles

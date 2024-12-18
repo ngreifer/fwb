@@ -8,8 +8,8 @@
 <title>Fractional Weighted Bootstrap • fwb</title>
 <script src="deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <link href="deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
-<script src="deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="deps/font-awesome-6.4.2/css/all.min.css" rel="stylesheet">
-<link href="deps/font-awesome-6.4.2/css/v4-shims.min.css" rel="stylesheet">
+<script src="deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
+<link href="deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
 <script src="deps/headroom-0.11.0/headroom.min.js"></script><script src="deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="deps/search-1.0.0/fuse.min.js"></script><script src="deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="pkgdown.js"></script><meta property="og:title" content="Fractional Weighted Bootstrap">
 <meta name="description" content="An implementation of the fractional weighted bootstrap to be used as a drop-in for functions in the boot package. The fractional weighted bootstrap (also known as the Bayesian bootstrap) involves drawing weights randomly that are applied to the data rather than resampling units from the data. See Xu et al. (2020) &lt;doi:10.1080/00031305.2020.1731599&gt; for details.">
 <meta property="og:description" content="An implementation of the fractional weighted bootstrap to be used as a drop-in for functions in the boot package. The fractional weighted bootstrap (also known as the Bayesian bootstrap) involves drawing weights randomly that are applied to the data rather than resampling units from the data. See Xu et al. (2020) &lt;doi:10.1080/00031305.2020.1731599&gt; for details.">
@@ -22,7 +22,7 @@
 
     <a class="navbar-brand me-2" href="index.html">fwb</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.0.9000</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.0.9001</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -71,7 +71,7 @@
 <p>Below are some examples of how to use <code>fwb</code>. We set a seed to ensure all results are replicable. (Note that when parallel processing is used, a special kind of seed needs to be set; see <code><a href="https://rdrr.io/r/base/Random.html" class="external-link">?set.seed</a></code> for details.)</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="st"><a href="https://github.com/ngreifer/fwb" class="external-link">"fwb"</a></span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">123456</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">123456</span>, <span class="st">"L'Ecuyer-CMRG"</span><span class="op">)</span></span></code></pre></div>
 <div class="section level3">
 <h3 id="bearing-cage-field-failure-weibull-analysis-from-xu-et-al-2020">Bearing cage field failure Weibull analysis from Xu et al. (2020)<a class="anchor" aria-label="anchor" href="#bearing-cage-field-failure-weibull-analysis-from-xu-et-al-2020"></a>
 </h3>
@@ -100,15 +100,15 @@
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Bootstrap Statistics :</span></span>
 <span><span class="co">#&gt;          original         bias   std. error</span></span>
-<span><span class="co">#&gt; eta  11792.178173 6528.5275456 21092.241147</span></span>
-<span><span class="co">#&gt; beta     2.035319    0.2540133     0.894168</span></span>
+<span><span class="co">#&gt; eta  11792.178173 7722.5389905 2.652048e+04</span></span>
+<span><span class="co">#&gt; beta     2.035319    0.2326988 8.790395e-01</span></span>
 <span></span>
 <span><span class="co"># Bias-corrected accelerated percentile</span></span>
 <span><span class="co"># confidence interval</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">fwb_est</span>, ci.type <span class="op">=</span> <span class="st">"bca"</span><span class="op">)</span></span>
 <span><span class="co">#&gt;      Estimate Std. Error CI 2.5 % CI 97.5 %</span></span>
-<span><span class="co">#&gt; eta  1.18e+04   2.11e+04 3.18e+03  7.21e+04</span></span>
-<span><span class="co">#&gt; beta 2.04e+00   8.94e-01 1.23e+00  4.66e+00</span></span>
+<span><span class="co">#&gt; eta  1.18e+04   2.65e+04 3.15e+03  7.17e+04</span></span>
+<span><span class="co">#&gt; beta 2.04e+00   8.79e-01 1.24e+00  4.55e+00</span></span>
 <span></span>
 <span><span class="co"># Plot the bootstrap distribution</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">fwb_est</span>, index <span class="op">=</span> <span class="st">"beta"</span>, qdist <span class="op">=</span> <span class="st">"chisq"</span><span class="op">)</span></span></code></pre></div>
@@ -129,24 +129,24 @@
 <span><span class="co"># The traditional bootstrap fails</span></span>
 <span><span class="fu"><a href="https://rdrr.io/pkg/lmtest/man/coeftest.html" class="external-link">coeftest</a></span><span class="op">(</span><span class="va">fit</span>, vcov <span class="op">=</span> <span class="fu">sandwich</span><span class="fu">::</span><span class="va"><a href="https://sandwich.R-Forge.R-project.org/reference/vcovBS.html" class="external-link">vcovBS</a></span><span class="op">)</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">3</span>,<span class="op">]</span></span>
 <span><span class="co">#&gt;              Estimate   Std. Error       z value Pr(&gt;|z|)</span></span>
-<span><span class="co">#&gt; (Intercept) -6.904101 4.692763e+14 -1.471223e-14        1</span></span>
-<span><span class="co">#&gt; spontaneous  3.230286 1.879336e+14  1.718844e-14        1</span></span>
-<span><span class="co">#&gt; induced      2.190303 1.443840e+14  1.516998e-14        1</span></span>
+<span><span class="co">#&gt; (Intercept) -6.904101 2.285991e+22 -3.020179e-22        1</span></span>
+<span><span class="co">#&gt; spontaneous  3.230286 1.670378e+14  1.933866e-14        1</span></span>
+<span><span class="co">#&gt; induced      2.190303 1.194912e+14  1.833025e-14        1</span></span>
 <span></span>
 <span><span class="co"># The fractional weighted bootstrap succeeds</span></span>
 <span><span class="fu"><a href="https://rdrr.io/pkg/lmtest/man/coeftest.html" class="external-link">coeftest</a></span><span class="op">(</span><span class="va">fit</span>, vcov <span class="op">=</span> <span class="va">vcovFWB</span><span class="op">)</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">3</span>,<span class="op">]</span></span>
 <span><span class="co">#&gt;              Estimate Std. Error   z value     Pr(&gt;|z|)</span></span>
-<span><span class="co">#&gt; (Intercept) -6.904101  1.8282103 -3.776426 1.590946e-04</span></span>
-<span><span class="co">#&gt; spontaneous  3.230286  0.7282145  4.435899 9.168901e-06</span></span>
-<span><span class="co">#&gt; induced      2.190303  0.6856374  3.194549 1.400493e-03</span></span></code></pre></div>
+<span><span class="co">#&gt; (Intercept) -6.904101  1.8325484 -3.767486 1.648995e-04</span></span>
+<span><span class="co">#&gt; spontaneous  3.230286  0.7493112  4.311007 1.625127e-05</span></span>
+<span><span class="co">#&gt; induced      2.190303  0.6880744  3.183235 1.456391e-03</span></span></code></pre></div>
 <p>We can also perform cluster-robust inference by bootstrapping the strata. (Note in this case the traditional bootstrap does fine, but the FWB is still more accurate.)</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Including stratum membership as a clustering variable</span></span>
 <span><span class="fu"><a href="https://rdrr.io/pkg/lmtest/man/coeftest.html" class="external-link">coeftest</a></span><span class="op">(</span><span class="va">fit</span>, vcov <span class="op">=</span> <span class="va">vcovFWB</span>, cluster <span class="op">=</span> <span class="op">~</span><span class="va">stratum</span><span class="op">)</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">3</span>,<span class="op">]</span></span>
 <span><span class="co">#&gt;              Estimate Std. Error   z value     Pr(&gt;|z|)</span></span>
-<span><span class="co">#&gt; (Intercept) -6.904101  1.5157744 -4.554834 5.242687e-06</span></span>
-<span><span class="co">#&gt; spontaneous  3.230286  0.6993316  4.619105 3.853991e-06</span></span>
-<span><span class="co">#&gt; induced      2.190303  0.6204237  3.530334 4.150356e-04</span></span></code></pre></div>
+<span><span class="co">#&gt; (Intercept) -6.904101  1.6343290 -4.224426 2.395510e-05</span></span>
+<span><span class="co">#&gt; spontaneous  3.230286  0.7317966  4.414185 1.013912e-05</span></span>
+<span><span class="co">#&gt; induced      2.190303  0.6745283  3.247162 1.165621e-03</span></span></code></pre></div>
 <p>Let’s look more in-depth at the results of the traditional and fractional weighted bootstrap by comparing the output of <code><a href="reference/fwb.html">fwb()</a></code> and <code><a href="https://rdrr.io/pkg/boot/man/boot.html" class="external-link">boot::boot()</a></code>. (Note the traditional bootstrap can also be requested using <code>fwb(., wtype = "multinom")</code>, which will give identical results to <code><a href="https://rdrr.io/pkg/boot/man/boot.html" class="external-link">boot::boot()</a></code> when the same seed is set.)</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">fit_fun</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">data</span>, <span class="va">w</span><span class="op">)</span> <span class="op">{</span></span>
@@ -166,10 +166,10 @@
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Bootstrap Statistics :</span></span>
-<span><span class="co">#&gt;      original        bias     std. error</span></span>
-<span><span class="co">#&gt; t1* -6.904101 -1.069692e+21 3.380971e+22</span></span>
-<span><span class="co">#&gt; t2*  3.230286  4.446726e+13 3.182984e+14</span></span>
-<span><span class="co">#&gt; t3*  2.190303  2.719013e+13 1.954091e+14</span></span>
+<span><span class="co">#&gt;      original       bias     std. error</span></span>
+<span><span class="co">#&gt; t1* -6.904101 2.629510e+21 8.083197e+22</span></span>
+<span><span class="co">#&gt; t2*  3.230286 2.114656e+13 2.336509e+14</span></span>
+<span><span class="co">#&gt; t3*  2.190303 1.696351e+13 1.878001e+14</span></span>
 <span></span>
 <span><span class="va">fwb_est</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/fwb.html">fwb</a></span><span class="op">(</span><span class="va">infert</span>, <span class="va">fit_fun</span>, R <span class="op">=</span> <span class="fl">999</span>, verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
 <span><span class="va">fwb_est</span></span>
@@ -180,9 +180,9 @@
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Bootstrap Statistics :</span></span>
 <span><span class="co">#&gt;              original       bias std. error</span></span>
-<span><span class="co">#&gt; (Intercept) -6.904101 -1.5663837  1.8587672</span></span>
-<span><span class="co">#&gt; spontaneous  3.230286  0.6722459  0.7356135</span></span>
-<span><span class="co">#&gt; induced      2.190303  0.5044327  0.6825087</span></span></code></pre></div>
+<span><span class="co">#&gt; (Intercept) -6.904101 -1.7026157  1.8743631</span></span>
+<span><span class="co">#&gt; spontaneous  3.230286  0.7069076  0.7657147</span></span>
+<span><span class="co">#&gt; induced      2.190303  0.5690742  0.7096401</span></span></code></pre></div>
 <p>Already the bias and standard errors indicate problems with the traditional bootstrap. Let’s plot histograms of the estimates to see where the failure is:</p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">boot_est</span>, index <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span></code></pre></div>
@@ -270,7 +270,7 @@
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.0.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.1.</p>
 </div>
 
     </footer>
