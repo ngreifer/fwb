@@ -22,7 +22,7 @@
 
     <a class="navbar-brand me-2" href="index.html">fwb</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.0.9001</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -62,8 +62,8 @@
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"fwb"</span><span class="op">)</span></span></code></pre></div>
 <p>You can install the development version of <code>fwb</code> from <a href="https://github.com/" class="external-link">GitHub</a> with:</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># install.packages("devtools")</span></span>
-<span><span class="fu">devtools</span><span class="fu">::</span><span class="fu">install_github</span><span class="op">(</span><span class="st">"ngreifer/fwb"</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="co"># install.packages("remotes")</span></span>
+<span><span class="fu">remotes</span><span class="fu">::</span><span class="fu">install_github</span><span class="op">(</span><span class="st">"ngreifer/fwb"</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="examples">Examples<a class="anchor" aria-label="anchor" href="#examples"></a>
@@ -86,7 +86,7 @@
 <span>                           data <span class="op">=</span> <span class="va">data</span>, weights <span class="op">=</span> <span class="va">w</span>,</span>
 <span>                           dist <span class="op">=</span> <span class="st">"weibull"</span><span class="op">)</span></span>
 <span></span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>eta <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/unname.html" class="external-link">unname</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">exp</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/coef.html" class="external-link">coef</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span><span class="op">)</span><span class="op">)</span>, beta <span class="op">=</span> <span class="fl">1</span><span class="op">/</span><span class="va">fit</span><span class="op">$</span><span class="va">scale</span><span class="op">)</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>eta <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/unname.html" class="external-link">unname</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">exp</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/coef.html" class="external-link">coef</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span><span class="op">)</span><span class="op">)</span>, beta <span class="op">=</span> <span class="fl">1</span> <span class="op">/</span> <span class="va">fit</span><span class="op">$</span><span class="va">scale</span><span class="op">)</span></span>
 <span><span class="op">}</span></span>
 <span></span>
 <span><span class="co"># 1999 bootstrap replications; more is always better</span></span>
@@ -100,7 +100,7 @@
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Bootstrap Statistics :</span></span>
 <span><span class="co">#&gt;          original         bias   std. error</span></span>
-<span><span class="co">#&gt; eta  11792.178173 7722.5389905 2.652048e+04</span></span>
+<span><span class="co">#&gt; eta  11792.178173 7722.5390790 2.652048e+04</span></span>
 <span><span class="co">#&gt; beta     2.035319    0.2326988 8.790395e-01</span></span>
 <span></span>
 <span><span class="co"># Bias-corrected accelerated percentile</span></span>
@@ -127,14 +127,14 @@
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="st">"lmtest"</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># The traditional bootstrap fails</span></span>
-<span><span class="fu"><a href="https://rdrr.io/pkg/lmtest/man/coeftest.html" class="external-link">coeftest</a></span><span class="op">(</span><span class="va">fit</span>, vcov <span class="op">=</span> <span class="fu">sandwich</span><span class="fu">::</span><span class="va"><a href="https://sandwich.R-Forge.R-project.org/reference/vcovBS.html" class="external-link">vcovBS</a></span><span class="op">)</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">3</span>,<span class="op">]</span></span>
+<span><span class="fu"><a href="https://rdrr.io/pkg/lmtest/man/coeftest.html" class="external-link">coeftest</a></span><span class="op">(</span><span class="va">fit</span>, vcov <span class="op">=</span> <span class="fu">sandwich</span><span class="fu">::</span><span class="va"><a href="https://sandwich.R-Forge.R-project.org/reference/vcovBS.html" class="external-link">vcovBS</a></span><span class="op">)</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">3</span>, <span class="op">]</span></span>
 <span><span class="co">#&gt;              Estimate   Std. Error       z value Pr(&gt;|z|)</span></span>
 <span><span class="co">#&gt; (Intercept) -6.904101 2.285991e+22 -3.020179e-22        1</span></span>
 <span><span class="co">#&gt; spontaneous  3.230286 1.670378e+14  1.933866e-14        1</span></span>
 <span><span class="co">#&gt; induced      2.190303 1.194912e+14  1.833025e-14        1</span></span>
 <span></span>
 <span><span class="co"># The fractional weighted bootstrap succeeds</span></span>
-<span><span class="fu"><a href="https://rdrr.io/pkg/lmtest/man/coeftest.html" class="external-link">coeftest</a></span><span class="op">(</span><span class="va">fit</span>, vcov <span class="op">=</span> <span class="va">vcovFWB</span><span class="op">)</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">3</span>,<span class="op">]</span></span>
+<span><span class="fu"><a href="https://rdrr.io/pkg/lmtest/man/coeftest.html" class="external-link">coeftest</a></span><span class="op">(</span><span class="va">fit</span>, vcov <span class="op">=</span> <span class="va">vcovFWB</span><span class="op">)</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">3</span>, <span class="op">]</span></span>
 <span><span class="co">#&gt;              Estimate Std. Error   z value     Pr(&gt;|z|)</span></span>
 <span><span class="co">#&gt; (Intercept) -6.904101  1.8325484 -3.767486 1.648995e-04</span></span>
 <span><span class="co">#&gt; spontaneous  3.230286  0.7493112  4.311007 1.625127e-05</span></span>
@@ -142,7 +142,7 @@
 <p>We can also perform cluster-robust inference by bootstrapping the strata. (Note in this case the traditional bootstrap does fine, but the FWB is still more accurate.)</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Including stratum membership as a clustering variable</span></span>
-<span><span class="fu"><a href="https://rdrr.io/pkg/lmtest/man/coeftest.html" class="external-link">coeftest</a></span><span class="op">(</span><span class="va">fit</span>, vcov <span class="op">=</span> <span class="va">vcovFWB</span>, cluster <span class="op">=</span> <span class="op">~</span><span class="va">stratum</span><span class="op">)</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">3</span>,<span class="op">]</span></span>
+<span><span class="fu"><a href="https://rdrr.io/pkg/lmtest/man/coeftest.html" class="external-link">coeftest</a></span><span class="op">(</span><span class="va">fit</span>, vcov <span class="op">=</span> <span class="va">vcovFWB</span>, cluster <span class="op">=</span> <span class="op">~</span><span class="va">stratum</span><span class="op">)</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">3</span>, <span class="op">]</span></span>
 <span><span class="co">#&gt;              Estimate Std. Error   z value     Pr(&gt;|z|)</span></span>
 <span><span class="co">#&gt; (Intercept) -6.904101  1.6343290 -4.224426 2.395510e-05</span></span>
 <span><span class="co">#&gt; spontaneous  3.230286  0.7317966  4.414185 1.013912e-05</span></span>
@@ -190,7 +190,7 @@
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">fwb_est</span>, index <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span></code></pre></div>
 <p><img src="reference/figures/README-unnamed-chunk-10-1.png" width="80%" style="display: block; margin: auto;"></p>
-<p>It is clear that the estimates from the traditional bootstrap are pathological, whereas the estimates from the FWB are more reasonable. The non-normality of the FWB distributions also suggests that the usual Wald-style confidence intervals may not be accurate, and a percentile interval should be computed instead.</p>
+<p>It is clear that the estimates from the traditional bootstrap are pathological, whereas the estimates from the FWB are more reasonable. The non-normality of the FWB distributions also suggests that the usual Wald-style confidence intervals may not be accurate, and a bias-corrected percentile interval should probably be computed instead.</p>
 </div>
 </div>
 <div class="section level2">

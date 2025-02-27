@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">fwb</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.0.9001</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -44,8 +44,9 @@
 <span>  <span class="va">statistic</span>,</span>
 <span>  R <span class="op">=</span> <span class="fl">999</span>,</span>
 <span>  cluster <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  simple <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  simple <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  wtype <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">getOption</a></span><span class="op">(</span><span class="st">"fwb_wtype"</span>, <span class="st">"exp"</span><span class="op">)</span>,</span>
+<span>  strata <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  verbose <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  cl <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  <span class="va">...</span></span>
@@ -76,11 +77,15 @@
 
 
 <dt id="arg-simple">simple<a class="anchor" aria-label="anchor" href="#arg-simple"></a></dt>
-<dd><p><code>logical</code>; if <code>TRUE</code>, weights will be computed on-the-fly in each bootstrap replication rather than all at once. This can save memory at the cost of some speed.</p></dd>
+<dd><p><code>logical</code>; if <code>TRUE</code>, weights will be generated on-the-fly in each bootstrap replication; if <code>FALSE</code>, all weights will be generated at once and then supplied to <code>statistic</code>. Cannot be <code>TRUE</code> when <code>wtype = "multinom"</code>. The default (<code>NULL</code>) sets to <code>FALSE</code> if <code>wtype = "multinom"</code> or <code>cl</code> is supplied without a parallel-appropriate seed, and to <code>TRUE</code> otherwise.</p></dd>
 
 
 <dt id="arg-wtype">wtype<a class="anchor" aria-label="anchor" href="#arg-wtype"></a></dt>
 <dd><p>string; the type of weights to use. Allowable options include <code>"exp"</code> (the default), <code>"pois"</code>, <code>"multinom"</code>, and <code>"mammen"</code>. See Details. See <code><a href="set_fwb_wtype.html">set_fwb_wtype()</a></code> to set a global default.</p></dd>
+
+
+<dt id="arg-strata">strata<a class="anchor" aria-label="anchor" href="#arg-strata"></a></dt>
+<dd><p>optional; a vector containing stratum membership for stratified bootstrapping. If supplied, will essentially perform a separate bootstrap within each level of <code>strata</code>. This does not affect results when <code>wtype = "poisson"</code>.</p></dd>
 
 
 <dt id="arg-verbose">verbose<a class="anchor" aria-label="anchor" href="#arg-verbose"></a></dt>
@@ -134,26 +139,30 @@
 <dt>cluster</dt>
 <dd><p>The vector passed to <code>cluster</code>, if any.</p></dd>
 
+<dt>strata</dt>
+<dd><p>The vector passed to <code>strata</code>, if any.</p></dd>
+
 <dt>wtype</dt>
 <dd><p>The type of weights used as determined by the <code>wtype</code> argument.</p></dd>
 
 </dl></div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
-    <p><code>fwb()</code> implements the fractional weighted bootstrap and is meant to function as a drop-in for <code>boot::boot(., stype = "f")</code> (i.e., the usual bootstrap but with frequency weights representing the number of times each unit is drawn). In each bootstrap replication, when <code>wtype = "exp"</code> (the default), the weights are sampled from independent exponential distributions with rate parameter 1 and then normalized to have a mean of 1, equivalent to drawing the weights from a Dirichlet distribution. Other weights are allowed as determined by the <code>wtype</code> argument (see <code><a href="set_fwb_wtype.html">set_fwb_wtype()</a></code> for details). The function supplied to <code>statistic</code> must incorporate the weights to compute a weighted statistic. For example, if the output is a regression coefficient, the weights supplied to the <code>w</code> argument of <code>statistic</code> should be supplied to the <code>weights</code> argument of <code><a href="https://rdrr.io/r/stats/lm.html" class="external-link">lm()</a></code>. These weights should be used any time frequency weights would be, since they are meant to function like frequency weights (which, in the case of the traditional bootstrap, would be integers). Unfortunately, there is no way for <code>fwb()</code> to know whether you are using the weights correctly, so care should be taken to ensure weights are correctly incorporated into the estimator.</p>
+    <p><code>fwb()</code> implements the fractional weighted bootstrap and is meant to function as a drop-in for <code>boot::boot(., stype = "f")</code> (i.e., the usual bootstrap but with frequency weights representing the number of times each unit is drawn). In each bootstrap replication, when <code>wtype = "exp"</code> (the default), the weights are sampled from independent exponential distributions with rate parameter 1 and then normalized to have a mean of 1, equivalent to drawing the weights from a Dirichlet distribution. Other weights are allowed as determined by the <code>wtype</code> argument (see below for details). The function supplied to <code>statistic</code> must incorporate the weights to compute a weighted statistic. For example, if the output is a regression coefficient, the weights supplied to the <code>w</code> argument of <code>statistic</code> should be supplied to the <code>weights</code> argument of <code><a href="https://rdrr.io/r/stats/lm.html" class="external-link">lm()</a></code>. These weights should be used any time frequency weights would be, since they are meant to function like frequency weights (which, in the case of the traditional bootstrap, would be integers). Unfortunately, there is no way for <code>fwb()</code> to know whether you are using the weights correctly, so care should be taken to ensure weights are correctly incorporated into the estimator.</p>
 <p>When fitting binomial regression models (e.g., logistic) using <code><a href="https://rdrr.io/r/stats/glm.html" class="external-link">glm()</a></code>, it may be useful to change the <code>family</code> to a "quasi" variety (e.g., <code><a href="https://rdrr.io/r/stats/family.html" class="external-link">quasibinomial()</a></code>) to avoid a spurious warning about "non-integer #successes".</p>
 <p>The cluster bootstrap can be requested by supplying a vector of cluster membership to <code>cluster</code>. Rather than generating a weight for each unit, a weight is generated for each cluster and then applied to all units in that cluster.</p>
+<p>Bootstrapping can be performed within strata by supplying a vector of stratum membership to <code>strata</code>. This essentially rescales the weights within each stratum to have a mean of 1, ensuring that the sum of weights in each stratum is equal to the stratum size. For multinomial weights, using strata is equivalent to drawing samples with replacement from each stratum. Strata do not affect bootstrapping when using Poisson weights.</p>
 <p>Ideally, <code>statistic</code> should not involve a random element, or else it will not be straightforward to replicate the bootstrap results using the <code>seed</code> included in the output object. Setting a seed using <code><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed()</a></code> is always advised.</p>
 <p>The <code><a href="https://rdrr.io/r/base/print.html" class="external-link">print()</a></code> method displays the value of the statistics, the bias (the difference between the statistic and the mean of its bootstrap distribution), and the standard error (the standard deviation of the bootstrap distribution).</p><div class="section">
 <h3 id="weight-types">Weight types<a class="anchor" aria-label="anchor" href="#weight-types"></a></h3>
 
 
 <p>Different types of weights can be supplied to the <code>wtype</code> argument. A global default can be set using <code><a href="set_fwb_wtype.html">set_fwb_wtype()</a></code>. The allowable weight types are described below.</p><ul><li><p><code>"exp"</code></p></li>
-</ul><p>Draws weights from an exponential distribution with rate parameter 1 using <code><a href="https://rdrr.io/r/stats/Exponential.html" class="external-link">rexp()</a></code>. These weights are the usual "Bayesian bootstrap" weights described in Xu et al. (2020). They are equivalent to drawing weights from a uniform Dirichlet distribution, which is what gives these weights the interpretation of a Bayesian prior.</p><ul><li><p><code>"multinom"</code></p></li>
-</ul><p>Draws integer weights using <code><a href="https://rdrr.io/r/base/sample.html" class="external-link">sample()</a></code>, which samples unit indices with replacement and uses the tabulation of the indices as frequency weights. This is equivalent to drawing weights from a multinomial distribution. Using <code>wtype = "multinom"</code> is the same as using <code>boot::boot(., stype = "f")</code> instead of <code>fwb()</code> (i.e., the resulting estimates will be identical).</p><ul><li><p><code>"poisson"</code></p></li>
-</ul><p>Draws integer weights from a Poisson distribution with 1 degree of freedom using <code><a href="https://rdrr.io/r/stats/Poisson.html" class="external-link">rpois()</a></code>. This is an alternative to the multinomial weights that yields similar estimates (especially as the sample size grows) but can be faster.</p><ul><li><p><code>"mammen"</code></p></li>
-</ul><p>Draws weights from a modification of the distribution described by Mammen (1983) for use in the wild bootstrap. These positive weights have a mean, variance, and skewness of 1, making them second-order accurate (in contrast to the usual exponential weights, which are only first-order accurate). The weights \(w\) are drawn such that \(P(w=(3+\sqrt{5})/2)=(\sqrt{5}-1)/2\sqrt{5}\) and \(P(w=(3-\sqrt{5})/2)=(\sqrt{5}+1)/2\sqrt{5}\).</p>
-<p>In general, <code>"mammen"</code> should be used for all cases. <code>"exp"</code> is the default due to it being the formulation described in Xu et al. (2020) and in the most formulations of the Bayesian bootstrap; it should be used if one wants to remain in line with these guidelines or to maintain a Bayesian flavor to the analysis, whereas <code>"mammen"</code>should be preferred for its frequentist operating characteristics. <code>"multinom"</code> and <code>"poisson"</code> should only be used for comparison purposes.</p>
+</ul><p>Draws weights from an exponential distribution with rate parameter 1 using <code><a href="https://rdrr.io/r/stats/Exponential.html" class="external-link">rexp()</a></code>. These weights are the usual "Bayesian bootstrap" weights described in Xu et al. (2020). They are equivalent to drawing weights from a uniform Dirichlet distribution, which is what gives these weights the interpretation of a Bayesian prior. The weights are scaled to have a mean of 1 within each stratum (or in the full sample if <code>strata</code> is not supplied).</p><ul><li><p><code>"multinom"</code></p></li>
+</ul><p>Draws integer weights using <code><a href="https://rdrr.io/r/base/sample.html" class="external-link">sample()</a></code>, which samples unit indices with replacement and uses the tabulation of the indices as frequency weights. This is equivalent to drawing weights from a multinomial distribution. Using <code>wtype = "multinom"</code> is the same as using <code>boot::boot(., stype = "f")</code> instead of <code>fwb()</code> (i.e., the resulting estimates will be identical). When <code>strata</code> is supplied, unit indices are drawn with replacement within each stratum so that the sum of the weights in each stratum is equal to the stratum size.</p><ul><li><p><code>"poisson"</code></p></li>
+</ul><p>Draws integer weights from a Poisson distribution with 1 degree of freedom using <code><a href="https://rdrr.io/r/stats/Poisson.html" class="external-link">rpois()</a></code>. This is an alternative to the multinomial weights that yields similar estimates (especially as the sample size grows) but can be faster. Note <code>strata</code> is ignored when using <code>"poisson"</code>.</p><ul><li><p><code>"mammen"</code></p></li>
+</ul><p>Draws weights from a modification of the distribution described by Mammen (1983) for use in the wild bootstrap. These positive weights have a mean, variance, and skewness of 1, making them second-order accurate (in contrast to the usual exponential weights, which are only first-order accurate). The weights \(w\) are drawn such that \(P(w=(3+\sqrt{5})/2)=(\sqrt{5}-1)/2\sqrt{5}\) and \(P(w=(3-\sqrt{5})/2)=(\sqrt{5}+1)/2\sqrt{5}\). The weights are scaled to have a mean of 1 within each stratum (or in the full sample if <code>strata</code> is not supplied).</p>
+<p><code>"exp"</code> is the default due to it being the formulation described in Xu et al. (2020) and in the most formulations of the Bayesian bootstrap; it should be used if one wants to remain in line with these guidelines or to maintain a Bayesian flavor to the analysis, whereas <code>"mammen"</code>should be preferred for its frequentist operating characteristics. <code>"multinom"</code> and <code>"poisson"</code> should only be used for comparison purposes.</p>
 </div>
 
     </div>
