@@ -10,9 +10,9 @@ set_fwb_wtype(wtype = getOption("fwb_wtype", "exp"))
 get_fwb_wtype(fwb)
 }
 \arguments{
-\item{wtype}{string; the type of weights to use. Allowable options include \code{"exp"} (the default), \code{"pois"}, \code{"multinom"}, and \code{"mammen"}. Abbreviations allowed. See Details for what these mean.}
+\item{wtype}{string; the type of weights to use. Allowable options include \code{"exp"} (the default), \code{"pois"}, \code{"multinom"}, and \code{"mammen"}. Abbreviations allowed. See \code{\link[=fwb]{fwb()}} for what these mean.}
 
-\item{fwb}{optional; an \code{fwb} objct, the output of a call to \code{\link[=fwb]{fwb()}}. If left empty, will extract the weights type from \code{options()}.}
+\item{fwb}{optional; an \code{fwb} object, the output of a call to \code{\link[=fwb]{fwb()}}. If left empty, will extract the weights type from \code{options()}.}
 }
 \value{
 \code{set_fwb_wtype()} returns a call to \code{\link[=options]{options()}} with the options set to those prior to \code{set_fwb_wtype()} being called. This makes it so that calling \code{options(op)}, where \code{op} is the output of \code{set_fwb_wtype()}, resets the \code{fwb_wtype} to its original value. \code{get_fwb_wtype()} returns a string containing the \code{fwb_wtype} value set globally (if no argument is supplied) or used in the supplied \code{fwb} object.
@@ -56,5 +56,5 @@ get_fwb_wtype()
 \dontshow{\}) # examplesIf}
 }
 \seealso{
-\link{fwb} for a definition of each types of weights; \code{\link[=vcovFWB]{vcovFWB()}}; \code{\link[=options]{options()}}; \pkgfun{boot}{boot} for the traditional bootstrap.
+\code{\link[=fwb]{fwb()}} for a definition of each types of weights; \code{\link[=vcovFWB]{vcovFWB()}}; \code{\link[=options]{options()}}; \pkgfun{boot}{boot} for the traditional bootstrap.
 }

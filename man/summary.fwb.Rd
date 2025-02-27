@@ -2,6 +2,7 @@
 % Please edit documentation in R/summary.fwb.R
 \name{summary.fwb}
 \alias{summary.fwb}
+\alias{confint.fwb}
 \title{Summarize \code{fwb} Output}
 \usage{
 \method{summary}{fwb}(
@@ -12,32 +13,36 @@
   index = 1L:ncol(object$t),
   ...
 )
+
+\method{confint}{fwb}(object, parm, level = 0.95, ci.type = "bc", ...)
 }
 \arguments{
 \item{object}{an \code{fwb} object; the output of a call to \code{\link[=fwb]{fwb()}}.}
 
-\item{conf}{the desired confidence level. Default is .95 for 95\% confidence intervals.}
+\item{conf, level}{the desired confidence level. Default is .95 for 95\% confidence intervals.}
 
 \item{ci.type}{the type of confidence interval desired. Allowable options include \code{"norm"} (normal approximation), \code{"basic"} (basic interval), \code{"perc"} (percentile interval), \code{"bc"} (bias-correct percentile interval), and \code{"bca"} (bias-corrected and accelerated [BCa] interval). Only one is allowed. BCa intervals require that the number of bootstrap replications is larger than the sample size. See \code{\link[=fwb.ci]{fwb.ci()}} for details. The default is \code{"bc"}.}
 
 \item{p.value}{\code{logical}; whether to display p-values for the test that each parameter is equal to 0. The p-value is computed using a Z-test with the test statistic computed as the ratio of the estimate to its bootstrap standard error. This test is only valid when the bootstrap distribution is normally distributed around 0 and is not guaranteed to agree with any of the confidence intervals. Default is \code{FALSE}.}
 
-\item{index}{the index or indices of the position of the quantity of interest in \code{x$t0} if more than one was specified in \code{fwb()}. Default is to display all quantities.}
+\item{index, parm}{the index or indices of the position of the quantity of interest in \code{x$t0} if more than one was specified in \code{fwb()}. Default is to display all quantities.}
 
 \item{...}{ignored.}
 }
 \value{
-A \code{summary.fwb} object, which is a matrix with the following columns:
+Fpr \code{summary()}, a \code{summary.fwb} object, which is a matrix with the following columns:
 \itemize{
 \item \code{Estimate}: the statistic estimated in the original sample
 \item \verb{Std. Error}: the standard deviation of the bootstrap estimates
 \item \verb{CI \{L\}\%} and \verb{CI \{U\}\%}, the upper and lower confidence interval bounds computed using the argument to \code{ci.type}.
 }
 
-When \code{p.value = TRUE}, two additional columns, \verb{z value} and \verb{Pr(>|z|)} are included containing the z-statistic and p-value for each computed statistic.
+When \code{p.value = TRUE}, two additional columns, \verb{z value} and \verb{Pr(>|z|)}, are included containing the z-statistic and p-value for each computed statistic, respectively.
+
+For \code{confint()}, a matrix with a row for each statistic and a column for the upper and lower confidence interval limits.
 }
 \description{
-\code{summary()} creates a regression summary-like table that displays the bootstrap estimates, their empirical standard errors, and their confidence intervals, which are computed using \code{\link[=fwb.ci]{fwb.ci()}}.
+\code{summary()} creates a regression summary-like table that displays the bootstrap estimates, their empirical standard errors, and their confidence intervals. \code{confint()} produces just the confidence intervals, which are computed using \code{\link[=fwb.ci]{fwb.ci()}}, and is called internally by \code{summary()}.
 }
 \examples{
 set.seed(123, "L'Ecuyer-CMRG")

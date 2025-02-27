@@ -1,34 +1,3 @@
-make_gen_weights <- function(wtype) {
-  wtype <- tolower(wtype)
-  wtype <- match_arg(wtype, c("exp", "multinom", "poisson", "mammen"))
-
-  fun <- switch(wtype,
-         "exp" = function(n, R) {
-           w <- matrix(rexp(n * R), nrow = R, ncol = n, byrow = TRUE)
-           n * w/rowSums(w)
-         },
-         "poisson" = function(n, R) {
-           matrix(rpois(n * R, 1), nrow = R, ncol = n, byrow = TRUE)
-         },
-         # "multinom" = function(n, R) {
-         #   rmultinom(R, n, rep(1/n, n))
-         # },
-         "multinom" = function(n, R) {
-           i <- sample.int(n, n * R, replace = TRUE)
-           dim(i) <- c(R, n)
-           t(apply(i, 1, tabulate, n))
-         },
-         "mammen" = function(n, R) {
-           sqrt5 <- sqrt(5)
-           w <- matrix((3-sqrt5)/2 + sqrt5 * rbinom(n * R, 1, .5 - 1/(2*sqrt5)),
-                       nrow = R, ncol = n, byrow = TRUE)
-           n * w/rowSums(w)
-         })
-
-  attr(fun, "wtype") <- wtype
-  fun
-}
-
 na.rem <- function(x) {
   #A faster na.omit for vectors
   x[!is.na(x)]
@@ -50,11 +19,11 @@ all_the_same <- function(x, na.rm = TRUE) {
   }
 
   if (is.numeric(x)) check_if_zero(max(x) - min(x))
-  else all(x == x[1])
+  else all(x == x[1L])
 }
 
 #Format percentage for CI labels
-fmt.prc <- function(probs, digits = 3) {
+fmt.prc <- function(probs, digits = 3L) {
   paste(format(100 * probs, trim = TRUE, scientific = FALSE, digits = digits), "%")
 }
 
@@ -65,7 +34,7 @@ check_index <- function(index, t, several.ok = FALSE) {
 
   if (ncol(t) == 1L) {
     if (!((is.numeric(index) && chk::vld_whole_number(index) && index == 1) ||
-          (chk::vld_string(index) && !is.null(colnames(t)) && index == colnames(t)[1]))) {
+          (chk::vld_string(index) && !is_null(colnames(t)) && index == colnames(t)[1L]))) {
       chk::wrn("only one statistic is available; ignoring `index`")
     }
 
@@ -73,36 +42,36 @@ check_index <- function(index, t, several.ok = FALSE) {
   }
 
   if (!((is.character(index) || is.numeric(index)) && is_null(dim(index)))) {
-    if (!several.ok) {
-      .err("`index` must be a string or number indicating the name or index of the desired statistic")
+    if (several.ok) {
+      .err("`index` must be a character or numeric vector indicating the names or indices of the desired statistics")
     }
     else {
-      .err("`index` must be a character or numeric vector indicating the names or indices of the desired statistics")
+      .err("`index` must be a string or number indicating the name or index of the desired statistic")
     }
   }
 
   index <- unique(drop(index))
 
-  if (!several.ok && length(index) > 1) {
+  if (!several.ok && length(index) > 1L) {
     .err("`index` must have length one")
   }
 
   if (is.numeric(index)) {
     if (!chk::vld_whole_numeric(index)) {
-      if (!several.ok) {
-        .err("`index` must be a positive integer")
+      if (several.ok) {
+        .err("`index` must be a vector of positive integers")
       }
       else {
-        .err("`index` must be a vector of positive integers")
+        .err("`index` must be a positive integer")
       }
     }
 
     if (any(index > ncol(t))) {
-      .err("`index` must be between 1 and ", ncol(t))
+      .err(sprintf("`index` must be between 1 and %s", ncol(t)))
     }
   }
   else {
-    if (is.null(colnames(t))) {
+    if (is_null(colnames(t))) {
       .err("the estimates don't have names, so `index` must be numeric")
     }
 
@@ -141,7 +110,7 @@ word_list <- function(word.list = NULL, and.or = "and", is.are = FALSE, quotes =
   }
 
   if (is_null(and.or) || isFALSE(and.or)) {
-    out <- paste(word.list, collapse = ", ")
+    out <- toString(word.list)
   }
   else {
     and.or <- match_arg(and.or, c("and", "or"))
@@ -154,7 +123,7 @@ word_list <- function(word.list = NULL, and.or = "and", is.are = FALSE, quotes =
     }
     else {
       out <- sprintf("%s, %s %s",
-                     paste(word.list[-L], collapse = ", "),
+                     toString(word.list[-L]),
                      and.or,
                      word.list[L])
     }
@@ -172,14 +141,15 @@ add_quotes <- function(x, quotes = 2L) {
     return(x)
   }
 
-  if (isTRUE(quotes))
+  if (isTRUE(quotes)) {
     quotes <- '"'
-
-  if (chk::vld_string(quotes)) {
-    return(paste0(quotes, x, quotes))
   }
 
-  if (!chk::vld_count(quotes) || quotes > 2) {
+  if (chk::vld_string(quotes)) {
+    return(paste0(quotes, x, str_rev(quotes)))
+  }
+
+  if (!chk::vld_count(quotes) || quotes > 2L) {
     stop("`quotes` must be boolean, 1, 2, or a string.")
   }
 
@@ -188,11 +158,15 @@ add_quotes <- function(x, quotes = 2L) {
   }
 
   x <- {
-    if (quotes == 1) sprintf("'%s'", x)
+    if (quotes == 1L) sprintf("'%s'", x)
     else sprintf('"%s"', x)
   }
 
   x
+}
+
+str_rev <- function(x) {
+  vapply(lapply(strsplit(x, NULL), rev), paste, character(1L), collapse = "")
 }
 
 match_arg <- function(arg, choices, several.ok = FALSE) {
@@ -205,7 +179,8 @@ match_arg <- function(arg, choices, several.ok = FALSE) {
   arg.name <- deparse1(substitute(arg), width.cutoff = 500L)
 
   if (missing(choices)) {
-    formal.args <- formals(sys.function(sysP <- sys.parent()))
+    sysP <- sys.parent()
+    formal.args <- formals(sys.function(sysP))
     choices <- eval(formal.args[[as.character(substitute(arg))]],
                     envir = sys.frame(sysP))
   }
@@ -229,7 +204,7 @@ match_arg <- function(arg, choices, several.ok = FALSE) {
     .err(sprintf("the argument to `%s` should be %s%s",
                  arg.name,
                  ngettext(length(choices), "", if (several.ok) "at least one of " else "one of "),
-                 word_list(choices, and.or = "or", quotes = 2)))
+                 word_list(choices, and.or = "or", quotes = 2L)))
   i <- i[i > 0L]
 
   choices[i]
@@ -241,12 +216,14 @@ is_not_null <- function(x) {!is_null(x)}
 pkg_caller_call <- function() {
   pn <- utils::packageName()
   package.funs <- c(getNamespaceExports(pn),
-                    .getNamespaceInfo(asNamespace(pn), "S3methods")[, 3])
+                    .getNamespaceInfo(asNamespace(pn), "S3methods")[, 3L])
 
   for (i in seq_len(sys.nframe())) {
     e <- sys.call(i)
 
-    if (is_null(n <- rlang::call_name(e))) {
+    n <- rlang::call_name(e)
+
+    if (is_null(n)) {
       next
     }
 
@@ -258,19 +235,22 @@ pkg_caller_call <- function() {
   NULL
 }
 
-#chk utilities
 .err <- function(..., n = NULL, tidy = TRUE) {
   m <- chk::message_chk(..., n = n, tidy = tidy)
   rlang::abort(paste(strwrap(m), collapse = "\n"),
                call = pkg_caller_call())
 }
 .wrn <- function(..., n = NULL, tidy = TRUE, immediate = TRUE) {
-  if (immediate && isTRUE(all.equal(0, getOption("warn")))) {
-    op <- options(warn = 1)
-    on.exit(options(op))
-  }
   m <- chk::message_chk(..., n = n, tidy = tidy)
-  rlang::warn(paste(strwrap(m), collapse = "\n"))
+
+  if (immediate && isTRUE(all.equal(0, getOption("warn")))) {
+    rlang::with_options({
+      rlang::warn(paste(strwrap(m), collapse = "\n"))
+    }, warn = 1)
+  }
+  else {
+    rlang::warn(paste(strwrap(m), collapse = "\n"))
+  }
 }
 .msg <- function(..., n = NULL, tidy = TRUE) {
   m <- chk::message_chk(..., n = n, tidy = tidy)

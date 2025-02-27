@@ -1,15 +1,23 @@
 `cobalt` News and Updates
 ======
 
-# `fwb` (development version)
+# `fwb` 0.3.0
 
-* Add a new `.coef` argument to `vcovFWB()`. A function can be supplied to extract a vector of coefficients from the fitted model in each bootstrap iteration if the default (`stats::coef()`) doesn't return a numeric vector (e.g., for `nnet::multinom()` models). An error message is now thrown if `.coef` doesn't return a numeric vector.
+* Added a new `confint()` method for `fwb` objects.
+
+* Add a new `strata` argument to `fwb()` to perform stratified bootstrapping within levels of a stratification variable.
+
+* Added a new `.coef` argument to `vcovFWB()`. A function can be supplied to extract a vector of coefficients from the fitted model in each bootstrap iteration if the default (`stats::coef()`) doesn't return a numeric vector (e.g., for `nnet::multinom()` models). An error message is now thrown if `.coef` doesn't return a numeric vector.
 
 * Added support for using `future` backend for `fwb()` by supplying `cl = "future"`. Thanks to Katya Zelevinsky for the suggestion.
+
+* For `fwb()`, `simple` has a new default that is `TRUE` in most cases and `FALSE` when `wtype` is `"multinom"` or when `cl` is supplied. This should not affect results but will reduce memory use for large datasets by avoiding computing all bootstrap weights simultaneously.
 
 * A warning is now thrown when using `fwb()` with `simple = TRUE` with non-`NULL` `cl` when the random number generator kind is not `"L'Ecuyer-CMRG"`. Under these circumstances, results may not replicate and the BCa confidence interval will be inaccurate.
 
 * Fixed a bug where the names of quantities produced by `fwb()` when `statistic` returns an unnamed vector were incorrect.
+
+* Documentation updates.
 
 # `fwb` 0.2.0
 

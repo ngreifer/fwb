@@ -17,7 +17,7 @@
 #'
 #' @details `vcovFWB()` functions like other `vcov()`-like functions, such as those in the \pkg{sandwich} package, in particular, \pkgfun{sandwich}{vcovBS}, which implements the traditional bootstrap (and a few other bootstrap varieties for linear models). Sets of weights are generated as described in the documentation for [fwb()], and the supplied model is re-fit using those weights. When the fitted model already has weights, these are multiplied by the bootstrap weights.
 #'
-#' For `lm` objects, the model is re-fit using [.lm.fit()] for speed, and, similarly, `glm` objects are re-fit using [glm.fit()] (or whichever fitting method was originally used). For other objects, [update()] is used to populate the weights and re-fit the model (this assumes the fitting function accepts non-integer case weights through a `weights` argument). If a model accepts weights in some other way, [fwb()] should be used instead; `vcovFWB()` is inherently limited in its ability to handle all possible models. It is important that the original model was not fit using frequency weights (i.e., weights that allow one row of data to represent multiple full, identical, individual units).
+#' For `lm` objects, the model is re-fit using [.lm.fit()] for speed, and, similarly, `glm` objects are re-fit using [glm.fit()] (or whichever fitting method was originally used). For other objects, [update()] is used to populate the weights and re-fit the model (this assumes the fitting function accepts non-integer case weights through a `weights` argument). If a model accepts weights in some other way, [fwb()] should be used instead; `vcovFWB()` is inherently limited in its ability to handle all possible models. It is important that the original model was not fit using frequency weights (i.e., weights that allow one row of data to represent multiple full, identical, individual units) unless clustering is used.
 #'
 #' See \pkgfun{sandwich}{vcovBS} and \pkgfun{sandwich}{vcovCL} for more information on clustering covariance matrices, and see [fwb()] for more information on how clusters work with the fractional weighted bootstrap. When clusters are specified, each cluster is given a bootstrap weight, and all members of the cluster are given that weight; estimation then proceeds as normal. By default, when `cluster` is unspecified, each unit is considered its own cluster.
 #'
@@ -115,7 +115,7 @@ vcovFWB <- function(x, cluster = NULL, R = 1000, start = FALSE,
   ## cluster can either be supplied explicitly or
   ## be an attribute of the model...
   if (is_null(cluster)) {
-    cluster <- attr(x, "cluster")
+    cluster <- attr(x, "cluster", TRUE)
   }
 
   ## resort to cross-section if no clusters are supplied
@@ -133,17 +133,17 @@ vcovFWB <- function(x, cluster = NULL, R = 1000, start = FALSE,
   }
 
   ## handle omitted or excluded observations
-  if ((n != nrow(cluster)) && !is.null(x$na.action) && (class(x$na.action) %in% c("exclude", "omit"))) {
+  if (n != nrow(cluster) && is_not_null(x$na.action) && inherits(x$na.action, c("exclude", "omit"))) {
     cluster <- cluster[-x$na.action, , drop = FALSE]
   }
 
   if (nrow(cluster) != n) {
-    .err("number of observations in 'cluster' and 'nobs()' do not match")
+    .err("number of observations in `cluster` and `nobs()` do not match")
   }
 
   ## catch NAs in cluster -> need to be addressed in the model object by the user
   if (anyNA(cluster)) {
-    .err("cannot handle NAs in 'cluster': either refit the model without the NA observations in 'cluster' or impute the NAs")
+    .err("cannot handle `NA`s in `cluster`: either refit the model without the `NA` observations in `cluster` or impute the `NA`s")
   }
 
   ## for multi-way clustering: set up interaction patterns
@@ -232,7 +232,7 @@ make.bootfit <- function(fit, cli, start, gen_weights, .coef) {
 
     bootfit <- function(j, ...) {
       #Generate cluster weights, assign to units
-      cluster_w <- drop(gen_weights(nc, 1))
+      cluster_w <- drop(gen_weights(nc, 1L))
       w <- cluster_w[cluster_numeric]
 
       if (is_not_null(w0 <- weights(fit))) {
@@ -244,12 +244,16 @@ make.bootfit <- function(fit, cli, start, gen_weights, .coef) {
       .lm.fit(x * ws, y = y * ws)$coefficients
     }
   }
-  else if (!special_coef && inherits(fit, "glm")) {
+  else if (!special_coef && identical(class(fit)[1L], "glm")) {
     x <- model.matrix(fit)
     y <- fit[["y"]]
 
-    if (is_null(fit[["method"]])) fit.fun <- stats::glm.fit
-    else if (is.function(fit[["method"]])) fit.fun <- fit[["method"]]
+    if (is_null(fit[["method"]])) {
+      fit.fun <- stats::glm.fit
+    }
+    else if (is.function(fit[["method"]])) {
+      fit.fun <- fit[["method"]]
+    }
     else if (is.character(fit[["method"]])) {
       fit.fun <- get0(fit[["method"]], envir = environment(fit[["terms"]]),
                       mode = "function")
@@ -263,26 +267,30 @@ make.bootfit <- function(fit, cli, start, gen_weights, .coef) {
 
     bootfit <- function(j, ...) {
       #Generate cluster weights, assign to units
-      cluster_w <- drop(gen_weights(nc, 1))
+      cluster_w <- drop(gen_weights(nc, 1L))
       w <- cluster_w[cluster_numeric]
 
-      if (is_not_null(w0 <- weights(fit))) {
+      w0 <- weights(fit)
+
+      if (is_not_null(w0)) {
         w <- w * w0
       }
 
       safe.glm.fit(fit.fun, x = x, y = y, weights = w, start = start,
                    offset = fit$offset, family = fit$family,
                    control = fit$control,
-                   intercept = attr(fit$terms, "intercept") > 0)$coefficients
+                   intercept = attr(fit$terms, "intercept", TRUE) > 0)$coefficients
     }
   }
   else {
     bootfit <- function(j, ...) {
       #Generate cluster weights, assign to units
-      cluster_w <- drop(gen_weights(nc, 1))
+      cluster_w <- drop(gen_weights(nc, 1L))
       w <- cluster_w[cluster_numeric]
 
-      if (is_not_null(w0 <- weights(fit))) {
+      w0 <- weights(fit)
+
+      if (is_not_null(w0)) {
         w <- w * w0
       }
 

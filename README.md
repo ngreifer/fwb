@@ -38,8 +38,8 @@ You can install the development version of `fwb` from
 [GitHub](https://github.com/) with:
 
 ``` r
-# install.packages("devtools")
-devtools::install_github("ngreifer/fwb")
+# install.packages("remotes")
+remotes::install_github("ngreifer/fwb")
 ```
 
 ## Examples
@@ -73,7 +73,7 @@ weibull_est <- function(data, w) {
                            data = data, weights = w,
                            dist = "weibull")
 
-  c(eta = unname(exp(coef(fit))), beta = 1/fit$scale)
+  c(eta = unname(exp(coef(fit))), beta = 1 / fit$scale)
 }
 
 # 1999 bootstrap replications; more is always better
@@ -87,7 +87,7 @@ fwb_est
 #> 
 #> Bootstrap Statistics :
 #>          original         bias   std. error
-#> eta  11792.178173 7722.5389905 2.652048e+04
+#> eta  11792.178173 7722.5390790 2.652048e+04
 #> beta     2.035319    0.2326988 8.790395e-01
 
 # Bias-corrected accelerated percentile
@@ -126,14 +126,14 @@ fit <- glm(case ~ spontaneous + induced + factor(stratum),
 library("lmtest")
 
 # The traditional bootstrap fails
-coeftest(fit, vcov = sandwich::vcovBS)[1:3,]
+coeftest(fit, vcov = sandwich::vcovBS)[1:3, ]
 #>              Estimate   Std. Error       z value Pr(>|z|)
 #> (Intercept) -6.904101 2.285991e+22 -3.020179e-22        1
 #> spontaneous  3.230286 1.670378e+14  1.933866e-14        1
 #> induced      2.190303 1.194912e+14  1.833025e-14        1
 
 # The fractional weighted bootstrap succeeds
-coeftest(fit, vcov = vcovFWB)[1:3,]
+coeftest(fit, vcov = vcovFWB)[1:3, ]
 #>              Estimate Std. Error   z value     Pr(>|z|)
 #> (Intercept) -6.904101  1.8325484 -3.767486 1.648995e-04
 #> spontaneous  3.230286  0.7493112  4.311007 1.625127e-05
@@ -146,7 +146,7 @@ FWB is still more accurate.)
 
 ``` r
 # Including stratum membership as a clustering variable
-coeftest(fit, vcov = vcovFWB, cluster = ~stratum)[1:3,]
+coeftest(fit, vcov = vcovFWB, cluster = ~stratum)[1:3, ]
 #>              Estimate Std. Error   z value     Pr(>|z|)
 #> (Intercept) -6.904101  1.6343290 -4.224426 2.395510e-05
 #> spontaneous  3.230286  0.7317966  4.414185 1.013912e-05
@@ -215,8 +215,8 @@ plot(fwb_est, index = 2)
 It is clear that the estimates from the traditional bootstrap are
 pathological, whereas the estimates from the FWB are more reasonable.
 The non-normality of the FWB distributions also suggests that the usual
-Wald-style confidence intervals may not be accurate, and a percentile
-interval should be computed instead.
+Wald-style confidence intervals may not be accurate, and a
+bias-corrected percentile interval should probably be computed instead.
 
 ## When to use the fractional weighted bootstrap
 

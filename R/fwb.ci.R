@@ -36,7 +36,7 @@
 #'
 #' * `"bca"` (bias-corrected and accelerated confidence interval): \eqn{[t^{(l)}, t^{(u)}]}
 #'
-#' \eqn{l = \Phi\left(z_0 + \frac{z_0 + z_\frac{\alpha}{2}}{1-a(z_0+z_\frac{\alpha}{2})}\right)}, \eqn{u = \Phi\left(z_0 + \frac{z_0 + z_{1-\frac{\alpha}{2}}}{1-a(z_0+z_{1-\frac{\alpha}{2}})}\right)}, using the same definitions as above, but with the additional acceleration parameter \eqn{a}, where \eqn{a = \frac{1}{6}\frac{\sum{L^3}}{(\sum{L^2})^{3/2}}}. \eqn{L} is the empirical influence value of each unit, which is computed using the regression method described in \pkgfun{boot}{empinf}. When \eqn{a=0}, the `"bca"` and `"bc"` intervals coincide. The acceleration parameter corrects for bias and skewness in the statistic. It can only be used when clusters are absent and the number of bootstrap replications is larger than the sample size. Note that when `cl = "future"` and `simple = TRUE` in the original call to `fwb()`
+#' \eqn{l = \Phi\left(z_0 + \frac{z_0 + z_\frac{\alpha}{2}}{1-a(z_0+z_\frac{\alpha}{2})}\right)}, \eqn{u = \Phi\left(z_0 + \frac{z_0 + z_{1-\frac{\alpha}{2}}}{1-a(z_0+z_{1-\frac{\alpha}{2}})}\right)}, using the same definitions as above, but with the additional acceleration parameter \eqn{a}, where \eqn{a = \frac{1}{6}\frac{\sum{L^3}}{(\sum{L^2})^{3/2}}}. \eqn{L} is the empirical influence value of each unit, which is computed using the regression method described in \pkgfun{boot}{empinf}. When \eqn{a=0}, the `"bca"` and `"bc"` intervals coincide. The acceleration parameter corrects for bias and skewness in the statistic. It can only be used when clusters are absent and the number of bootstrap replications is larger than the sample size.
 #'
 #' Interpolation on the normal quantile scale is used when a non-integer order statistic is required, as in `boot::boot.ci()`. Note that unlike with `boot::boot.ci()`, studentized confidence intervals (`type = "stud"`) are not allowed.
 #'
@@ -90,9 +90,17 @@ fwb.ci <- function(fwb.out, conf = .95, type = "bc", index = 1L,
   t0 <- fwb.out[["t0"]][index]
   t <- fwb.out[["t"]][, index]
 
+  if (anyNA(t)) {
+    .err("some bootstrap estimates are NA; cannot calculate confidence intervals")
+  }
+
+  if (!all(is.finite(t))) {
+    .err("some bootstrap estimates are non-finite; cannot calculate confidence intervals")
+  }
+
   if (all_the_same(t)) {
-    .err(sprintf("all values of t are equal to %s\n Cannot calculate confidence intervals",
-                     mean(t, na.rm = TRUE)))
+    .err(sprintf("all estimates are equal to %s\n Cannot calculate confidence intervals",
+                 mean(t, na.rm = TRUE)))
   }
   if (length(t) != fwb.out[["R"]]) {
     .err(gettextf("'t' must be of length %d", fwb.out[["R"]]), domain = NA)
@@ -170,7 +178,7 @@ print.fwbci <- function (x, hinv = NULL, ...) {
     bcarg <- range(ci.out[["bca"]][, 2:3])
   }
 
-  level <- 100 * attr(ci.out, "conf")
+  level <- 100 * attr(ci.out, "conf", TRUE)
   if (ntypes == 4L)
     n1 <- n2 <- 2L
   else if (ntypes == 5L) {
@@ -275,7 +283,7 @@ print.fwbci <- function (x, hinv = NULL, ...) {
 #' @examples
 #' #See example at help("fwb.ci")
 #'
-#' @seealso [fwb.ci()], \pkgfun{boot}{boot.ci}
+#' @seealso [fwb.ci()], [confint.fwb()], \pkgfun{boot}{boot.ci}
 
 #' @export
 get_ci <- function(x, type = "all") {
@@ -307,7 +315,7 @@ get_ci <- function(x, type = "all") {
   }), type)
 
   attr(out, "conf") <- {
-    if (!is.null(attr(x, "conf"))) attr(x, "conf")
+    if (is_not_null(attr(x, "conf", TRUE))) attr(x, "conf", TRUE)
     else x[[4L]][, 1L]
   }
 
@@ -372,7 +380,9 @@ norm.ci <- function(t, t0, conf = 0.95, hinv = identity) {
 basic.ci <- function (t, t0, conf = 0.95, hinv = identity) {
   alpha <- (1 + c(-conf, conf))/2
   qq <- norm.inter(t, rev(alpha))
-  cbind(conf, matrix(qq[, 1L], ncol = 2L), matrix(hinv(2 * t0 - qq[, 2L]), ncol = 2L))
+  cbind(conf,
+        matrix(qq[, 1L], ncol = 2L),
+        matrix(hinv(2 * t0 - qq[, 2L]), ncol = 2L))
 }
 
 bca.ci <- function(t, t0, boot.out, index, conf = .95, hinv = identity, h = identity) {
@@ -409,13 +419,13 @@ empinf.reg <- function(boot.out, t) {
   X[, 1L] <- 1
   beta <- .lm.fit(x = X, y = t)$coefficients[-1L]
   l <- rep.int(0, n)
-  l[-1] <- beta
+  l[-1L] <- beta
 
   l - mean(l)
 }
 
 boot.array <- function(boot.out) {
-  if (identical(attr(boot.out, "boot_type"), "boot")) {
+  if (identical(attr(boot.out, "boot_type", TRUE), "boot")) {
     rlang::check_installed("boot")
     return(boot::boot.array(boot.out))
   }
@@ -440,27 +450,22 @@ boot.array <- function(boot.out) {
   n <- nrow(boot.out[["data"]])
   R <- boot.out[["R"]]
 
-  if (!attr(boot.out, "simple") || is_null(attr(boot.out, "cl"))) {
-    w <- gen_weights(n, R)
-  }
-  else {
-    FUN <- function(i) {
-      drop(gen_weights(n, 1))
-    }
-
-    opb <- pbapply::pboptions(type = "none")
-    on.exit(pbapply::pboptions(opb))
-
-    #Run bootstrap
-    w <- {
-      if (identical(attr(boot.out, "cl"), "future"))
-        do.call("rbind", pbapply::pblapply(seq_len(R), FUN, cl = attr(boot.out, "cl"), future.seed = TRUE))
-      else
-        do.call("rbind", pbapply::pblapply(seq_len(R), FUN, cl = attr(boot.out, "cl")))
-    }
+  if (!isTRUE(attr(boot.out, "simple", TRUE)) || is_null(attr(boot.out, "cl", TRUE))) {
+    return(gen_weights(n, R, boot.out[["strata"]]))
   }
 
-  w
+  FUN <- function(i) {
+    drop(gen_weights(n, 1L, boot.out[["strata"]]))
+  }
+
+  opb <- pbapply::pboptions(type = "none")
+  on.exit(pbapply::pboptions(opb))
+
+  #Run bootstrap
+  if (identical(attr(boot.out, "cl", TRUE), "future"))
+    do.call("rbind", pbapply::pblapply(seq_len(R), FUN, cl = "future", future.seed = TRUE))
+  else
+    do.call("rbind", pbapply::pblapply(seq_len(R), FUN, cl = attr(boot.out, "cl", TRUE)))
 }
 
 

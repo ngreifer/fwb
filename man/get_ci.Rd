@@ -22,5 +22,5 @@ A list with an entry for each confidence interval type; each entry is a numeric 
 
 }
 \seealso{
-\code{\link[=fwb.ci]{fwb.ci()}}, \pkgfun{boot}{boot.ci}
+\code{\link[=fwb.ci]{fwb.ci()}}, \code{\link[=confint.fwb]{confint.fwb()}}, \pkgfun{boot}{boot.ci}
 }

@@ -1,7 +1,7 @@
 Package: fwb
 Type: Package
 Title: Fractional Weighted Bootstrap
-Version: 0.2.0.9001
+Version: 0.3.0
 Authors@R: c(
     person("Noah", "Greifer", role=c("aut", "cre"), 
            email = "noah.greifer@gmail.com",
@@ -11,12 +11,14 @@ Description: An implementation of the fractional weighted bootstrap to be used a
    the 'boot' package. The fractional weighted bootstrap (also known as the Bayesian bootstrap) involves drawing
    weights randomly that are applied to the data rather than resampling units from the data. See Xu et al. (2020)
    <doi:10.1080/00031305.2020.1731599> for details.
-Depends: R (>= 3.0.0)
+Depends: R (>= 3.6.0)
 Imports:
     rlang,
     chk,
     pbapply,
-    stats, utils, graphics
+    stats,
+    utils,
+    graphics
 Suggests:
     survival,
     boot,
