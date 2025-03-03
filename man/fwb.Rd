@@ -13,6 +13,7 @@ fwb(
   simple = NULL,
   wtype = getOption("fwb_wtype", "exp"),
   strata = NULL,
+  drop0 = FALSE,
   verbose = TRUE,
   cl = NULL,
   ...
@@ -29,15 +30,17 @@ fwb(
 
 \item{cluster}{optional; a vector containing cluster membership. If supplied, will run the cluster bootstrap. See Details. Evaluated first in \code{data} and then in the global environment.}
 
-\item{simple}{\code{logical}; if \code{TRUE}, weights will be generated on-the-fly in each bootstrap replication; if \code{FALSE}, all weights will be generated at once and then supplied to \code{statistic}. Cannot be \code{TRUE} when \code{wtype = "multinom"}. The default (\code{NULL}) sets to \code{FALSE} if \code{wtype = "multinom"} or \code{cl} is supplied without a parallel-appropriate seed, and to \code{TRUE} otherwise.}
+\item{simple}{\code{logical}; if \code{TRUE}, weights will be generated on-the-fly in each bootstrap replication; if \code{FALSE}, all weights will be generated at once and then supplied to \code{statistic}. Cannot be \code{TRUE} when \code{wtype = "multinom"}. The default (\code{NULL}) sets to \code{FALSE} if \code{wtype = "multinom"} and to \code{TRUE} otherwise.}
 
 \item{wtype}{string; the type of weights to use. Allowable options include \code{"exp"} (the default), \code{"pois"}, \code{"multinom"}, and \code{"mammen"}. See Details. See \code{\link[=set_fwb_wtype]{set_fwb_wtype()}} to set a global default.}
 
 \item{strata}{optional; a vector containing stratum membership for stratified bootstrapping. If supplied, will essentially perform a separate bootstrap within each level of \code{strata}. This does not affect results when \code{wtype = "poisson"}.}
 
+\item{drop0}{\code{logical}; when \code{wtype} is \code{"multinom"} or \code{"poisson"}, whether to drop units that are given weights of 0 from the dataset and weights supplied to \code{statistic} in each iteration. Ignored for other \code{wtype}s because they don't produce 0 weights. Default is \code{FALSE}.}
+
 \item{verbose}{\code{logical}; whether to display a progress bar.}
 
-\item{cl}{a cluster object created by \pkgfun{parallel}{makeCluster}, an integer to indicate the number of child-processes (integer values are ignored on Windows) for parallel evaluations, or the string \code{"future"} to use a \code{future} backend. See the \code{cl} argument of \pkgfun{pbapply}{pblapply} for details. If \code{NULL}, no parallelization will take place.}
+\item{cl}{a cluster object created by \pkgfun{parallel}{makeCluster}, an integer to indicate the number of child-processes (integer values are ignored on Windows) for parallel evaluations, or the string \code{"future"} to use a \code{future} backend. See the \code{cl} argument of \pkgfun{pbapply}{pblapply} for details. If \code{NULL}, no parallelization will take place. See \code{vignette("fwb-rep")} for details.}
 
 \item{...}{other arguments passed to \code{statistic}.}
 
@@ -72,7 +75,7 @@ The cluster bootstrap can be requested by supplying a vector of cluster membersh
 
 Bootstrapping can be performed within strata by supplying a vector of stratum membership to \code{strata}. This essentially rescales the weights within each stratum to have a mean of 1, ensuring that the sum of weights in each stratum is equal to the stratum size. For multinomial weights, using strata is equivalent to drawing samples with replacement from each stratum. Strata do not affect bootstrapping when using Poisson weights.
 
-Ideally, \code{statistic} should not involve a random element, or else it will not be straightforward to replicate the bootstrap results using the \code{seed} included in the output object. Setting a seed using \code{\link[=set.seed]{set.seed()}} is always advised.
+Ideally, \code{statistic} should not involve a random element, or else it will not be straightforward to replicate the bootstrap results using the \code{seed} included in the output object. Setting a seed using \code{\link[=set.seed]{set.seed()}} is always advised. See \code{vignette("fwb-rep")} for details.
 
 The \code{print()} method displays the value of the statistics, the bias (the difference between the statistic and the mean of its bootstrap distribution), and the standard error (the standard deviation of the bootstrap distribution).
 \subsection{Weight types}{
@@ -99,7 +102,7 @@ Draws integer weights from a Poisson distribution with 1 degree of freedom using
 
 Draws weights from a modification of the distribution described by Mammen (1983) for use in the wild bootstrap. These positive weights have a mean, variance, and skewness of 1, making them second-order accurate (in contrast to the usual exponential weights, which are only first-order accurate). The weights \eqn{w} are drawn such that \eqn{P(w=(3+\sqrt{5})/2)=(\sqrt{5}-1)/2\sqrt{5}} and \eqn{P(w=(3-\sqrt{5})/2)=(\sqrt{5}+1)/2\sqrt{5}}. The weights are scaled to have a mean of 1 within each stratum (or in the full sample if \code{strata} is not supplied).
 
-\code{"exp"} is the default due to it being the formulation described in Xu et al. (2020) and in the most formulations of the Bayesian bootstrap; it should be used if one wants to remain in line with these guidelines or to maintain a Bayesian flavor to the analysis, whereas \code{"mammen"}should be preferred for its frequentist operating characteristics. \code{"multinom"} and \code{"poisson"} should only be used for comparison purposes.
+\code{"exp"} is the default due to it being the formulation described in Xu et al. (2020) and in the most formulations of the Bayesian bootstrap; it should be used if one wants to remain in line with these guidelines or to maintain a Bayesian flavor to the analysis, whereas \code{"mammen"} might be preferred for its frequentist operating characteristics, though its performance has not been studied in this context. \code{"multinom"} and \code{"poisson"} should only be used for comparison purposes.
 }
 }
 \section{Methods (by generic)}{
@@ -141,8 +144,10 @@ Rubin, D. B. (1981). The Bayesian Bootstrap. \emph{The Annals of Statistics}, 9(
 
 Xu, L., Gotwalt, C., Hong, Y., King, C. B., & Meeker, W. Q. (2020). Applications of the Fractional-Random-Weight Bootstrap. \emph{The American Statistician}, 74(4), 345–358. \doi{10.1080/00031305.2020.1731599}
 
-The use of the \code{"mammen"} formulation of the bootstrap weights was suggested by Lihua Lei \href{https://twitter.com/lihua_lei_stat/status/1641538993090351106}{here}.
+The use of the \code{"mammen"} formulation of the bootstrap weights was suggested by Lihua Lei \href{https://x.com/lihua_lei_stat/status/1641538993090351106}{here}.
 }
 \seealso{
 \code{\link[=fwb.ci]{fwb.ci()}} for calculating confidence intervals; \code{\link[=summary.fwb]{summary.fwb()}} for displaying output in a clean way; \code{\link[=plot.fwb]{plot.fwb()}} for plotting the bootstrap distributions; \code{\link[=vcovFWB]{vcovFWB()}} for estimating the covariance matrix of estimates using the FWB; \code{\link[=set_fwb_wtype]{set_fwb_wtype()}} for an example of using weights other than the default exponential weights; \pkgfun{boot}{boot} for the traditional bootstrap.
+
+See \code{vignette("fwb-rep")} for information on reproducibility.
 }

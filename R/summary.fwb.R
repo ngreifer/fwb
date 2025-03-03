@@ -9,7 +9,7 @@
 #' @param p.value `logical`; whether to display p-values for the test that each parameter is equal to 0. The p-value is computed using a Z-test with the test statistic computed as the ratio of the estimate to its bootstrap standard error. This test is only valid when the bootstrap distribution is normally distributed around 0 and is not guaranteed to agree with any of the confidence intervals. Default is `FALSE`.
 #' @param ... ignored.
 #'
-#' @return Fpr `summary()`, a `summary.fwb` object, which is a matrix with the following columns:
+#' @return For `summary()`, a `summary.fwb` object, which is a matrix with the following columns:
 #' * `Estimate`: the statistic estimated in the original sample
 #' * `Std. Error`: the standard deviation of the bootstrap estimates
 #' * `CI {L}%` and `CI {U}%`, the upper and lower confidence interval bounds computed using the argument to `ci.type`.

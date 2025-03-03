@@ -43,7 +43,7 @@ vcovFWB(
 
 \item{verbose}{\code{logical}; whether to display a progress bar.}
 
-\item{cl}{a cluster object created by \pkgfun{parallel}{makeCluster}, an integer to indicate the number of child-processes (integer values are ignored on Windows) for parallel evaluations, or the string \code{"future"} to use a \code{future} backend. See the \code{cl} argument of \pkgfun{pbapply}{pblapply} for details. If \code{NULL}, no parallelization will take place.}
+\item{cl}{a cluster object created by \pkgfun{parallel}{makeCluster}, an integer to indicate the number of child-processes (integer values are ignored on Windows) for parallel evaluations, or the string \code{"future"} to use a \code{future} backend. See the \code{cl} argument of \pkgfun{pbapply}{pblapply} for details. If \code{NULL}, no parallelization will take place. See \code{vignette("fwb-rep")} for details.}
 }
 \value{
 A matrix containing the covariance matrix estimate.
