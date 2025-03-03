@@ -36,7 +36,7 @@
 #'
 #' * `"bca"` (bias-corrected and accelerated confidence interval): \eqn{[t^{(l)}, t^{(u)}]}
 #'
-#' \eqn{l = \Phi\left(z_0 + \frac{z_0 + z_\frac{\alpha}{2}}{1-a(z_0+z_\frac{\alpha}{2})}\right)}, \eqn{u = \Phi\left(z_0 + \frac{z_0 + z_{1-\frac{\alpha}{2}}}{1-a(z_0+z_{1-\frac{\alpha}{2}})}\right)}, using the same definitions as above, but with the additional acceleration parameter \eqn{a}, where \eqn{a = \frac{1}{6}\frac{\sum{L^3}}{(\sum{L^2})^{3/2}}}. \eqn{L} is the empirical influence value of each unit, which is computed using the regression method described in \pkgfun{boot}{empinf}. When \eqn{a=0}, the `"bca"` and `"bc"` intervals coincide. The acceleration parameter corrects for bias and skewness in the statistic. It can only be used when clusters are absent and the number of bootstrap replications is larger than the sample size.
+#' \eqn{l = \Phi\left(z_0 + \frac{z_0 + z_\frac{\alpha}{2}}{1-a(z_0+z_\frac{\alpha}{2})}\right)}, \eqn{u = \Phi\left(z_0 + \frac{z_0 + z_{1-\frac{\alpha}{2}}}{1-a(z_0+z_{1-\frac{\alpha}{2}})}\right)}, using the same definitions as above, but with the additional acceleration parameter \eqn{a}, where \eqn{a = \frac{1}{6}\frac{\sum{L^3}}{(\sum{L^2})^{3/2}}}. \eqn{L} is the empirical influence value of each unit, which is computed using the regression method described in \pkgfun{boot}{empinf}. When \eqn{a=0}, the `"bca"` and `"bc"` intervals coincide. The acceleration parameter corrects for bias and skewness in the statistic. It can only be used when clusters are absent and the number of bootstrap replications is larger than the sample size. Note that BCa intervals cannot be requested when `simple = TRUE` and there is randomness in thew `statistic` supplied to `fwb()`.
 #'
 #' Interpolation on the normal quantile scale is used when a non-integer order statistic is required, as in `boot::boot.ci()`. Note that unlike with `boot::boot.ci()`, studentized confidence intervals (`type = "stud"`) are not allowed.
 #'
@@ -81,8 +81,33 @@ fwb.ci <- function(fwb.out, conf = .95, type = "bc", index = 1L,
   chk::chk_character(type)
   type <- match.arg(type, c("perc", "bc", "norm", "basic", "bca", "all"), several.ok = TRUE)
 
-  if ("all" %in% type) {
+  if (any(type == "all")) {
     type <- c("perc", "bc", "norm", "basic", "bca")
+  }
+
+  if (any(type == "bca") &&
+      fwb.out[["R"]] <= nrow(fwb.out[["data"]])) {
+    msg <- "BCa confidence intervals cannot be computed when there are fewer bootstrap replications than units in the original dataset"
+
+    if (all(type == "bca")) {
+      .err(msg)
+    }
+
+    .wrn(msg)
+    type <- type[type != "bca"]
+  }
+
+  if (any(type == "bca") &&
+      isTRUE(attr(fwb.out, "simple", TRUE)) &&
+      isTRUE(attr(fwb.out, "random_statistic", TRUE))) {
+    msg <- "BCa confidence intervals cannot be computed when there is randomness in `statistic` and `simple = TRUE` in the call to `fbw()`. See `vignette(\"fwb-rep\")` for details"
+
+    if (all(type == "bca")) {
+      .err(msg)
+    }
+
+    .wrn(msg)
+    type <- type[type != "bca"]
   }
 
   index <- check_index(index, fwb.out[["t"]])
@@ -102,6 +127,7 @@ fwb.ci <- function(fwb.out, conf = .95, type = "bc", index = 1L,
     .err(sprintf("all estimates are equal to %s\n Cannot calculate confidence intervals",
                  mean(t, na.rm = TRUE)))
   }
+
   if (length(t) != fwb.out[["R"]]) {
     .err(gettextf("'t' must be of length %d", fwb.out[["R"]]), domain = NA)
   }
@@ -452,6 +478,11 @@ boot.array <- function(boot.out) {
 
   if (!isTRUE(attr(boot.out, "simple", TRUE)) || is_null(attr(boot.out, "cl", TRUE))) {
     return(gen_weights(n, R, boot.out[["strata"]]))
+  }
+
+  if (isTRUE(attr(boot.out, "simple", TRUE)) &&
+      isTRUE(attr(boot.out, "random_statistic", TRUE))) {
+    .wrn("bootstrap weights cannot be repliably re-generated when there is randomness in `statistic` and `simple = TRUE` in the call to `fbw()`. See `vignette(\"fwb-rep\")` for details")
   }
 
   FUN <- function(i) {
