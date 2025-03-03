@@ -30,7 +30,7 @@
 \item{...}{ignored.}
 }
 \value{
-Fpr \code{summary()}, a \code{summary.fwb} object, which is a matrix with the following columns:
+For \code{summary()}, a \code{summary.fwb} object, which is a matrix with the following columns:
 \itemize{
 \item \code{Estimate}: the statistic estimated in the original sample
 \item \verb{Std. Error}: the standard deviation of the bootstrap estimates

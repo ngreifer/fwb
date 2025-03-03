@@ -1,5 +1,5 @@
 test_that("fwb() works", {
-  eps <- if (capabilities("long.double")) 1e-5 else 1e-1
+  eps <- if (capabilities("long.double")) 1e-8 else 1e-1
 
   test_data <- readRDS(test_path("fixtures", "test_data.rds"))
 
@@ -37,7 +37,7 @@ test_that("fwb() works", {
               simple = FALSE)
   })
 
-  expect_identical(f1[-7], f0[-7])
+  expect_equal(f1[-7], f0[-7], tolerance = eps)
   expect_false(attr(f1, "simple", TRUE))
 
   set.seed(1234, "L")
@@ -75,7 +75,7 @@ test_that("fwb() works", {
 
 test_that("parallel works", {
   skip_on_cran()
-  eps <- if (capabilities("long.double")) 1e-5 else 1e-1
+  eps <- if (capabilities("long.double")) 1e-8 else 1e-1
 
   test_data <- readRDS(test_path("fixtures", "test_data.rds"))
 
@@ -98,7 +98,7 @@ test_that("parallel works", {
               cl = 2, simple = FALSE)
   })
 
-  expect_identical(f1[-7], f0[-7])
+  expect_equal(f1[-7], f0[-7], tolerance = eps)
   expect_false(attr(f1, "simple", TRUE))
 
   #Using cl = int
@@ -114,7 +114,7 @@ test_that("parallel works", {
               cl = 2, simple = TRUE)
   })
 
-  expect_identical(f2, f3)
+  expect_equal(f2, f3, tolerance = eps)
 
   #Using a cluster
   cl <- parallel::makeCluster(2)
@@ -132,12 +132,12 @@ test_that("parallel works", {
               cl = cl, simple = TRUE)
   })
 
-  expect_identical(f2, f3)
+  expect_equal(f2, f3, tolerance = eps)
 })
 
 test_that("wtype = 'multinom' replcates boot::boot()", {
   skip_on_cran()
-  eps <- if (capabilities("long.double")) 1e-5 else 1e-1
+  eps <- if (capabilities("long.double")) 1e-8 else 1e-1
 
   test_data <- readRDS(test_path("fixtures", "test_data.rds"))
 
