@@ -46,7 +46,8 @@ remotes::install_github("ngreifer/fwb")
 
 Below are some examples of how to use `fwb`. We set a seed to ensure all
 results are replicable. (Note that when parallel processing is used, a
-special kind of seed needs to be set; see `?set.seed` for details.)
+special kind of seed needs to be set; see `vignette("fwb-rep")` for
+details.)
 
 ``` r
 library("fwb")

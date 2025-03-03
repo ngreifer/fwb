@@ -223,7 +223,7 @@ fwb <- function(data, statistic, R = 999, cluster = NULL, simple = NULL,
     t0_rep <- try(call_statistic(statistic, data = data, wi = rep.int(1, n),
                                  ..., drop0 = drop0))
 
-    random_statistic <- identical(t0_rep, t0)
+    random_statistic <- !identical(t0_rep, t0)
   }
 
   if (is_null(names(t0))) {
