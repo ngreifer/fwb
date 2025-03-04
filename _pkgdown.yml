@@ -9,6 +9,6 @@ reference:
     - summary.fwb
     - plot.fwb
     - vcovFWB
-    - set_fwb_type
+    - set_fwb_wtype
     - get_ci
     - bearingcage
