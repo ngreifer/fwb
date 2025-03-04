@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">fwb</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.0.9000</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -166,12 +166,21 @@
 <h3 id="weight-types">Weight types<a class="anchor" aria-label="anchor" href="#weight-types"></a></h3>
 
 
-<p>Different types of weights can be supplied to the <code>wtype</code> argument. A global default can be set using <code><a href="set_fwb_wtype.html">set_fwb_wtype()</a></code>. The allowable weight types are described below.</p><ul><li><p><code>"exp"</code></p></li>
-</ul><p>Draws weights from an exponential distribution with rate parameter 1 using <code><a href="https://rdrr.io/r/stats/Exponential.html" class="external-link">rexp()</a></code>. These weights are the usual "Bayesian bootstrap" weights described in Xu et al. (2020). They are equivalent to drawing weights from a uniform Dirichlet distribution, which is what gives these weights the interpretation of a Bayesian prior. The weights are scaled to have a mean of 1 within each stratum (or in the full sample if <code>strata</code> is not supplied).</p><ul><li><p><code>"multinom"</code></p></li>
-</ul><p>Draws integer weights using <code><a href="https://rdrr.io/r/base/sample.html" class="external-link">sample()</a></code>, which samples unit indices with replacement and uses the tabulation of the indices as frequency weights. This is equivalent to drawing weights from a multinomial distribution. Using <code>wtype = "multinom"</code> is the same as using <code>boot::boot(., stype = "f")</code> instead of <code>fwb()</code> (i.e., the resulting estimates will be identical). When <code>strata</code> is supplied, unit indices are drawn with replacement within each stratum so that the sum of the weights in each stratum is equal to the stratum size.</p><ul><li><p><code>"poisson"</code></p></li>
-</ul><p>Draws integer weights from a Poisson distribution with 1 degree of freedom using <code><a href="https://rdrr.io/r/stats/Poisson.html" class="external-link">rpois()</a></code>. This is an alternative to the multinomial weights that yields similar estimates (especially as the sample size grows) but can be faster. Note <code>strata</code> is ignored when using <code>"poisson"</code>.</p><ul><li><p><code>"mammen"</code></p></li>
-</ul><p>Draws weights from a modification of the distribution described by Mammen (1983) for use in the wild bootstrap. These positive weights have a mean, variance, and skewness of 1, making them second-order accurate (in contrast to the usual exponential weights, which are only first-order accurate). The weights \(w\) are drawn such that \(P(w=(3+\sqrt{5})/2)=(\sqrt{5}-1)/2\sqrt{5}\) and \(P(w=(3-\sqrt{5})/2)=(\sqrt{5}+1)/2\sqrt{5}\). The weights are scaled to have a mean of 1 within each stratum (or in the full sample if <code>strata</code> is not supplied).</p>
-<p><code>"exp"</code> is the default due to it being the formulation described in Xu et al. (2020) and in the most formulations of the Bayesian bootstrap; it should be used if one wants to remain in line with these guidelines or to maintain a Bayesian flavor to the analysis, whereas <code>"mammen"</code> might be preferred for its frequentist operating characteristics, though its performance has not been studied in this context. <code>"multinom"</code> and <code>"poisson"</code> should only be used for comparison purposes.</p>
+<p>Different types of weights can be supplied to the <code>wtype</code> argument. A global default can be set using <code><a href="set_fwb_wtype.html">set_fwb_wtype()</a></code>. The allowable weight types are described below.</p>
+<dl><dt><code>"exp"</code></dt>
+<dd><p>Draws weights from an exponential distribution with rate parameter 1 using <code><a href="https://rdrr.io/r/stats/Exponential.html" class="external-link">rexp()</a></code>. These weights are the usual "Bayesian bootstrap" weights described in Xu et al. (2020). They are equivalent to drawing weights from a uniform Dirichlet distribution, which is what gives these weights the interpretation of a Bayesian prior. The weights are scaled to have a mean of 1 within each stratum (or in the full sample if <code>strata</code> is not supplied).</p></dd>
+
+<dt><code>"multinom"</code></dt>
+<dd><p>Draws integer weights using <code><a href="https://rdrr.io/r/base/sample.html" class="external-link">sample()</a></code>, which samples unit indices with replacement and uses the tabulation of the indices as frequency weights. This is equivalent to drawing weights from a multinomial distribution. Using <code>wtype = "multinom"</code> is the same as using <code>boot::boot(., stype = "f")</code> instead of <code>fwb()</code> (i.e., the resulting estimates will be identical). When <code>strata</code> is supplied, unit indices are drawn with replacement within each stratum so that the sum of the weights in each stratum is equal to the stratum size.</p></dd>
+
+<dt><code>"poisson"</code></dt>
+<dd><p>Draws integer weights from a Poisson distribution with 1 degree of freedom using <code><a href="https://rdrr.io/r/stats/Poisson.html" class="external-link">rpois()</a></code>. This is an alternative to the multinomial weights that yields similar estimates (especially as the sample size grows) but can be faster. Note <code>strata</code> is ignored when using <code>"poisson"</code>.</p></dd>
+
+<dt><code>"mammen"</code></dt>
+<dd><p>Draws weights from a modification of the distribution described by Mammen (1983) for use in the wild bootstrap. These positive weights have a mean, variance, and skewness of 1, making them second-order accurate (in contrast to the usual exponential weights, which are only first-order accurate). The weights \(w\) are drawn such that \(P(w=(3+\sqrt{5})/2)=(\sqrt{5}-1)/2\sqrt{5}\) and \(P(w=(3-\sqrt{5})/2)=(\sqrt{5}+1)/2\sqrt{5}\). The weights are scaled to have a mean of 1 within each stratum (or in the full sample if <code>strata</code> is not supplied).</p></dd>
+
+
+</dl><p><code>"exp"</code> is the default due to it being the formulation described in Xu et al. (2020) and in the most formulations of the Bayesian bootstrap; it should be used if one wants to remain in line with these guidelines or to maintain a Bayesian flavor to the analysis, whereas <code>"mammen"</code> might be preferred for its frequentist operating characteristics, though its performance has not been studied in this context. <code>"multinom"</code> and <code>"poisson"</code> should only be used for comparison purposes.</p>
 </div>
 
     </div>
