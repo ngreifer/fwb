@@ -2,3 +2,13 @@ url: https://ngreifer.github.io/fwb/
 template:
   bootstrap: 5
 
+reference:
+  - contents:
+    - fwb
+    - fwb.ci
+    - summary.fwb
+    - plot.fwb
+    - vcovFWB
+    - set_fwb_type
+    - get_ci
+    - bearingcage

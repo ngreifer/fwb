@@ -7,24 +7,24 @@ vignette: >
   %\VignetteEncoding{UTF-8}
 ---
 
-Steps must be taken to ensure reproducibility when using `fwb`. Reproducibility ensures re-running the same analysis yields identical results. Because a random process is involved in generating the bootstrap weights, steps must be taken to ensure reproducibility is possible.
+Reproducibility ensures re-running the same analysis yields identical results. Because a random process is involved in generating the bootstrap weights with `fwb::fwb()`, steps must be taken to ensure reproducibility is possible.
 
 There are a few arguments to `fwb()` that are relevant for reproducibility. These are `statistic`, `simple`, and `cl`. 
 
-`statistic` is the function that is applied to each bootstrap dataset that returns the quantities of interest to be estimated. It can either have a non-random component or not; each case requires special attention. It is always safer to avoid having a random component in `statistic`. Most common regression functions to do not involve a random component, but some advanced models, like machine learning models, may have a random component. Do not ever include a call to `set.seed()` or supply a seed to `statistic`. If you are using parallelization for `fwb()`, do not use parallelization within `statistic`.
+- `statistic` is the function that is applied to each bootstrap dataset and returns the quantities of interest to be estimated. It can either have a random component or not; each case requires special attention. It is always safer to avoid having a random component in `statistic`. Most common regression functions to do not involve a random component, but some advanced models, like machine learning models, may. Do not ever include a call to `set.seed()` or supply a seed to `statistic`. If you are using parallelization for `fwb()`, do not use parallelization within `statistic`.
 
-`simple` controls whether the bootstrap weights are generated all at once (`simple = FALSE`) or generated separately within each bootstrap iteration (`simple = TRUE`). When `simple = FALSE`, generating of the weights occurs before any parallelization takes place or `statistic` is called, which means ensuring reproducibility is more straightforward. When `simple = TRUE`, generating of the weights occurs before the call to `statistic` in each bootstrap iteration, effectively giving `statistic` a random component. This can make it a bit more challenging to ensure reproducibility when using parallelization and adds even more challenges when `statistic` also has a random component.
+- `simple` controls whether the bootstrap weights are generated all at once (`simple = FALSE`) or generated separately within each bootstrap iteration (`simple = TRUE`). When `simple = FALSE`, the weights are generated before any parallelization takes place or `statistic` is called, which makes ensuring reproducibility more straightforward. When `simple = TRUE`, the weights are generated before the call to `statistic` in each bootstrap iteration, which can make it a bit more challenging to ensure reproducibility when using parallelization and adds even more challenges when `statistic` also has a random component.
 
-`cl` controls whether and how parallelization takes place. It is passed directly to `pbapply::pblapply()`, which calls either `parallel::mcapply()`, `parallel::parLapply()`, or `future.apply::future_lapply()` depends on how it is specified. The usual arguments include an integer referring to the number of cores, which only works on Mac and triggers `parallel::mcapply()`; a `cluster` object (usually the result of a call to `parallel::makeCluster()` or related functions), which triggers `parallel::parLapply()`; or `"future"`, which uses a `future` backend (usually initialized using `future::plan()`). Each of these involves different requirements for ensuring reproducibility.
+- `cl` controls whether and how parallelization takes place. It is passed directly to `pbapply::pblapply()`, which calls either `parallel::mclapply()`, `parallel::parLapply()`, or `future.apply::future_lapply()`, depending on how it is specified. The usual arguments include an integer referring to the number of cores, which only works on Mac and triggers `parallel::mclapply()`; a `cluster` object (usually the result of a call to `parallel::makeCluster()` or related functions), which triggers `parallel::parLapply()`; or `"future"`, which uses a `future` backend (usually initialized using `future::plan()`). Each of these involves different requirements for ensuring reproducibility.
 
-This guide will proceed for combinations of these case.
+This guide will proceed for combinations of these scenarios.
 
 ### Case 1: No parallelization (`cl = NULL`)
 
-When no parallelization is used (i.e., `cl` is unspecified, `NULL`, or `1`), all you need to do is call `set.seed()` before `fwb()` to ensure reproducibility. It doesn't matter what `simple` or `statistic` do. This is probably the most common case. Just run the following to ensure reproducibility, replacing `###` with your favorite integer.
+When no parallelization is used (i.e., `cl` is unspecified, `NULL`, or `1`), all you need to do is call `set.seed()` before `fwb()` to ensure reproducibility. It doesn't matter what `simple` or `statistic` do. This is probably the most common case. Just run the following to ensure reproducibility, replacing `{N}` with your favorite integer.
 
 ```r
-set.seed(###)
+set.seed({N})
 
 f.out <- fwb(.)
 ```
@@ -34,17 +34,17 @@ f.out <- fwb(.)
 If `simple = FALSE` and `statistic` does not have a random component, see Case 1, regardless of whether or how parallelization is used. In this case, no random process occurs within each cluster, so no special steps need to be taken beyond setting a seed. Note that `simple` is `TRUE` by default unless `wtype = "multinom"`, so this must be set manually. See below for a code example:
 
 ```r
-set.seed(###)
+set.seed({N})
 
 f.out <- fwb(., simple = FALSE)
 ```
 
 ### Case 3: `cl` is an integer
 
-When `cl` is an integer and the criteria for Case 2 are not met, one additional step is required for ensuring reproducibility. Again, all you need to do is use `set.seed()`, but you must call it with `kind = "L'Ecuyer-CMRG"`, which is the only method appropriate for use across multiple clusters. See below for a code example:
+When `cl` is an integer and the criteria for Case 2 are not met (i.e., `simple = TRUE` or `statistic` has a random component), one additional step is required for ensuring reproducibility. Again, all you need to do is use `set.seed()`, but you must call it with `kind = "L'Ecuyer-CMRG"`, which is the only method appropriate for use across multiple clusters. See below for a code example:
 
 ```r
-set.seed(###, "L'Ecuyer-CMRG")
+set.seed({N}, "L'Ecuyer-CMRG")
 
 f.out <- fwb(., cl = 3)
 ```
@@ -57,37 +57,39 @@ When using a `future` backend and the criteria for Case are not met, you can use
 library(future)
 
 plan(multisession, workers = 3)
-set.seed(###, "L'Ecuyer-CMRG")
+set.seed({N}, "L'Ecuyer-CMRG")
 
 f.out <- fwb(., cl = "future")
 ```
 
 ### Case 5: `cl` is a `cluster` object
 
-When `cl` is a `cluster` object (i.e., the output of a call to `parallel::makeCluster()`, `parallel::makePSOCKcluster()`, `parallel::makeForkCluster()` or similar functions in *parallelly*), an additional step need to be taken to ensure reproducibility. Unfortunately, you can't use `set.seed()`; you have to use `parallel::clusterSetRNGStream()`, to which you supply the `cluster` object are your desired seed. See below for a code example:
+When `cl` is a `cluster` object (i.e., the output of a call to `parallel::makeCluster()`, `parallel::makePSOCKcluster()`, `parallel::makeForkCluster()` or similar functions in *parallelly*), an additional step must be taken to ensure reproducibility. Unfortunately, you can't use `set.seed()`; you have to use `parallel::clusterSetRNGStream()`, to which you supply the `cluster` object and your desired seed. See below for a code example:
 
 ```r
 library(parallel)
 
 cl <- makeCluster(3)
-clusterSetRNGStream(cl, ###)
+clusterSetRNGStream(cl, {N})
 
 f.out <- fwb(., cl = cl)
 ```
-## Computing `BCa` confidence intervals
+## Computing BCa confidence intervals
 
-Although the main purpose of considering reproducibility is ensure that multiple runs of the same code produce identical results, there is another situation in which it can be important to be able to reproduce the weights, and that is when computing BCa confidence intervals using `fwb.ci(., type = "bca")` or `summary(., ci.type = "bca")`. BCa confidence intervals have the best statistical properties among the available bootstrap confidence intervals, but they require computing the influence each unit has on the bootstrap estimates, which requires re-generating the weights as they were generated by `fwb()`.
+Although the main purpose of considering reproducibility is to ensure that multiple runs of the same code produce identical results, there is another situation in which it can be important to be able to reproduce the weights, and that is when computing bias-corrected accelerated (BCa) confidence intervals using `fwb.ci(., type = "bca")` or `summary(., ci.type = "bca")`. BCa confidence intervals have the best statistical properties among the available bootstrap confidence intervals, but they require computing the influence each unit has on the bootstrap estimates, which requires re-generating the weights as they were generated by `fwb()`.
 
-There are some cases where you don't have to do any special work to ensure BCa intervals are correctly computed. These include
+There are some cases where you don't have to do any special work to ensure BCa intervals are correctly computed. These include:
+
 * `simple = FALSE`, regardless of parallelization or randomness in `statistic`
 * `simple = TRUE`, there is no randomness in `statistic`, and no parallelization is used
 * `simple = TRUE`, there is no randomness in `statistic`, and `cl` is an integer or `"future"`
 
-In these cases, `fwb()` saves the state of the random seed that was used to originally generate the weights, recalls that seed to re-generate the weights, and then computes the required statistics for the BCa interval without requiring any extra involvement by the user.
+In these cases, `fwb()` saves the state of the random seed that was used to originally generate the weights, and `fwb.ci()` recalls that seed to re-generate the weights and then computes the required statistics for the BCa interval without requiring any extra involvement by the user.
 
 Otherwise, when the following condition is met, an additional step is required:
+
 * `simple = TRUE`, there is no randomness in `statistic`, and `cl` is a `cluster` object
 
-In this case, you need to call `clusterSetRNGStream(cl, ###)` with the same seed as as was used prior to `fwb()` immediately before calling `fwb.ci()` or `summary()`.
+In this case, you need to call `parallel::clusterSetRNGStream(cl, {N})` with the same seed as as was used prior to `fwb()` immediately before calling `fwb.ci()` or `summary()`.
 
 When `simple = TRUE` and there is any randomness in `statistic`, it is not possible to re-generate the weights that were used in the bootstrap, so BCa confidence intervals cannot be computed. `fwb.ci()` (and `summary()` and `confint()`, which call `fwb.ci()`) automatically checks for this case and throws an error if BCa confidence intervals are requested when these conditions are met.

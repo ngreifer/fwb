@@ -1,6 +1,10 @@
 `cobalt` News and Updates
 ======
 
+# `fwb` (development version)
+
+* Documentation and vignette updates.
+
 # `fwb` 0.3.0
 
 * Added a new `confint()` method for `fwb` objects.

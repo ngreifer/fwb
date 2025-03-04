@@ -54,7 +54,8 @@ fit_fun <- function(data, w) {
   coef(fit)
 }
 
-fwb_out <- fwb(infert, fit_fun, R = 199, verbose = FALSE)
+fwb_out <- fwb(infert, fit_fun, R = 199,
+               verbose = FALSE)
 
 # Basic confidence interval for both estimates
 summary(fwb_out, ci.type = "basic")

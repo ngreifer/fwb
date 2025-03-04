@@ -1,7 +1,7 @@
 Package: fwb
 Type: Package
 Title: Fractional Weighted Bootstrap
-Version: 0.3.0
+Version: 0.3.0.9000
 Authors@R: c(
     person("Noah", "Greifer", role=c("aut", "cre"), 
            email = "noah.greifer@gmail.com",
@@ -13,9 +13,9 @@ Description: An implementation of the fractional weighted bootstrap to be used a
    <doi:10.1080/00031305.2020.1731599> for details.
 Depends: R (>= 3.6.0)
 Imports:
-    rlang,
-    chk,
-    pbapply,
+    rlang (>= 1.1.5),
+    chk (>= 0.10.0),
+    pbapply (>= 1.7-2),
     stats,
     utils,
     graphics
@@ -26,13 +26,14 @@ Suggests:
     lmtest,
     nnet,
     parallel,
+    future,
+    future.apply,
     testthat (>= 3.0.0),
     knitr,
     rmarkdown
 License: GPL (>=2)
 Encoding: UTF-8
-URL: https://github.com/ngreifer/fwb,
-    https://ngreifer.github.io/fwb/
+URL: https://ngreifer.github.io/fwb/, https://github.com/ngreifer/fwb,
 BugReports: https://github.com/ngreifer/fwb/issues
 RoxygenNote: 7.3.2
 Roxygen: list(markdown = TRUE)

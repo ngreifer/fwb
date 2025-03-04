@@ -13,8 +13,8 @@ Xu, L., Gotwalt, C., Hong, Y., King, C. B., & Meeker, W. Q. (2020). Applications
 \seealso{
 Useful links:
 \itemize{
-  \item \url{https://github.com/ngreifer/fwb}
   \item \url{https://ngreifer.github.io/fwb/}
+  \item \url{https://github.com/ngreifer/fwb,}
   \item Report bugs at \url{https://github.com/ngreifer/fwb/issues}
 }
 

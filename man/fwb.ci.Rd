@@ -84,10 +84,12 @@ fit_fun <- function(data, w) {
   coef(fit)
 }
 
-fwb_out <- fwb(infert, fit_fun, R = 199, verbose = FALSE)
+fwb_out <- fwb(infert, fit_fun, R = 199,
+               verbose = FALSE)
 
 # Bias corrected percentile interval
-bcci <- fwb.ci(fwb_out, index = "spontaneous", type = "bc")
+bcci <- fwb.ci(fwb_out, index = "spontaneous",
+               type = "bc")
 bcci
 
 # Using `get_ci()` to extract confidence limits
