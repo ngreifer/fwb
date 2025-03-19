@@ -3,6 +3,8 @@
 
 # `fwb` (development version)
 
+* Fixed a bug in `print.fwbci()` due to incorrect ordering of the intervals which led them to be printed with incorrect labels. These have been corrected and printing is a little prettier. Thanks to Katya Zelevinsky.
+
 * Documentation and vignette updates.
 
 # `fwb` 0.3.0

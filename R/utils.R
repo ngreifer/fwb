@@ -210,6 +210,14 @@ match_arg <- function(arg, choices, several.ok = FALSE) {
   choices[i]
 }
 
+.tail <- function(x, n = 1L) {
+  chk::chk_count(n)
+  chk::chk_gt(n, 0)
+
+  l <- length(x)
+  x[seq(max(1L, l - n + 1L), l)]
+}
+
 is_null <- function(x) {length(x) == 0L}
 is_not_null <- function(x) {!is_null(x)}
 

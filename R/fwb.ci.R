@@ -81,7 +81,8 @@ fwb.ci <- function(fwb.out, conf = .95, type = "bc", index = 1L,
     .err("`conf` must be a single number between .5 and 1")
   }
   chk::chk_character(type)
-  type <- match.arg(type, c("perc", "bc", "norm", "basic", "bca", "all"), several.ok = TRUE)
+  type <- match_arg(type, c("perc", "bc", "norm", "basic", "bca", "all"),
+                    several.ok = TRUE)
 
   if (any(type == "all")) {
     type <- c("perc", "bc", "norm", "basic", "bca")
@@ -140,22 +141,23 @@ fwb.ci <- function(fwb.out, conf = .95, type = "bc", index = 1L,
   t0 <- h(t0)
   t <- h(t)
 
-  output <- list(R = R, t0 = hinv(t0), call = call)
+  output <- c(list(R = R, t0 = hinv(t0), call = call),
+              setNames(vector("list", length(type)), type))
 
   if (any(type == "bc")) {
-    output$bc <- bc.ci(t, t0, conf, hinv = hinv)
+    output[["bc"]] <- bc.ci(t, t0, conf, hinv = hinv)
   }
   if (any(type == "perc")) {
-    output$perc <- perc.ci(t, t0, conf, hinv = hinv)
+    output[["perc"]] <- perc.ci(t, t0, conf, hinv = hinv)
   }
   if (any(type == "norm")) {
-    output$norm <- norm.ci(t, t0, conf, hinv = hinv)
+    output[["norm"]] <- norm.ci(t, t0, conf, hinv = hinv)
   }
   if (any(type == "basic")) {
-    output$basic <- basic.ci(t, t0, conf, hinv = hinv)
+    output[["basic"]] <- basic.ci(t, t0, conf, hinv = hinv)
   }
   if (any(type == "bca")) {
-    output$bca <- bca.ci(t, t0, fwb.out, index, conf, hinv = hinv, h = h)
+    output[["bca"]] <- bca.ci(t, t0, fwb.out, index, conf, hinv = hinv, h = h)
   }
 
   attr(output, "conf") <- conf
@@ -173,122 +175,132 @@ fwb.ci <- function(fwb.out, conf = .95, type = "bc", index = 1L,
 print.fwbci <- function (x, hinv = NULL, ...) {
   ci.out <- x
   cl <- ci.out[["call"]]
-  ntypes <- length(ci.out) - 3L
-  nints <- nrow(ci.out[[4L]])
+
+  ci.types <- intersect(names(ci.out)[lengths(ci.out) > 0],
+                        c("norm", "basic", "perc", "bc", "bca"))
+
+  ntypes <- length(ci.types)
   t0 <- ci.out[["t0"]]
-  if (!is.null(hinv))
-    t0 <- hinv(t0)
-  digs <- ceiling(log10(abs(t0)))
-  if (digs <= 0)
-    digs <- 4
-  else if (digs >= 4)
-    digs <- 0
-  else digs <- 4 - digs
-  intlabs <- NULL
-  basrg <- bcperg <- perg <- bcarg <- NULL
-  if (!is.null(ci.out[["norm"]])) {
-    intlabs <- c(intlabs, "      Normal   ")
+
+  if (is_null(hinv)) {
+    use_hinv <- FALSE
+    hinv <- identity
   }
-  if (!is.null(ci.out[["basic"]])) {
-    intlabs <- c(intlabs, "       Basic   ")
+  else {
+    use_hinv <- TRUE
+  }
+
+  t0 <- hinv(t0)
+
+  digs <- ceiling(log10(abs(t0)))
+  digs <- {
+    if (digs <= 0) 4
+    else if (digs >= 4) 0
+    else 4 - digs
+  }
+
+  intlabs <- setNames(character(length(ci.types)),
+                      ci.types)
+
+  basrg <- bcperg <- perg <- bcarg <- NULL
+
+  if ("norm" %in% ci.types) {
+    intlabs["norm"] <- "Normal"
+  }
+  if ("basic" %in% ci.types) {
+    intlabs["basic"] <- "Basic"
     basrg <- range(ci.out[["basic"]][, 2:3])
   }
-  if (!is.null(ci.out[["bc"]])) {
-    intlabs <- c(intlabs, "BC Percentile  ")
+  if ("bc" %in% ci.types) {
+    intlabs["bc"] <- "BC Percentile"
     bcperg <- range(ci.out[["bc"]][, 2:3])
   }
-  if (!is.null(ci.out[["perc"]])) {
-    intlabs <- c(intlabs, "  Percentile   ")
+  if ("perc" %in% ci.types) {
+    intlabs["perc"] <- "Percentile"
     perg <- range(ci.out[["perc"]][, 2:3])
   }
-  if (!is.null(ci.out[["bca"]])) {
-    intlabs <- c(intlabs, "        BCa    ")
+  if ("bca" %in% ci.types) {
+    intlabs["bca"] <- "BCa"
     bcarg <- range(ci.out[["bca"]][, 2:3])
   }
 
   level <- 100 * attr(ci.out, "conf", TRUE)
-  if (ntypes == 4L)
-    n1 <- n2 <- 2L
-  else if (ntypes == 5L) {
-    n1 <- 3L
-    n2 <- 2L
+
+  intervals <- do.call("rbind", lapply(ci.types, function(i) {
+    hinv(.tail(ci.out[[i]][1L,], 2L))
+  }))
+
+  intervals_text <- apply(format(round(intervals, digs)), 1L, function(z) {
+    sprintf("(%s, %s)", trimws(z[1L]), trimws(z[2L]))
+  })
+
+  text <- format(c(intlabs[ci.types], intervals_text),
+                 justify = "c")
+
+  labels <- text[seq_along(ci.types)]
+  intervals_text <- text[-seq_along(ci.types)]
+
+  level_text <- format(c("Level", sprintf("%s%%", level)),
+                       justify = "c")
+
+  R <- ci.out[["R"]]
+  cat(format(c("BOOTSTRAP CONFIDENCE INTERVAL CALCULATIONS",
+               sprintf("Based on %s bootstrap replicates", R)),
+             justify = "c"), sep = "\n")
+  cat("\nCALL :\n")
+  dput(cl, control = NULL)
+  cat("\nIntervals :\n")
+
+  nc <- 2L #no. columns in output
+  for (k0 in seq_len(ntypes)) {
+    if ((k0 - 1) %% nc == 0) {
+      upper_text <- paste(level_text[1L], labels[k0])
+      lower_text <- paste(level_text[2L], intervals_text[k0])
+    }
+    else {
+      upper_text <- paste(upper_text, labels[k0])
+      lower_text <- paste(lower_text, intervals_text[k0])
+    }
+
+    if (k0 == ntypes || k0 %% nc == 0) {
+      cat(sprintf("\n%s\n%s\n", upper_text, lower_text))
+    }
+  }
+
+  if (is_not_null(cl[["h"]])) {
+    if (is_null(cl[["hinv"]]) && !use_hinv) {
+      cat("\nCalculations and Intervals on Transformed Scale\n")
+    }
+    else {
+      cat("\nCalculations on Transformed Scale; Intervals on Original Scale\n")
+    }
+  }
+  else if (is_null(cl[["hinv"]]) && !use_hinv) {
+    cat("\nCalculations and Intervals on Original Scale\n")
   }
   else {
-    n1 <- ntypes
-    n2 <- 0L
+    cat("\nCalculations on Original Scale but Intervals Transformed\n")
   }
-  ints1 <- matrix(NA, nints, 2L * n1 + 1L)
-  ints1[, 1L] <- level
-  n0 <- 4L
-  for (i in n0:(n0 + n1 - 1)) {
-    j <- c(2L * i - 6L, 2L * i - 5L)
-    nc <- ncol(ci.out[[i]])
-    nc <- c(nc - 1L, nc)
-    if (is.null(hinv)) ints1[, j] <- ci.out[[i]][, nc]
-    else ints1[, j] <- hinv(ci.out[[i]][, nc])
-  }
-  n0 <- 4L + n1
-  ints1 <- format(round(ints1, digs))
-  ints1[, 1L] <- paste("\n", level, "%  ", sep = "")
-  ints1[, 2 * (1L:n1)] <- paste("(", ints1[, 2 * (1L:n1)], ",", sep = "")
-  ints1[, 2 * (1L:n1) + 1L] <- paste(ints1[, 2 * (1L:n1) + 1L], ")  ")
-  if (n2 > 0) {
-    ints2 <- matrix(NA, nints, 2L * n2 + 1L)
-    ints2[, 1L] <- level
-    j <- c(2L, 3L)
-    for (i in n0:(n0 + n2 - 1L)) {
-      nc <- ncol(ci.out[[i]])
-      nc <- c(nc - 1L, nc)
-      if (is.null(hinv))
-        ints2[, j] <- ci.out[[i]][, nc]
-      else ints2[, j] <- hinv(ci.out[[i]][, nc])
-      j <- j + 2L
-    }
-    ints2 <- format(round(ints2, digs))
-    ints2[, 1L] <- paste("\n", level, "%  ", sep = "")
-    ints2[, 2 * (1L:n2)] <- paste("(", ints2[, 2 * (1L:n2)], ",", sep = "")
-    ints2[, 2 * (1L:n2) + 1L] <- paste(ints2[, 2 * (1L:n2) + 1L], ")  ")
-  }
-  R <- ci.out[["R"]]
-  cat("BOOTSTRAP CONFIDENCE INTERVAL CALCULATIONS\n")
-  cat(paste("Based on", R, "bootstrap replicates\n\n"))
-  cat("CALL : \n")
-  dput(cl, control = NULL)
-  cat("\nIntervals : ")
-  cat("\nLevel", intlabs[1L:n1])
-  cat(t(ints1))
-  if (n2 > 0) {
-    cat("\n\nLevel", intlabs[(n1 + 1):(n1 + n2)])
-    cat(t(ints2))
-  }
-  if (!is.null(cl[["h"]])) {
-    if (is.null(cl[["hinv"]]) && is.null(hinv))
-      cat("\nCalculations and Intervals on ", "Transformed Scale\n")
-    else cat("\nCalculations on Transformed Scale;", " Intervals on Original Scale\n")
-  }
-  else if (is.null(cl[["hinv"]]) && is.null(hinv))
-    cat("\nCalculations and Intervals on Original Scale\n")
-  else cat("\nCalculations on Original Scale", " but Intervals Transformed\n")
 
-  if (!is.null(basrg)) {
+  if (is_not_null(basrg)) {
     if ((basrg[1L] <= 1) || (basrg[2L] >= R))
       cat("Warning : Basic Intervals used Extreme Quantiles\n")
     if ((basrg[1L] <= 10) || (basrg[2L] >= R - 9))
       cat("Some basic intervals may be unstable\n")
   }
-  if (!is.null(bcperg)) {
+  if (is_not_null(bcperg)) {
     if ((bcperg[1L] <= 1) || (bcperg[2L] >= R))
       cat("Warning : Bias-Corrected Percentile Intervals used Extreme Quantiles\n")
     if ((bcperg[1L] <= 10) || (bcperg[2L] >= R - 9))
       cat("Some bias-corrected percentile intervals may be unstable\n")
   }
-  if (!is.null(perg)) {
+  if (is_not_null(perg)) {
     if ((perg[1L] <= 1) || (perg[2L] >= R))
       cat("Warning : Percentile Intervals used Extreme Quantiles\n")
     if ((perg[1L] <= 10) || (perg[2L] >= R - 9))
       cat("Some percentile intervals may be unstable\n")
   }
-  if (!is.null(bcarg)) {
+  if (is_not_null(bcarg)) {
     if ((bcarg[1L] <= 1) || (bcarg[2L] >= R))
       cat("Warning : BCa Intervals used Extreme Quantiles\n")
     if ((bcarg[1L] <= 10) || (bcarg[2L] >= R - 9))
@@ -338,8 +350,7 @@ get_ci <- function(x, type = "all") {
   }
 
   out <- setNames(lapply(type, function(t) {
-    nc <- ncol(x[[t]])
-    setNames(x[[t]][, c(nc - 1, nc)], c("L", "U"))
+    setNames(.tail(x[[t]][1L, ], 2L), c("L", "U"))
   }), type)
 
   attr(out, "conf") <- {
