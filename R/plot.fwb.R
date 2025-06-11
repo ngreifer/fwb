@@ -20,7 +20,7 @@
 #' # See examples at help("fwb")
 
 #' @exportS3Method plot fwb
-plot.fwb <- function(x, index = 1, qdist = "norm", nclass = NULL, df, type = c("hist", "qq"), ...) {
+plot.fwb <- function(x, index = 1L, qdist = "norm", nclass = NULL, df, type = c("hist", "qq"), ...) {
 
   index <- check_index(index, x[["t"]])
 
@@ -38,10 +38,10 @@ plot.fwb <- function(x, index = 1, qdist = "norm", nclass = NULL, df, type = c("
   chk::chk_character(type)
   type <- tryCatch(match.arg(tolower(type), c("hist", "qq"), several.ok = TRUE),
                    error = function(e) {
-                     .err("`type` must be one or more of \"hist\" or \"qq\"")
+                     .err('`type` must be one or more of "hist" or "qq"')
                    })
 
-  opar <- graphics::par(mfrow = c(1, length(type)))
+  opar <- graphics::par(mfrow = c(1L, length(type)))
   on.exit(graphics::par(opar))
 
   for (i in type) {
@@ -59,16 +59,16 @@ plot.fwb <- function(x, index = 1, qdist = "norm", nclass = NULL, df, type = c("
       else if (t0 > rg[2L])
         rg[2L] <- t0
       rg <- rg + 0.05 * c(-1, 1) * diff(rg)
-      lc <- diff(rg)/(nclass - 2)
-      n1 <- ceiling((t0 - rg[1L])/lc)
-      n2 <- ceiling((rg[2L] - t0)/lc)
+      lc <- diff(rg) / (nclass - 2)
+      n1 <- ceiling((t0 - rg[1L]) / lc)
+      n2 <- ceiling((rg[2L] - t0) / lc)
       bks <- t0 + (-n1:n2) * lc
 
       graphics::hist(t, breaks = bks, probability = TRUE,
                      xlab = colnames(x[["t"]])[index],
                      main = sprintf("Histogram of %s", colnames(x[["t"]])[index]))
 
-      graphics::abline(v = t0, lty = 2)
+      graphics::abline(v = t0, lty = 2L)
     }
     else if (i == "qq") {
       p <- ppoints(x$R, a = .5)
@@ -88,8 +88,8 @@ plot.fwb <- function(x, index = 1, qdist = "norm", nclass = NULL, df, type = c("
         qlab <- "Quantiles of Standard Normal"
       }
       else {
-        .err(sprintf("%s distribution not supported: using normal instead",
-                         add_quotes(qdist)))
+        .err(sprintf("%s distribution not supported",
+                     add_quotes(qdist)))
       }
 
       qqplot(qf(p), t, xlab = qlab, ylab = colnames(x[["t"]])[index])
@@ -102,9 +102,9 @@ plot.fwb <- function(x, index = 1, qdist = "norm", nclass = NULL, df, type = c("
 
 #Estimates df of chisq distribution using MLE; port of MASS::fitdsitr
 estimate_chisq_df <- function(x) {
-  myfn <- function(df, x, ...) -sum(log(dchisq(x, df, ...)))
+  myfn <- function(df, y, ...) -sum(log(dchisq(y, df, ...)))
 
-  res <- optimize(myfn, interval = c(0, 10 * mean(x)), x = x,
+  res <- optimize(myfn, interval = c(0, 10 * mean(x)), y = x,
                   tol = 1e-8)
   res$minimum
 }

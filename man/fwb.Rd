@@ -51,7 +51,8 @@ fwb(
 \item{index}{the index or indices of the position of the quantity of interest in \code{x$t0} if more than one was specified in \code{fwb()}. Default is to print all quantities.}
 }
 \value{
-A \code{fwb} object, which also inherits from \code{boot}, with the following components:
+An \code{fwb} object, which also inherits from \code{boot}, with the following components:
+
 \item{t0}{The observed value of \code{statistic} applied to \code{data} with uniform weights.}
 \item{t}{A matrix with \code{R} rows, each of which is a bootstrap replicate of the result of calling \code{statistic}.}
 \item{R}{The value of \code{R} as passed to \code{fwb()}.}
@@ -62,6 +63,8 @@ A \code{fwb} object, which also inherits from \code{boot}, with the following co
 \item{cluster}{The vector passed to \code{cluster}, if any.}
 \item{strata}{The vector passed to \code{strata}, if any.}
 \item{wtype}{The type of weights used as determined by the \code{wtype} argument.}
+
+\code{fwb} objects have \code{\link[=coef]{coef()}} and \code{\link[=vcov]{vcov()}} methods, which extract the \code{t0} compoenent and covariance of the \code{t} components, respectively.
 }
 \description{
 \code{fwb()} implements the fractional (random) weighted bootstrap, also known as the Bayesian bootstrap. Rather than resampling units to include in bootstrap samples, weights are drawn to be applied to a weighted estimator.

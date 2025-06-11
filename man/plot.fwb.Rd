@@ -6,7 +6,7 @@
 \usage{
 \method{plot}{fwb}(
   x,
-  index = 1,
+  index = 1L,
   qdist = "norm",
   nclass = NULL,
   df,

@@ -74,12 +74,13 @@ weibull_est <- function(data, w) {
                            data = data, weights = w,
                            dist = "weibull")
 
-  c(eta = unname(exp(coef(fit))), beta = 1 / fit$scale)
+  c(eta = unname(exp(coef(fit))),
+    beta = 1 / fit$scale)
 }
 
 # 1999 bootstrap replications; more is always better
 fwb_est <- fwb(bearingcage, statistic = weibull_est,
-                R = 1999, verbose = FALSE)
+               R = 1999, verbose = FALSE)
 fwb_est
 #> FRACTIONAL WEIGHTED BOOTSTRAP
 #> 
@@ -219,6 +220,22 @@ The non-normality of the FWB distributions also suggests that the usual
 Wald-style confidence intervals may not be accurate, and a
 bias-corrected percentile interval should probably be computed instead.
 
+## Weighted statistics and transformations
+
+`fwb` also contains utility functions for computing weighted statistics
+to facilitate incorporation of bootstrapped weights into estimates.
+These include `w_mean()`, `w_var()`, `w_sd()`, `w_quantile()`, and
+`w_median()` for computing weighted means, variances, standard
+deviations, quantiles, and medians; `w_cov()` and `w_cor()` for
+computing weighted covariance and correlation matrices, and `w_std()`,
+`w_scale()`, and `w_center()` for transforming variables by
+standardizing, scaling, and centering using weighted statistics. Many of
+these serve as drop-ins for base R functions, like `weighted.mean()` for
+computing the weighted mean, but have the advantage that the weights do
+not need to be manually supplied: when the functions are called from
+within `fwb()` or `vcovFWB()`, the bootstrap weights are automatically
+incorporated.
+
 ## When to use the fractional weighted bootstrap
 
 The FWB is uniformly more reliable than the traditional bootstrap when a
@@ -246,6 +263,11 @@ it. Still, though, the FWB deserves a place in an analyst’s toolbox.
 ## Author
 
 - Noah Greifer (noah.greifer@gmail.com)
+
+## Citing `fwb`
+
+To cite `fwb`, please use `citation("fwb")`, which generates a package
+citation.
 
 ## References
 

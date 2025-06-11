@@ -78,8 +78,7 @@ summary.fwb <- function(object, conf = .95, ci.type = "bc", p.value = FALSE, ind
 confint.fwb <- function(object, parm, level = .95, ci.type = "bc", ...) {
 
   chk::chk_number(level)
-  chk::chk_lt(level, 1)
-  chk::chk_gt(level, .5)
+  chk::chk_range(level, c(.5, 1), inclusive = FALSE)
   chk::chk_string(ci.type)
 
   if (missing(parm)) {
