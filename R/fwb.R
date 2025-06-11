@@ -28,7 +28,7 @@
 #' \item{strata}{The vector passed to `strata`, if any.}
 #' \item{wtype}{The type of weights used as determined by the `wtype` argument.}
 #'
-#' `fwb` objects have [coef()] and [vcov()] methods, which extract the `t0` compoenent and covariance of the `t` components, respectively.
+#' `fwb` objects have [coef()] and [vcov()] methods, which extract the `t0` component and covariance of the `t` components, respectively.
 #'
 #' @details `fwb()` implements the fractional weighted bootstrap and is meant to function as a drop-in for `boot::boot(., stype = "f")` (i.e., the usual bootstrap but with frequency weights representing the number of times each unit is drawn). In each bootstrap replication, when `wtype = "exp"` (the default), the weights are sampled from independent exponential distributions with rate parameter 1 and then normalized to have a mean of 1, equivalent to drawing the weights from a Dirichlet distribution. Other weights are allowed as determined by the `wtype` argument (see below for details). The function supplied to `statistic` must incorporate the weights to compute a weighted statistic. For example, if the output is a regression coefficient, the weights supplied to the `w` argument of `statistic` should be supplied to the `weights` argument of `lm()`. These weights should be used any time frequency weights would be, since they are meant to function like frequency weights (which, in the case of the traditional bootstrap, would be integers). Unfortunately, there is no way for `fwb()` to know whether you are using the weights correctly, so care should be taken to ensure weights are correctly incorporated into the estimator.
 #'

@@ -64,7 +64,7 @@ An \code{fwb} object, which also inherits from \code{boot}, with the following c
 \item{strata}{The vector passed to \code{strata}, if any.}
 \item{wtype}{The type of weights used as determined by the \code{wtype} argument.}
 
-\code{fwb} objects have \code{\link[=coef]{coef()}} and \code{\link[=vcov]{vcov()}} methods, which extract the \code{t0} compoenent and covariance of the \code{t} components, respectively.
+\code{fwb} objects have \code{\link[=coef]{coef()}} and \code{\link[=vcov]{vcov()}} methods, which extract the \code{t0} component and covariance of the \code{t} components, respectively.
 }
 \description{
 \code{fwb()} implements the fractional (random) weighted bootstrap, also known as the Bayesian bootstrap. Rather than resampling units to include in bootstrap samples, weights are drawn to be applied to a weighted estimator.
