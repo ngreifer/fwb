@@ -1,11 +1,19 @@
 `cobalt` News and Updates
 ======
 
-# `fwb` (development version)
+# `fwb` 0.4.0
+
+* Added a suite of new functions for computing weighted statistic and transformations that automatically incorporate the bootstrap weights. These include `w_mean()`, `w_var()`, `w_sd()`, `w_quantile()`, and `w_median()` for computing weighted means, variances, standard deviations, quantiles, and medians; `w_cov()` and `w_cor()` for computing weighted covariance and correlation matrices, and `w_std()`, `w_scale()`, and `w_center()` for transforming variables by standardizing, scaling, and centering using weighted statistics. These work when called inside the function supplied to the `statistic` argument of `fwb()` or inside the model that is supplied to `vcovFWB()`.
+
+* Improved some error messages.
 
 * Fixed a bug in `print.fwbci()` due to incorrect ordering of the intervals which led them to be printed with incorrect labels. These have been corrected and printing is a little prettier. Thanks to Katya Zelevinsky.
 
+* Added `coef()` and `vcov()` methods for `fwb` objects.
+
 * Documentation and vignette updates.
+
+* Added new tests.
 
 # `fwb` 0.3.0
 
