@@ -9,6 +9,7 @@ reference:
     - summary.fwb
     - plot.fwb
     - vcovFWB
+    - w_mean
     - set_fwb_wtype
     - get_ci
     - bearingcage

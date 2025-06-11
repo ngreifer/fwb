@@ -221,6 +221,16 @@ match_arg <- function(arg, choices, several.ok = FALSE) {
 is_null <- function(x) {length(x) == 0L}
 is_not_null <- function(x) {!is_null(x)}
 
+.set_class <- function(x, .class = NULL) {
+  if (is_null(.class)) {
+    return(x)
+  }
+
+  class(x) <- c(.class, class(x))
+
+  x
+}
+
 pkg_caller_call <- function() {
   pn <- utils::packageName()
   package.funs <- c(getNamespaceExports(pn),
@@ -272,4 +282,40 @@ pkg_caller_call <- function() {
   if (is.null(x_name))
     x_name <- chk::deparse_backtick_chk(substitute(x))
   chk::abort_chk(x_name, " must be an atomic vector", x = x)
+}
+
+with_seed_preserved <- function(expr, new_seed = NULL) {
+
+  old_seed <- list(random_seed = get(".Random.seed", globalenv(), mode = "integer",
+                                     inherits = FALSE),
+                   rng_kind = RNGkind())
+
+  if (is_null(old_seed)) {
+    on.exit({
+        set.seed(seed = NULL)
+        rm(".Random.seed", envir = globalenv())
+      }, add = TRUE)
+  }
+  else {
+    on.exit({
+      RNGkind <- get("RNGkind")
+      RNGkind(old_seed$rng_kind[[1L]], normal.kind = old_seed$rng_kind[[2L]])
+      sample_kind <- old_seed$rng_kind[[3L]]
+
+      if (identical(sample_kind, "Rounding")) {
+        suppressWarnings(RNGkind(sample.kind = sample_kind))
+      }
+      else {
+        RNGkind(sample.kind = sample_kind)
+      }
+
+      assign(".Random.seed", old_seed$random_seed, globalenv())
+    }, add = TRUE)
+  }
+
+  if (is_not_null(new_seed)) {
+    assign(".Random.seed", value = new_seed, envir = globalenv())
+  }
+
+  expr
 }

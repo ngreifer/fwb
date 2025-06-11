@@ -165,6 +165,8 @@ vcovFWB <- function(x, cluster = NULL, R = 1000, start = FALSE,
   opb <- pbapply::pboptions(type = if (verbose) "timer" else "none")
   on.exit(pbapply::pboptions(opb))
 
+  .env <- parent.frame()
+
   ## apply infrastructure for refitting models
   applyfun <- {
     if (identical(cl, "future"))
@@ -182,7 +184,7 @@ vcovFWB <- function(x, cluster = NULL, R = 1000, start = FALSE,
     cli <- factor(cluster[[i]])
 
     ## bootstrap fitting function
-    bootfit <- make.bootfit(x, cli, start, gen_weights, .coef)
+    bootfit <- make.bootfit(x, cli, start, gen_weights, .coef, .env)
 
     ## actually refit
     cf <- do.call("rbind", applyfun(seq_len(R), bootfit, ...))
@@ -206,21 +208,72 @@ vcovFWB <- function(x, cluster = NULL, R = 1000, start = FALSE,
 }
 
 nobs0 <- function (x, ...) {
-  nobs1 <- stats::nobs
-  nobs2 <- function(x, ...) NROW(residuals(x, ...))
-  rval <- try(nobs1(x, ...), silent = TRUE)
+  rval <- try(stats::nobs(x, ...), silent = TRUE)
   if (inherits(rval, "try-error") || is_null(rval)) {
-    rval <- nobs2(x, ...)
+    rval <- NROW(residuals(x, ...))
   }
 
   rval
 }
 
-make.bootfit <- function(fit, cli, start, gen_weights, .coef) {
+make.bootfit <- function(fit, cli, start, gen_weights, .coef, .env) {
   cli <- as.factor(cli)
   nc <- nlevels(cli)
   cluster_numeric <- as.integer(cli)
   special_coef <- !identical(.coef(fit), try(coef(fit), silent = TRUE))
+  bootfit <- NULL
+
+  w0 <- weights(fit)
+  if (is_null(w0)) {
+    w0 <- 1
+  }
+
+  if (!special_coef) {
+    # Test if model uses w_*() functions by seeing if weighted
+    # model.matrix differs from original; if so, need to use
+    # general update instead of lm- or glm-specific.
+
+    mm0 <- model.matrix(fit)
+
+    if (is_not_null(mm0)) {
+      bootfit_test <- function(j, ...) {
+        rlang::local_options(fwb_internal_w_env = rlang::current_env())
+
+        #Generate cluster weights, assign to units
+        cluster_w <- drop(gen_weights(nc, 1L))
+        .wi <- cluster_w[cluster_numeric]
+
+        .wi <- .set_class(.wi, "fwb_internal_w")
+
+        w <- .wi * w0
+
+        utils::capture.output({
+          up <- {
+            if (is_null(start)) do.call("update", list(fit, weights = w, evaluate = FALSE))
+            else do.call("update", list(fit, weights = w, start = start, evaluate = FALSE))
+          }
+
+          up <- eval(up, envir = .env)
+        })
+
+        mm <- try(model.matrix(up), silent = TRUE)
+
+        if (inherits(mm, "try-error")) {
+          return(NULL)
+        }
+
+        mm
+      }
+
+      with_seed_preserved({
+        mm_test <- bootfit_test(1L)
+      })
+
+      if (!isTRUE(all.equal(mm0, mm_test))) {
+        special_coef <- TRUE
+      }
+    }
+  }
 
   if (!special_coef && identical(class(fit), "lm")) {
     mf <- model.frame(fit)
@@ -230,16 +283,19 @@ make.bootfit <- function(fit, cli, start, gen_weights, .coef) {
       y <- y - fit$offset
     }
 
+    w0 <- weights(fit)
+    if (is_null(w0)) {
+      w0 <- 1
+    }
+
     bootfit <- function(j, ...) {
       #Generate cluster weights, assign to units
       cluster_w <- drop(gen_weights(nc, 1L))
-      w <- cluster_w[cluster_numeric]
+      .wi <- cluster_w[cluster_numeric]
 
-      if (is_not_null(w0 <- weights(fit))) {
-        w <- w * w0
-      }
+      .wi <- .wi * w0
 
-      ws <- sqrt(w)
+      ws <- sqrt(.wi)
 
       .lm.fit(x * ws, y = y * ws)$coefficients
     }
@@ -247,6 +303,11 @@ make.bootfit <- function(fit, cli, start, gen_weights, .coef) {
   else if (!special_coef && identical(class(fit)[1L], "glm")) {
     x <- model.matrix(fit)
     y <- fit[["y"]]
+
+    w0 <- weights(fit)
+    if (is_null(w0)) {
+      w0 <- 1
+    }
 
     if (is_null(fit[["method"]])) {
       fit.fun <- stats::glm.fit
@@ -258,7 +319,8 @@ make.bootfit <- function(fit, cli, start, gen_weights, .coef) {
       fit.fun <- get0(fit[["method"]], envir = environment(fit[["terms"]]),
                       mode = "function")
       if (is_null(fit.fun)) {
-        .err(sprintf("the `method` used to fit the original model (\"%s\") is unavailable", fit[["method"]]))
+        .err(sprintf("the `method` used to fit the original model (%s) is unavailable",
+                     add_quotes(fit[["method"]])))
       }
     }
     else {
@@ -268,37 +330,41 @@ make.bootfit <- function(fit, cli, start, gen_weights, .coef) {
     bootfit <- function(j, ...) {
       #Generate cluster weights, assign to units
       cluster_w <- drop(gen_weights(nc, 1L))
-      w <- cluster_w[cluster_numeric]
+      .wi <- cluster_w[cluster_numeric]
 
-      w0 <- weights(fit)
+      .wi <- .wi * w0
 
-      if (is_not_null(w0)) {
-        w <- w * w0
-      }
-
-      safe.glm.fit(fit.fun, x = x, y = y, weights = w, start = start,
+      safe.glm.fit(fit.fun, x = x, y = y,
+                   weights = .wi, start = start,
                    offset = fit$offset, family = fit$family,
                    control = fit$control,
                    intercept = attr(fit$terms, "intercept", TRUE) > 0)$coefficients
     }
   }
   else {
+    w0 <- weights(fit)
+    if (is_null(w0)) {
+      w0 <- 1
+    }
+
     bootfit <- function(j, ...) {
+      rlang::local_options(fwb_internal_w_env = rlang::current_env())
+
       #Generate cluster weights, assign to units
       cluster_w <- drop(gen_weights(nc, 1L))
-      w <- cluster_w[cluster_numeric]
+      .wi <- cluster_w[cluster_numeric]
 
-      w0 <- weights(fit)
+      .wi <- .set_class(.wi, "fwb_internal_w")
 
-      if (is_not_null(w0)) {
-        w <- w * w0
-      }
+      w <- .wi * w0
 
       utils::capture.output({
         up <- {
-          if (is_null(start)) update(fit, weights = w, evaluate = TRUE)
-          else update(fit, weights = w, start = start, evaluate = TRUE)
+          if (is_null(start)) do.call("update", list(fit, weights = w, evaluate = FALSE))
+          else do.call("update", list(fit, weights = w, start = start, evaluate = FALSE))
         }
+
+        up <- eval(up, envir = .env)
       })
 
       .coef(up)
@@ -314,7 +380,9 @@ safe.glm.fit <- function(fit.fun, ...) {
   },
   warning = function(w) {
     if (conditionMessage(w) != "non-integer #successes in a binomial glm!" &&
-        !startsWith(conditionMessage(w), "non-integer x =")) warning(w)
+        !startsWith(conditionMessage(w), "non-integer x =")) {
+      warning(w)
+    }
     invokeRestart("muffleWarning")
   })
 }
