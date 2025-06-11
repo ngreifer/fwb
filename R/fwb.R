@@ -14,7 +14,9 @@
 #' @param cl a cluster object created by \pkgfun{parallel}{makeCluster}, an integer to indicate the number of child-processes (integer values are ignored on Windows) for parallel evaluations, or the string `"future"` to use a `future` backend. See the `cl` argument of \pkgfun{pbapply}{pblapply} for details. If `NULL`, no parallelization will take place. See `vignette("fwb-rep")` for details.
 #' @param ... other arguments passed to `statistic`.
 #'
-#' @return A `fwb` object, which also inherits from `boot`, with the following components:
+#' @returns
+#' An `fwb` object, which also inherits from `boot`, with the following components:
+#'
 #' \item{t0}{The observed value of `statistic` applied to `data` with uniform weights.}
 #' \item{t}{A matrix with `R` rows, each of which is a bootstrap replicate of the result of calling `statistic`.}
 #' \item{R}{The value of `R` as passed to `fwb()`.}
@@ -25,6 +27,8 @@
 #' \item{cluster}{The vector passed to `cluster`, if any.}
 #' \item{strata}{The vector passed to `strata`, if any.}
 #' \item{wtype}{The type of weights used as determined by the `wtype` argument.}
+#'
+#' `fwb` objects have [coef()] and [vcov()] methods, which extract the `t0` compoenent and covariance of the `t` components, respectively.
 #'
 #' @details `fwb()` implements the fractional weighted bootstrap and is meant to function as a drop-in for `boot::boot(., stype = "f")` (i.e., the usual bootstrap but with frequency weights representing the number of times each unit is drawn). In each bootstrap replication, when `wtype = "exp"` (the default), the weights are sampled from independent exponential distributions with rate parameter 1 and then normalized to have a mean of 1, equivalent to drawing the weights from a Dirichlet distribution. Other weights are allowed as determined by the `wtype` argument (see below for details). The function supplied to `statistic` must incorporate the weights to compute a weighted statistic. For example, if the output is a regression coefficient, the weights supplied to the `w` argument of `statistic` should be supplied to the `weights` argument of `lm()`. These weights should be used any time frequency weights would be, since they are meant to function like frequency weights (which, in the case of the traditional bootstrap, would be integers). Unfortunately, there is no way for `fwb()` to know whether you are using the weights correctly, so care should be taken to ensure weights are correctly incorporated into the estimator.
 #'
@@ -177,7 +181,7 @@ fwb <- function(data, statistic, R = 999, cluster = NULL, simple = NULL,
     chk::chk_flag(simple)
 
     if (simple && wtype == "multinom") {
-      .err("`simple` cannot be `TRUE` when `wtype = \"multinom\"`")
+      .err('`simple` cannot be `TRUE` when `wtype = "multinom"`')
     }
   }
   else {
@@ -200,8 +204,9 @@ fwb <- function(data, statistic, R = 999, cluster = NULL, simple = NULL,
   }
 
   #Test fun
-  t0 <- try(call_statistic(statistic, data = data, wi = rep.int(1, n),
-                           ..., drop0 = drop0))
+  test_w <- .set_class(rep.int(1, n), "fwb_internal_w")
+  t0 <- try(call_statistic(statistic, data = data, ...,
+                           .wi = test_w, drop0 = drop0))
 
   if (inherits(t0, "try-error")) {
     .err("There was an error running the function supplied to `statistic` on unit-weighted data. Error produced:\n\t",
@@ -219,8 +224,8 @@ fwb <- function(data, statistic, R = 999, cluster = NULL, simple = NULL,
 
   random_statistic <- NULL
   if (simple) {
-    t0_rep <- try(call_statistic(statistic, data = data, wi = rep.int(1, n),
-                                 ..., drop0 = drop0))
+    t0_rep <- try(call_statistic(statistic, data = data, ...,
+                                 .wi = test_w, drop0 = drop0))
 
     random_statistic <- !identical(t0_rep, t0)
   }
@@ -240,15 +245,19 @@ fwb <- function(data, statistic, R = 999, cluster = NULL, simple = NULL,
     if (simple) {
       FUN <- function(i) {
         wi <- drop(gen_weights(n, 1L, strata_to_use))
-        call_statistic(statistic, data = data, wi = wi,
-                       ..., drop0 = drop0)
+        call_statistic(statistic, data = data,
+                       ...,
+                       .wi = .set_class(wi, "fwb_internal_w"),
+                       drop0 = drop0)
       }
     }
     else {
       w <- gen_weights(n, R, strata_to_use)
       FUN <- function(i) {
-        call_statistic(statistic, data = data, wi = w[i,],
-                       ..., drop0 = drop0)
+        call_statistic(statistic, data = data,
+                       ...,
+                       .wi = .set_class(w[i,], "fwb_internal_w"),
+                       drop0 = drop0)
       }
     }
   }
@@ -257,16 +266,20 @@ fwb <- function(data, statistic, R = 999, cluster = NULL, simple = NULL,
       FUN <- function(i) {
         cluster_w <- drop(gen_weights(nc, 1L, strata_to_use))
         wi <- cluster_w[cluster_numeric]
-        call_statistic(statistic, data = data, wi = wi,
-                       ..., drop0 = drop0)
+        call_statistic(statistic, data = data,
+                       ...,
+                       .wi = .set_class(wi, "fwb_internal_w"),
+                       drop0 = drop0)
       }
     }
     else {
       cluster_w <- gen_weights(nc, R, strata_to_use)
       w <- cluster_w[, cluster_numeric, drop = FALSE]
       FUN <- function(i) {
-        call_statistic(statistic, data = data, wi = w[i,],
-                       ..., drop0 = drop0)
+        call_statistic(statistic, data = data,
+                       ...,
+                       .wi = .set_class(w[i,], "fwb_internal_w"),
+                       drop0 = drop0)
       }
     }
   }
@@ -307,12 +320,12 @@ fwb <- function(data, statistic, R = 999, cluster = NULL, simple = NULL,
               strata = strata,
               wtype = wtype)
 
-  class(out) <- c("fwb", "boot")
-
   attr(out, "boot_type") <- "fwb"
   attr(out, "cl") <- cl
   attr(out, "simple") <- simple
   attr(out, "random_statistic") <- random_statistic
+
+  class(out) <- c("fwb", "boot")
 
   out
 }
@@ -381,6 +394,28 @@ print.fwb <- function(x, digits = getOption("digits"), index = 1L:ncol(x$t), ...
   invisible(x)
 }
 
+check_statistic <- function(statistic) {
+
+  statistic_args <- setdiff(names(formals(statistic)),
+                            "...")
+
+  if (length(statistic_args) < 2L) {
+    .err("the function supplied to `statistic` must have at least two named arguments, the first corresponding to the dataset and the second corresponding to the weights")
+  }
+
+  forbidden_args <- setdiff(c(names(formals(fwb)), names(formals(call_statistic))),
+                            c("data", "..."))
+
+  bad_args <- intersect(statistic_args, forbidden_args)
+
+  if (is_not_null(bad_args)) {
+    .err(sprintf("the function supplied to `statistic` cannot have arguments named %s",
+                 word_list(bad_args, and.or = "or", quotes = TRUE)))
+  }
+
+  invisible(NULL)
+}
+
 make_gen_weights <- function(wtype) {
   wtype <- tolower(wtype)
   wtype <- match_arg(wtype, c("exp", "multinom", "poisson", "mammen"))
@@ -440,16 +475,28 @@ make_gen_weights <- function(wtype) {
   fun
 }
 
-call_statistic <- function(statistic, data, wi, ..., drop0 = FALSE) {
-  if (!drop0) {
-    return(statistic(data, wi, ...))
+call_statistic <- function(statistic, data, ..., .wi, drop0 = FALSE) {
+  rlang::local_options(fwb_internal_w_env = rlang::current_env())
+
+  if (drop0) {
+    non0_wi <- which(.wi != 0)
+
+    if (length(non0_wi) != length(.wi)) {
+      .wi <- .wi[non0_wi]
+
+      return(statistic(data[non0_wi, , drop = FALSE], .wi, ...))
+    }
   }
 
-  non0_wi <- which(wi != 0)
+  statistic(data, .wi, ...)
+}
 
-  if (length(non0_wi) == length(wi)) {
-    return(statistic(data, wi, ...))
-  }
+#' @exportS3Method coef fwb
+coef.fwb <- function(object, ...) {
+  object[["t0"]]
+}
 
-  statistic(data[non0_wi, , drop = FALSE], wi[non0_wi], ...)
+#' @exportS3Method vcov fwb
+vcov.fwb <- function(object, ...) {
+  cov(object[["t"]])
 }
