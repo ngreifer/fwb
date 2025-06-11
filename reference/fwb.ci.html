@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">fwb</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.0.9001</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -110,13 +110,13 @@
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
-    <p><code>fwb.ci()</code> functions similarly to bootboot.ci in that it takes in a bootstrapped object and computes confidence intervals. This interface is a bit old-fashioned, but was designed to mimic that of <code>boot.ci()</code>. For a more modern interface, see <code><a href="summary.fwb.html">summary.fwb()</a></code>.</p>
+    <p><code>fwb.ci()</code> functions similarly to <code><a href="https://rdrr.io/pkg/boot/man/boot.ci.html" class="external-link">boot::boot.ci()</a></code> in that it takes in a bootstrapped object and computes confidence intervals. This interface is a bit old-fashioned, but was designed to mimic that of <code>boot.ci()</code>. For a more modern interface, see <code><a href="summary.fwb.html">summary.fwb()</a></code>.</p>
 <p>The bootstrap intervals are defined as follows, with \(\alpha =\) 1 - <code>conf</code>, \(t_0\) the estimate in the original sample, \(\hat{t}\) the average of the bootstrap estimates, \(s_t\) the standard deviation of the bootstrap estimates, \(t^{(i)}\) the set of ordered estimates with \(i\) corresponding to their quantile, and \(z_\frac{\alpha}{2}\) and \(z_{1-\frac{\alpha}{2}}\) the upper and lower critical \(z\) scores.</p><ul><li><p><code>"norm"</code> (normal approximation): \([2t_0 - \hat{t} + s_t z_\frac{\alpha}{2}, 2t_0 - \hat{t} + s_t z_{1-\frac{\alpha}{2}}]\)</p></li>
 </ul><p>This involves subtracting the "bias" (\(\hat{t} - t_0\)) from the estimate \(t_0\) and using a standard Wald-type confidence interval. This method is valid when the statistic is normally distributed.</p><ul><li><p><code>"basic"</code>: \([2t_0 - t^{(1-\frac{\alpha}{2})}, 2t_0 - t^{(\frac{\alpha}{2})}]\)</p></li>
 <li><p><code>"perc"</code> (percentile confidence interval): \([t^{(\frac{\alpha}{2})}, t^{(1-\frac{\alpha}{2})}]\)</p></li>
 <li><p><code>"bc"</code> (bias-corrected percentile confidence interval): \([t^{(l)}, t^{(u)}]\)</p></li>
 </ul><p>\(l = \Phi\left(2z_0 + z_\frac{\alpha}{2}\right)\), \(u = \Phi\left(2z_0 + z_{1-\frac{\alpha}{2}}\right)\), where \(\Phi(.)\) is the normal cumulative density function (i.e., <code><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">pnorm()</a></code>) and \(z_0 = \Phi^{-1}(q)\) where \(q\) is the proportion of bootstrap estimates less than the original estimate \(t_0\). This is similar to the percentile confidence interval but changes the specific quantiles of the bootstrap estimates to use, correcting for bias in the original estimate. It is described in Xu et al. (2020). When \(t^0\) is the median of the bootstrap distribution, the <code>"perc"</code> and <code>"bc"</code> intervals coincide.</p><ul><li><p><code>"bca"</code> (bias-corrected and accelerated confidence interval): \([t^{(l)}, t^{(u)}]\)</p></li>
-</ul><p>\(l = \Phi\left(z_0 + \frac{z_0 + z_\frac{\alpha}{2}}{1-a(z_0+z_\frac{\alpha}{2})}\right)\), \(u = \Phi\left(z_0 + \frac{z_0 + z_{1-\frac{\alpha}{2}}}{1-a(z_0+z_{1-\frac{\alpha}{2}})}\right)\), using the same definitions as above, but with the additional acceleration parameter \(a\), where \(a = \frac{1}{6}\frac{\sum{L^3}}{(\sum{L^2})^{3/2}}\). \(L\) is the empirical influence value of each unit, which is computed using the regression method described in bootempinf. When \(a=0\), the <code>"bca"</code> and <code>"bc"</code> intervals coincide. The acceleration parameter corrects for bias and skewness in the statistic. It can only be used when clusters are absent and the number of bootstrap replications is larger than the sample size. Note that BCa intervals cannot be requested when <code>simple = TRUE</code> and there is randomness in thew <code>statistic</code> supplied to <code><a href="fwb.html">fwb()</a></code>.</p>
+</ul><p>\(l = \Phi\left(z_0 + \frac{z_0 + z_\frac{\alpha}{2}}{1-a(z_0+z_\frac{\alpha}{2})}\right)\), \(u = \Phi\left(z_0 + \frac{z_0 + z_{1-\frac{\alpha}{2}}}{1-a(z_0+z_{1-\frac{\alpha}{2}})}\right)\), using the same definitions as above, but with the additional acceleration parameter \(a\), where \(a = \frac{1}{6}\frac{\sum{L^3}}{(\sum{L^2})^{3/2}}\). \(L\) is the empirical influence value of each unit, which is computed using the regression method described in <code><a href="https://rdrr.io/pkg/boot/man/empinf.html" class="external-link">boot::empinf()</a></code>. When \(a=0\), the <code>"bca"</code> and <code>"bc"</code> intervals coincide. The acceleration parameter corrects for bias and skewness in the statistic. It can only be used when clusters are absent and the number of bootstrap replications is larger than the sample size. Note that BCa intervals cannot be requested when <code>simple = TRUE</code> and there is randomness in thew <code>statistic</code> supplied to <code><a href="fwb.html">fwb()</a></code>.</p>
 <p>Interpolation on the normal quantile scale is used when a non-integer order statistic is required, as in <code><a href="https://rdrr.io/pkg/boot/man/boot.ci.html" class="external-link">boot::boot.ci()</a></code>. Note that unlike with <code><a href="https://rdrr.io/pkg/boot/man/boot.ci.html" class="external-link">boot::boot.ci()</a></code>, studentized confidence intervals (<code>type = "stud"</code>) are not allowed.</p>
     </div>
     <div class="section level2">
@@ -126,7 +126,7 @@
 </ul></div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
-    <div class="dont-index"><p><code><a href="fwb.html">fwb()</a></code> for performing the fractional weighted bootstrap; <code><a href="get_ci.html">get_ci()</a></code> for extracting confidence intervals from an <code>fwbci</code> object; <code><a href="summary.fwb.html">summary.fwb()</a></code> for producing clean output from <code><a href="fwb.html">fwb()</a></code> that includes confidence intervals calculated by <code>fwb.ci()</code>; bootboot.ci for computing confidence intervals from the traditional bootstrap; <code><a href="vcovFWB.html">vcovFWB()</a></code> for computing parameter estimate covariance matrices using the fractional weighted bootstrap</p></div>
+    <div class="dont-index"><p><code><a href="fwb.html">fwb()</a></code> for performing the fractional weighted bootstrap; <code><a href="get_ci.html">get_ci()</a></code> for extracting confidence intervals from an <code>fwbci</code> object; <code><a href="summary.fwb.html">summary.fwb()</a></code> for producing clean output from <code><a href="fwb.html">fwb()</a></code> that includes confidence intervals calculated by <code>fwb.ci()</code>; <code><a href="https://rdrr.io/pkg/boot/man/boot.ci.html" class="external-link">boot::boot.ci()</a></code> for computing confidence intervals from the traditional bootstrap; <code><a href="vcovFWB.html">vcovFWB()</a></code> for computing parameter estimate covariance matrices using the fractional weighted bootstrap</p></div>
     </div>
 
     <div class="section level2">
@@ -198,7 +198,7 @@
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.3.</p>
 </div>
 
     </footer></div>

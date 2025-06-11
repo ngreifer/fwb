@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">fwb</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.0.9001</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -37,10 +37,14 @@
     </div>
 
     <div class="section level2">
-<h2 class="pkg-version" data-toc-text="development version" id="fwb-development-version">
-<code>fwb</code> (development version)<a class="anchor" aria-label="anchor" href="#fwb-development-version"></a></h2>
-<ul><li><p>Fixed a bug in <code><a href="../reference/fwb.ci.html">print.fwbci()</a></code> due to incorrect ordering of the intervals which led them to be printed with incorrect labels. These have been corrected and printing is a little prettier. Thanks to Katya Zelevinsky.</p></li>
+<h2 class="pkg-version" data-toc-text="0.4.0" id="fwb-040">
+<code>fwb</code> 0.4.0<a class="anchor" aria-label="anchor" href="#fwb-040"></a></h2>
+<ul><li><p>Added a suite of new functions for computing weighted statistic and transformations that automatically incorporate the bootstrap weights. These include <code><a href="../reference/w_mean.html">w_mean()</a></code>, <code><a href="../reference/w_mean.html">w_var()</a></code>, <code><a href="../reference/w_mean.html">w_sd()</a></code>, <code><a href="../reference/w_mean.html">w_quantile()</a></code>, and <code><a href="../reference/w_mean.html">w_median()</a></code> for computing weighted means, variances, standard deviations, quantiles, and medians; <code><a href="../reference/w_mean.html">w_cov()</a></code> and <code><a href="../reference/w_mean.html">w_cor()</a></code> for computing weighted covariance and correlation matrices, and <code><a href="../reference/w_mean.html">w_std()</a></code>, <code><a href="../reference/w_mean.html">w_scale()</a></code>, and <code><a href="../reference/w_mean.html">w_center()</a></code> for transforming variables by standardizing, scaling, and centering using weighted statistics. These work when called inside the function supplied to the <code>statistic</code> argument of <code><a href="../reference/fwb.html">fwb()</a></code> or inside the model that is supplied to <code><a href="../reference/vcovFWB.html">vcovFWB()</a></code>.</p></li>
+<li><p>Improved some error messages.</p></li>
+<li><p>Fixed a bug in <code><a href="../reference/fwb.ci.html">print.fwbci()</a></code> due to incorrect ordering of the intervals which led them to be printed with incorrect labels. These have been corrected and printing is a little prettier. Thanks to Katya Zelevinsky.</p></li>
+<li><p>Added <code><a href="https://rdrr.io/r/stats/coef.html" class="external-link">coef()</a></code> and <code><a href="https://rdrr.io/r/stats/vcov.html" class="external-link">vcov()</a></code> methods for <code>fwb</code> objects.</p></li>
 <li><p>Documentation and vignette updates.</p></li>
+<li><p>Added new tests.</p></li>
 </ul></div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.3.0" id="fwb-030">
@@ -88,7 +92,7 @@
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.3.</p>
 </div>
 
     </footer></div>

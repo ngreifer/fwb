@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">fwb</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.0.9001</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -107,7 +107,7 @@
 
 
 <dt id="arg-cl">cl<a class="anchor" aria-label="anchor" href="#arg-cl"></a></dt>
-<dd><p>a cluster object created by parallelmakeCluster, an integer to indicate the number of child-processes (integer values are ignored on Windows) for parallel evaluations, or the string <code>"future"</code> to use a <code>future</code> backend. See the <code>cl</code> argument of pbapplypblapply for details. If <code>NULL</code>, no parallelization will take place. See <code><a href="../articles/fwb-rep.html">vignette("fwb-rep")</a></code> for details.</p></dd>
+<dd><p>a cluster object created by <code><a href="https://rdrr.io/r/parallel/makeCluster.html" class="external-link">parallel::makeCluster()</a></code>, an integer to indicate the number of child-processes (integer values are ignored on Windows) for parallel evaluations, or the string <code>"future"</code> to use a <code>future</code> backend. See the <code>cl</code> argument of <code><a href="https://rdrr.io/pkg/pbapply/man/pbapply.html" class="external-link">pbapply::pblapply()</a></code> for details. If <code>NULL</code>, no parallelization will take place. See <code><a href="../articles/fwb-rep.html">vignette("fwb-rep")</a></code> for details.</p></dd>
 
 </dl></div>
     <div class="section level2">
@@ -116,13 +116,13 @@
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
-    <p><code>vcovFWB()</code> functions like other <code><a href="https://rdrr.io/r/stats/vcov.html" class="external-link">vcov()</a></code>-like functions, such as those in the <span class="pkg">sandwich</span> package, in particular, sandwichvcovBS, which implements the traditional bootstrap (and a few other bootstrap varieties for linear models). Sets of weights are generated as described in the documentation for <code><a href="fwb.html">fwb()</a></code>, and the supplied model is re-fit using those weights. When the fitted model already has weights, these are multiplied by the bootstrap weights.</p>
+    <p><code>vcovFWB()</code> functions like other <code><a href="https://rdrr.io/r/stats/vcov.html" class="external-link">vcov()</a></code>-like functions, such as those in the <span class="pkg">sandwich</span> package, in particular, <code><a href="https://sandwich.R-Forge.R-project.org/reference/vcovBS.html" class="external-link">sandwich::vcovBS()</a></code>, which implements the traditional bootstrap (and a few other bootstrap varieties for linear models). Sets of weights are generated as described in the documentation for <code><a href="fwb.html">fwb()</a></code>, and the supplied model is re-fit using those weights. When the fitted model already has weights, these are multiplied by the bootstrap weights.</p>
 <p>For <code>lm</code> objects, the model is re-fit using <code><a href="https://rdrr.io/r/stats/lmfit.html" class="external-link">.lm.fit()</a></code> for speed, and, similarly, <code>glm</code> objects are re-fit using <code><a href="https://rdrr.io/r/stats/glm.html" class="external-link">glm.fit()</a></code> (or whichever fitting method was originally used). For other objects, <code><a href="https://rdrr.io/r/stats/update.html" class="external-link">update()</a></code> is used to populate the weights and re-fit the model (this assumes the fitting function accepts non-integer case weights through a <code>weights</code> argument). If a model accepts weights in some other way, <code><a href="fwb.html">fwb()</a></code> should be used instead; <code>vcovFWB()</code> is inherently limited in its ability to handle all possible models. It is important that the original model was not fit using frequency weights (i.e., weights that allow one row of data to represent multiple full, identical, individual units) unless clustering is used.</p>
-<p>See sandwichvcovBS and sandwichvcovCL for more information on clustering covariance matrices, and see <code><a href="fwb.html">fwb()</a></code> for more information on how clusters work with the fractional weighted bootstrap. When clusters are specified, each cluster is given a bootstrap weight, and all members of the cluster are given that weight; estimation then proceeds as normal. By default, when <code>cluster</code> is unspecified, each unit is considered its own cluster.</p>
+<p>See <code><a href="https://sandwich.R-Forge.R-project.org/reference/vcovBS.html" class="external-link">sandwich::vcovBS()</a></code> and <code><a href="https://sandwich.R-Forge.R-project.org/reference/vcovCL.html" class="external-link">sandwich::vcovCL()</a></code> for more information on clustering covariance matrices, and see <code><a href="fwb.html">fwb()</a></code> for more information on how clusters work with the fractional weighted bootstrap. When clusters are specified, each cluster is given a bootstrap weight, and all members of the cluster are given that weight; estimation then proceeds as normal. By default, when <code>cluster</code> is unspecified, each unit is considered its own cluster.</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
-    <div class="dont-index"><p><code><a href="fwb.html">fwb()</a></code> for performing the fractional weighted bootstrap on an arbitrary quantity; <code><a href="fwb.ci.html">fwb.ci()</a></code> for computing nonparametric confidence intervals for <code>fwb</code> objects; <code><a href="summary.fwb.html">summary.fwb()</a></code> for producing standard errors and confidence intervals for <code>fwb</code> objects; sandwichvcovBS for computing covariance matrices using the traditional bootstrap (the fractional weighted bootstrap is also available but with limited options).</p></div>
+    <div class="dont-index"><p><code><a href="fwb.html">fwb()</a></code> for performing the fractional weighted bootstrap on an arbitrary quantity; <code><a href="fwb.ci.html">fwb.ci()</a></code> for computing nonparametric confidence intervals for <code>fwb</code> objects; <code><a href="summary.fwb.html">summary.fwb()</a></code> for producing standard errors and confidence intervals for <code>fwb</code> objects; <code><a href="https://sandwich.R-Forge.R-project.org/reference/vcovBS.html" class="external-link">sandwich::vcovBS()</a></code> for computing covariance matrices using the traditional bootstrap (the fractional weighted bootstrap is also available but with limited options).</p></div>
     </div>
 
     <div class="section level2">
@@ -132,6 +132,7 @@
 <span class="r-in"><span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/glm.html" class="external-link">glm</a></span><span class="op">(</span><span class="va">case</span> <span class="op">~</span> <span class="va">spontaneous</span> <span class="op">+</span> <span class="va">induced</span>, data <span class="op">=</span> <span class="va">infert</span>,</span></span>
 <span class="r-in"><span>             family <span class="op">=</span> <span class="st">"binomial"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu">lmtest</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/lmtest/man/coeftest.html" class="external-link">coeftest</a></span><span class="op">(</span><span class="va">fit</span>, vcov. <span class="op">=</span> <span class="va">vcovFWB</span>, R <span class="op">=</span> <span class="fl">200</span><span class="op">)</span></span></span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>non-integer #successes in a binomial glm!</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> z test of coefficients:</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
@@ -216,7 +217,7 @@
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.3.</p>
 </div>
 
     </footer></div>

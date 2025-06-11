@@ -22,7 +22,7 @@
 
     <a class="navbar-brand me-2" href="index.html">fwb</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.0.9001</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -92,12 +92,13 @@
 <span>                           data <span class="op">=</span> <span class="va">data</span>, weights <span class="op">=</span> <span class="va">w</span>,</span>
 <span>                           dist <span class="op">=</span> <span class="st">"weibull"</span><span class="op">)</span></span>
 <span></span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>eta <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/unname.html" class="external-link">unname</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">exp</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/coef.html" class="external-link">coef</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span><span class="op">)</span><span class="op">)</span>, beta <span class="op">=</span> <span class="fl">1</span> <span class="op">/</span> <span class="va">fit</span><span class="op">$</span><span class="va">scale</span><span class="op">)</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>eta <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/unname.html" class="external-link">unname</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">exp</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/coef.html" class="external-link">coef</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span><span class="op">)</span><span class="op">)</span>,</span>
+<span>    beta <span class="op">=</span> <span class="fl">1</span> <span class="op">/</span> <span class="va">fit</span><span class="op">$</span><span class="va">scale</span><span class="op">)</span></span>
 <span><span class="op">}</span></span>
 <span></span>
 <span><span class="co"># 1999 bootstrap replications; more is always better</span></span>
 <span><span class="va">fwb_est</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/fwb.html">fwb</a></span><span class="op">(</span><span class="va">bearingcage</span>, statistic <span class="op">=</span> <span class="va">weibull_est</span>,</span>
-<span>                R <span class="op">=</span> <span class="fl">1999</span>, verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
+<span>               R <span class="op">=</span> <span class="fl">1999</span>, verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
 <span><span class="va">fwb_est</span></span>
 <span><span class="co">#&gt; FRACTIONAL WEIGHTED BOOTSTRAP</span></span>
 <span><span class="co">#&gt; </span></span>
@@ -200,6 +201,11 @@
 </div>
 </div>
 <div class="section level2">
+<h2 id="weighted-statistics-and-transformations">Weighted statistics and transformations<a class="anchor" aria-label="anchor" href="#weighted-statistics-and-transformations"></a>
+</h2>
+<p><code>fwb</code> also contains utility functions for computing weighted statistics to facilitate incorporation of bootstrapped weights into estimates. These include <code><a href="reference/w_mean.html">w_mean()</a></code>, <code><a href="reference/w_mean.html">w_var()</a></code>, <code><a href="reference/w_mean.html">w_sd()</a></code>, <code><a href="reference/w_mean.html">w_quantile()</a></code>, and <code><a href="reference/w_mean.html">w_median()</a></code> for computing weighted means, variances, standard deviations, quantiles, and medians; <code><a href="reference/w_mean.html">w_cov()</a></code> and <code><a href="reference/w_mean.html">w_cor()</a></code> for computing weighted covariance and correlation matrices, and <code><a href="reference/w_mean.html">w_std()</a></code>, <code><a href="reference/w_mean.html">w_scale()</a></code>, and <code><a href="reference/w_mean.html">w_center()</a></code> for transforming variables by standardizing, scaling, and centering using weighted statistics. Many of these serve as drop-ins for base R functions, like <code><a href="https://rdrr.io/r/stats/weighted.mean.html" class="external-link">weighted.mean()</a></code> for computing the weighted mean, but have the advantage that the weights do not need to be manually supplied: when the functions are called from within <code><a href="reference/fwb.html">fwb()</a></code> or <code><a href="reference/vcovFWB.html">vcovFWB()</a></code>, the bootstrap weights are automatically incorporated.</p>
+</div>
+<div class="section level2">
 <h2 id="when-to-use-the-fractional-weighted-bootstrap">When to use the fractional weighted bootstrap<a class="anchor" aria-label="anchor" href="#when-to-use-the-fractional-weighted-bootstrap"></a>
 </h2>
 <p>The FWB is uniformly more reliable than the traditional bootstrap when a weighted statistic can be computed (though this doesn’t mean the bootstrap is always valid). In most simple cases, both methods will yield the same results. In some pathological examples like those above, the FWB dramatically outperforms the traditional bootstrap. This will be true when running regression models with sparse categorical variables either in the outcome or among the predictors, for example, when estimating fixed effects or when a binary outcome is rare. However, it is important to know when a weighted statistic can be computed; for example, computing the weighted median is not always straightforward, making the traditional bootstrap potentially more useful for computing it. Still, though, the FWB deserves a place in an analyst’s toolbox.</p>
@@ -221,6 +227,12 @@
 <ul>
 <li>Noah Greifer (<a href="mailto:noah.greifer@gmail.com" class="email">noah.greifer@gmail.com</a>)</li>
 </ul>
+</div>
+<div class="section level2">
+<h2 id="citing-fwb">Citing <code>fwb</code>
+<a class="anchor" aria-label="anchor" href="#citing-fwb"></a>
+</h2>
+<p>To cite <code>fwb</code>, please use <code>citation("fwb")</code>, which generates a package citation.</p>
 </div>
 <div class="section level2">
 <h2 id="references">References<a class="anchor" aria-label="anchor" href="#references"></a>
@@ -256,7 +268,7 @@
 <div class="developers">
 <h2 data-toc-skip>Developers</h2>
 <ul class="list-unstyled">
-<li>Noah Greifer <br><small class="roles"> Author, maintainer </small> <a href="https://orcid.org/0000-0003-3067-7154" target="orcid.widget" aria-label="ORCID" class="external-link"><span class="fab fa-orcid orcid" aria-hidden="true"></span></a> </li>
+<li>Noah Greifer <br><small class="roles"> Author, maintainer </small> <a href="https://orcid.org/0000-0003-3067-7154" target="orcid.widget" aria-label="ORCID" class="external-link"><span class="fab fa-orcid orcid" aria-hidden="true"></span></a>  </li>
 </ul>
 </div>
 
@@ -276,7 +288,7 @@
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.3.</p>
 </div>
 
     </footer>

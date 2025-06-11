@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">fwb</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.0.9001</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -102,7 +102,7 @@
 
 
 <dt id="arg-cl">cl<a class="anchor" aria-label="anchor" href="#arg-cl"></a></dt>
-<dd><p>a cluster object created by parallelmakeCluster, an integer to indicate the number of child-processes (integer values are ignored on Windows) for parallel evaluations, or the string <code>"future"</code> to use a <code>future</code> backend. See the <code>cl</code> argument of pbapplypblapply for details. If <code>NULL</code>, no parallelization will take place. See <code><a href="../articles/fwb-rep.html">vignette("fwb-rep")</a></code> for details.</p></dd>
+<dd><p>a cluster object created by <code><a href="https://rdrr.io/r/parallel/makeCluster.html" class="external-link">parallel::makeCluster()</a></code>, an integer to indicate the number of child-processes (integer values are ignored on Windows) for parallel evaluations, or the string <code>"future"</code> to use a <code>future</code> backend. See the <code>cl</code> argument of <code><a href="https://rdrr.io/pkg/pbapply/man/pbapply.html" class="external-link">pbapply::pblapply()</a></code> for details. If <code>NULL</code>, no parallelization will take place. See <code><a href="../articles/fwb-rep.html">vignette("fwb-rep")</a></code> for details.</p></dd>
 
 
 <dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>
@@ -123,7 +123,7 @@
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>A <code>fwb</code> object, which also inherits from <code>boot</code>, with the following components:</p>
+    <p>An <code>fwb</code> object, which also inherits from <code>boot</code>, with the following components:</p>
 <dl><dt>t0</dt>
 <dd><p>The observed value of <code>statistic</code> applied to <code>data</code> with uniform weights.</p></dd>
 
@@ -154,7 +154,9 @@
 <dt>wtype</dt>
 <dd><p>The type of weights used as determined by the <code>wtype</code> argument.</p></dd>
 
-</dl></div>
+
+</dl><p><code>fwb</code> objects have <code><a href="https://rdrr.io/r/stats/coef.html" class="external-link">coef()</a></code> and <code><a href="https://rdrr.io/r/stats/vcov.html" class="external-link">vcov()</a></code> methods, which extract the <code>t0</code> compoenent and covariance of the <code>t</code> components, respectively.</p>
+    </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
     <p><code>fwb()</code> implements the fractional weighted bootstrap and is meant to function as a drop-in for <code>boot::boot(., stype = "f")</code> (i.e., the usual bootstrap but with frequency weights representing the number of times each unit is drawn). In each bootstrap replication, when <code>wtype = "exp"</code> (the default), the weights are sampled from independent exponential distributions with rate parameter 1 and then normalized to have a mean of 1, equivalent to drawing the weights from a Dirichlet distribution. Other weights are allowed as determined by the <code>wtype</code> argument (see below for details). The function supplied to <code>statistic</code> must incorporate the weights to compute a weighted statistic. For example, if the output is a regression coefficient, the weights supplied to the <code>w</code> argument of <code>statistic</code> should be supplied to the <code>weights</code> argument of <code><a href="https://rdrr.io/r/stats/lm.html" class="external-link">lm()</a></code>. These weights should be used any time frequency weights would be, since they are meant to function like frequency weights (which, in the case of the traditional bootstrap, would be integers). Unfortunately, there is no way for <code>fwb()</code> to know whether you are using the weights correctly, so care should be taken to ensure weights are correctly incorporated into the estimator.</p>
@@ -198,7 +200,7 @@
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
-    <div class="dont-index"><p><code><a href="fwb.ci.html">fwb.ci()</a></code> for calculating confidence intervals; <code><a href="summary.fwb.html">summary.fwb()</a></code> for displaying output in a clean way; <code><a href="plot.fwb.html">plot.fwb()</a></code> for plotting the bootstrap distributions; <code><a href="vcovFWB.html">vcovFWB()</a></code> for estimating the covariance matrix of estimates using the FWB; <code><a href="set_fwb_wtype.html">set_fwb_wtype()</a></code> for an example of using weights other than the default exponential weights; bootboot for the traditional bootstrap.</p>
+    <div class="dont-index"><p><code><a href="fwb.ci.html">fwb.ci()</a></code> for calculating confidence intervals; <code><a href="summary.fwb.html">summary.fwb()</a></code> for displaying output in a clean way; <code><a href="plot.fwb.html">plot.fwb()</a></code> for plotting the bootstrap distributions; <code><a href="vcovFWB.html">vcovFWB()</a></code> for estimating the covariance matrix of estimates using the FWB; <code><a href="set_fwb_wtype.html">set_fwb_wtype()</a></code> for an example of using weights other than the default exponential weights; <code><a href="https://rdrr.io/pkg/boot/man/boot.html" class="external-link">boot::boot()</a></code> for the traditional bootstrap.</p>
 <p>See <code><a href="../articles/fwb-rep.html">vignette("fwb-rep")</a></code> for information on reproducibility.</p></div>
     </div>
 
@@ -251,7 +253,7 @@
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.3.</p>
 </div>
 
     </footer></div>
