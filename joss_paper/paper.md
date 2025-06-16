@@ -11,7 +11,7 @@ affiliations:
  - name: Institute for Quantitative Social Science, Harvard University, United States
    index: 1
    ror: 03vek6s52
-date: 11 June 2025
+date: 16 June 2025
 bibliography: paper.bib
 ---
 
