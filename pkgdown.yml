@@ -3,7 +3,7 @@ pkgdown: 2.1.3
 pkgdown_sha: ~
 articles:
   fwb-rep: fwb-rep.html
-last_built: 2025-06-12T17:27Z
+last_built: 2025-06-16T14:56Z
 urls:
   reference: https://ngreifer.github.io/fwb/reference
   article: https://ngreifer.github.io/fwb/articles
