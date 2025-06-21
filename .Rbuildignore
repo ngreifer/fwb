@@ -8,3 +8,4 @@
 ^CRAN-SUBMISSION$
 ^poss_paper$
 ^\.DS_Store$
+^LICENSE\.md$

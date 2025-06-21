@@ -34,7 +34,7 @@ Suggests:
     waldo (>= 0.6.1),
     knitr,
     rmarkdown
-License: GPL (>=2)
+License: GPL (>= 2)
 Encoding: UTF-8
 URL: https://ngreifer.github.io/fwb/, https://github.com/ngreifer/fwb,
 BugReports: https://github.com/ngreifer/fwb/issues
