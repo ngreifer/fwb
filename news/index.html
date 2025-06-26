@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">fwb</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.0.9000</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -36,6 +36,12 @@
       <small>Source: <a href="https://github.com/ngreifer/fwb/blob/master/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="development version" id="fwb-development-version">
+<code>fwb</code> (development version)<a class="anchor" aria-label="anchor" href="#fwb-development-version"></a></h2>
+<ul><li><p>Added a new confidence interval type for <code><a href="https://rdrr.io/r/stats/confint.html" class="external-link">confint()</a></code>, <code><a href="../reference/fwb.ci.html">fwb.ci()</a></code>, and <code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code>: <code>"wald"</code>, for Wald-type confidence intervals that don’t correct for any bias.</p></li>
+<li><p>Fixed a bug in <code><a href="https://rdrr.io/r/stats/confint.html" class="external-link">confint()</a></code>, <code><a href="../reference/fwb.ci.html">fwb.ci()</a></code>, and <code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code> where the confidence level could only be as low as .5. Now levels as low as just above 0 are allowed.</p></li>
+</ul></div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.4.0" id="fwb-040">
 <code>fwb</code> 0.4.0<a class="anchor" aria-label="anchor" href="#fwb-040"></a></h2><p class="text-muted">CRAN release: 2025-06-11</p>
