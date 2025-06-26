@@ -4,7 +4,7 @@
 #'
 #' @param fwb.out an `fwb` object; the output of a call to [fwb()].
 #' @param conf the desired confidence level. Default is .95 for 95% confidence intervals.
-#' @param type the type of confidence interval desired. Allowable options include `"norm"` (normal approximation), `"basic"` (basic interval), `"perc"` (percentile interval), `"bc"` (bias-correct percentile interval), and `"bca"` (BCa interval). More than one is allowed. Can also be `"all"` to request all of them. BCa intervals require that the number of bootstrap replications is larger than the sample size.
+#' @param type the type of confidence interval desired. Allowable options include `"wald"` (Wald interval), `"norm"` (normal approximation), `"basic"` (basic interval), `"perc"` (percentile interval), `"bc"` (bias-correct percentile interval), and `"bca"` (BCa interval). More than one is allowed. Can also be `"all"` to request all of them. BCa intervals require that the number of bootstrap replications is larger than the sample size.
 #' @param index the index of the position of the quantity of interest in `fwb.out$t0` if more than one was specified in `fwb()`. Only one value is allowed at a time. By default the first statistic is used.
 #' @param h a function defining a transformation. The intervals are calculated on the scale of `h(t)` and the inverse function `hinv` applied to the resulting intervals. It must be a function of one variable only and for a vector argument, it must return a vector of the same length. Default is the identity function.
 #' @param hinv a function, like `h`, which returns the inverse of `h`. It is used to transform the intervals calculated on the scale of `h(t)` back to the original scale. The default is the identity function. If `h` is supplied but `hinv` is not, then the intervals returned will be on the transformed scale.
@@ -16,27 +16,41 @@
 #' \item{t0}{the observed value of the statistic on the same scale as the intervals (i.e., after applying `h` and then `hinv`.}
 #' \item{call}{the call to `fwb.ci()`.}
 #'
-#' There will be additional components named after each confidence interval type requested. For `"norm"`, this is a matrix with one row containing the confidence level and the two confidence interval limits. For the others, this is a matrix with one row containing the confidence level, the indices of the two order statistics used in the calculations, and the confidence interval limits.
+#' There will be additional components named after each confidence interval type requested. For `"wald"` and `"norm"`, this is a matrix with one row containing the confidence level and the two confidence interval limits. For the others, this is a matrix with one row containing the confidence level, the indices of the two order statistics used in the calculations, and the confidence interval limits.
 #'
 #' @details `fwb.ci()` functions similarly to \pkgfun{boot}{boot.ci} in that it takes in a bootstrapped object and computes confidence intervals. This interface is a bit old-fashioned, but was designed to mimic that of `boot.ci()`. For a more modern interface, see [summary.fwb()].
 #'
 #' The bootstrap intervals are defined as follows, with \eqn{\alpha =} 1 - `conf`, \eqn{t_0} the estimate in the original sample, \eqn{\hat{t}} the average of the bootstrap estimates, \eqn{s_t} the standard deviation of the bootstrap estimates, \eqn{t^{(i)}} the set of ordered estimates with \eqn{i} corresponding to their quantile, and \eqn{z_\frac{\alpha}{2}} and \eqn{z_{1-\frac{\alpha}{2}}} the upper and lower critical \eqn{z} scores.
 #'
-#' * `"norm"` (normal approximation): \eqn{[2t_0 - \hat{t} + s_t z_\frac{\alpha}{2}, 2t_0 - \hat{t} + s_t z_{1-\frac{\alpha}{2}}]}
+#' \describe{
+#' \item{`"wald"`}{
+#'   \deqn{\left[t_0 + s_t z_\frac{\alpha}{2}, t_0 + s_t z_{1-\frac{\alpha}{2}}\right]}
+#'   This method is valid when the statistic is normally distributed around the estimate.
+#' }
+#' \item{`"norm"` (normal approximation)}{
+#'   \deqn{\left[2t_0 - \hat{t} + s_t z_\frac{\alpha}{2}, 2t_0 - \hat{t} + s_t z_{1-\frac{\alpha}{2}}\right]}
 #'
 #' This involves subtracting the "bias" (\eqn{\hat{t} - t_0}) from the estimate \eqn{t_0} and using a standard Wald-type confidence interval. This method is valid when the statistic is normally distributed.
+#' }
+#' \item{`"basic"`}{
+#'   \deqn{\left[2t_0 - t^{(1-\frac{\alpha}{2})}, 2t_0 - t^{(\frac{\alpha}{2})}\right]}
+#' }
 #'
-#' * `"basic"`: \eqn{[2t_0 - t^{(1-\frac{\alpha}{2})}, 2t_0 - t^{(\frac{\alpha}{2})}]}
+#' \item{`"perc"` (percentile confidence interval)}{
+#'   \deqn{\left[t^{(\frac{\alpha}{2})}, t^{(1-\frac{\alpha}{2})}\right]}
+#' }
 #'
-#' * `"perc"` (percentile confidence interval): \eqn{[t^{(\frac{\alpha}{2})}, t^{(1-\frac{\alpha}{2})}]}
-#'
-#' * `"bc"` (bias-corrected percentile confidence interval): \eqn{[t^{(l)}, t^{(u)}]}
+#' \item{`"bc"` (bias-corrected percentile confidence interval)}{
+#'   \deqn{\left[t^{(l)}, t^{(u)}\right]}
 #'
 #' \eqn{l = \Phi\left(2z_0 + z_\frac{\alpha}{2}\right)}, \eqn{u = \Phi\left(2z_0 + z_{1-\frac{\alpha}{2}}\right)}, where \eqn{\Phi(.)} is the normal cumulative density function (i.e., [pnorm()]) and \eqn{z_0 = \Phi^{-1}(q)} where \eqn{q} is the proportion of bootstrap estimates less than the original estimate \eqn{t_0}. This is similar to the percentile confidence interval but changes the specific quantiles of the bootstrap estimates to use, correcting for bias in the original estimate. It is described in Xu et al. (2020). When \eqn{t^0} is the median of the bootstrap distribution, the `"perc"` and `"bc"` intervals coincide.
+#' }
+#' \item{`"bca"` (bias-corrected and accelerated confidence interval)}{
+#'   \deqn{\left[t^{(l)}, t^{(u)}\right]}
 #'
-#' * `"bca"` (bias-corrected and accelerated confidence interval): \eqn{[t^{(l)}, t^{(u)}]}
-#'
-#' \eqn{l = \Phi\left(z_0 + \frac{z_0 + z_\frac{\alpha}{2}}{1-a(z_0+z_\frac{\alpha}{2})}\right)}, \eqn{u = \Phi\left(z_0 + \frac{z_0 + z_{1-\frac{\alpha}{2}}}{1-a(z_0+z_{1-\frac{\alpha}{2}})}\right)}, using the same definitions as above, but with the additional acceleration parameter \eqn{a}, where \eqn{a = \frac{1}{6}\frac{\sum{L^3}}{(\sum{L^2})^{3/2}}}. \eqn{L} is the empirical influence value of each unit, which is computed using the regression method described in \pkgfun{boot}{empinf}. When \eqn{a=0}, the `"bca"` and `"bc"` intervals coincide. The acceleration parameter corrects for bias and skewness in the statistic. It can only be used when clusters are absent and the number of bootstrap replications is larger than the sample size. Note that BCa intervals cannot be requested when `simple = TRUE` and there is randomness in thew `statistic` supplied to `fwb()`.
+#' \eqn{l = \Phi\left(z_0 + \frac{z_0 + z_\frac{\alpha}{2}}{1-a(z_0+z_\frac{\alpha}{2})}\right)}, \eqn{u = \Phi\left(z_0 + \frac{z_0 + z_{1-\frac{\alpha}{2}}}{1-a(z_0+z_{1-\frac{\alpha}{2}})}\right)}, using the same definitions as above, but with the additional acceleration parameter \eqn{a}, where \eqn{a = \frac{1}{6}\frac{\sum{L^3}}{(\sum{L^2})^{3/2}}}. \eqn{L} is the empirical influence value of each unit, which is computed using the regression method described in \pkgfun{boot}{empinf}. When \eqn{a=0}, the `"bca"` and `"bc"` intervals coincide. The acceleration parameter corrects for bias and skewness in the statistic. It can only be used when clusters are absent and the number of bootstrap replications is larger than the sample size. Note that BCa intervals cannot be requested when `simple = TRUE` and there is randomness in the `statistic` supplied to `fwb()`.
+#' }
+#' }
 #'
 #' Interpolation on the normal quantile scale is used when a non-integer order statistic is required, as in `boot::boot.ci()`. Note that unlike with `boot::boot.ci()`, studentized confidence intervals (`type = "stud"`) are not allowed.
 #'
@@ -78,14 +92,14 @@ fwb.ci <- function(fwb.out, conf = .95, type = "bc", index = 1L,
 
   chk::chk_is(fwb.out, "boot")
   chk::chk_number(conf)
-  chk::chk_range(conf, c(.5, 1), inclusive = FALSE)
+  chk::chk_range(conf, c(0, 1), inclusive = FALSE)
 
   chk::chk_character(type)
-  type <- match_arg(type, c("perc", "bc", "norm", "basic", "bca", "all"),
+  type <- match_arg(type, c("perc", "bc", "wald", "norm", "basic", "bca", "all"),
                     several.ok = TRUE)
 
   if (any(type == "all")) {
-    type <- c("perc", "bc", "norm", "basic", "bca")
+    type <- c("perc", "bc", "wald", "norm", "basic", "bca")
   }
 
   if (any(type == "bca") &&
@@ -152,6 +166,10 @@ fwb.ci <- function(fwb.out, conf = .95, type = "bc", index = 1L,
     output[["perc"]] <- perc.ci(t, t0, conf, hinv = hinv)
   }
 
+  if (any(type == "wald")) {
+    output[["wald"]] <- wald.ci(t, t0, conf, hinv = hinv)
+  }
+
   if (any(type == "norm")) {
     output[["norm"]] <- norm.ci(t, t0, conf, hinv = hinv)
   }
@@ -181,7 +199,7 @@ print.fwbci <- function (x, hinv = NULL, ...) {
   cl <- ci.out[["call"]]
 
   ci.types <- intersect(names(ci.out)[lengths(ci.out) > 0L],
-                        c("norm", "basic", "perc", "bc", "bca"))
+                        c("wald", "norm", "basic", "perc", "bc", "bca"))
 
   ntypes <- length(ci.types)
   t0 <- ci.out[["t0"]]
@@ -207,6 +225,10 @@ print.fwbci <- function (x, hinv = NULL, ...) {
                       ci.types)
 
   basrg <- bcperg <- perg <- bcarg <- NULL
+
+  if ("wald" %in% ci.types) {
+    intlabs["wald"] <- "Wald"
+  }
 
   if ("norm" %in% ci.types) {
     intlabs["norm"] <- "Normal"
@@ -350,7 +372,7 @@ get_ci <- function(x, type = "all") {
   x <- name_trans(x, "student", "stud")
   x <- name_trans(x, "percent", "perc")
 
-  allowed_cis <- intersect(c("perc", "bc", "stud", "norm", "basic", "bca"),
+  allowed_cis <- intersect(c("perc", "bc", "stud", "wald", "norm", "basic", "bca"),
                            names(x))
 
   if ("all" %in% type) {
@@ -418,6 +440,11 @@ bc.ci <- function(t, t0, conf = .95, hinv = identity) {
 
   qq <- norm.inter(t, adj.alpha)
   cbind(conf, matrix(qq[, 1L], ncol = 2L), matrix(hinv(qq[, 2]), ncol = 2L))
+}
+
+wald.ci <- function(t, t0, conf = 0.95, hinv = identity) {
+  merr <- sd(t) * qnorm((1 + conf) / 2)
+  cbind(conf, hinv(t0 - merr), hinv(t0  + merr))
 }
 
 norm.ci <- function(t, t0, conf = 0.95, hinv = identity) {

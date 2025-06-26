@@ -22,7 +22,7 @@ fwb.ci(
 
 \item{conf}{the desired confidence level. Default is .95 for 95\% confidence intervals.}
 
-\item{type}{the type of confidence interval desired. Allowable options include \code{"norm"} (normal approximation), \code{"basic"} (basic interval), \code{"perc"} (percentile interval), \code{"bc"} (bias-correct percentile interval), and \code{"bca"} (BCa interval). More than one is allowed. Can also be \code{"all"} to request all of them. BCa intervals require that the number of bootstrap replications is larger than the sample size.}
+\item{type}{the type of confidence interval desired. Allowable options include \code{"wald"} (Wald interval), \code{"norm"} (normal approximation), \code{"basic"} (basic interval), \code{"perc"} (percentile interval), \code{"bc"} (bias-correct percentile interval), and \code{"bca"} (BCa interval). More than one is allowed. Can also be \code{"all"} to request all of them. BCa intervals require that the number of bootstrap replications is larger than the sample size.}
 
 \item{index}{the index of the position of the quantity of interest in \code{fwb.out$t0} if more than one was specified in \code{fwb()}. Only one value is allowed at a time. By default the first statistic is used.}
 
@@ -40,7 +40,7 @@ An \code{fwbci} object, which inherits from \code{bootci} and has the following 
 \item{t0}{the observed value of the statistic on the same scale as the intervals (i.e., after applying \code{h} and then \code{hinv}.}
 \item{call}{the call to \code{fwb.ci()}.}
 
-There will be additional components named after each confidence interval type requested. For \code{"norm"}, this is a matrix with one row containing the confidence level and the two confidence interval limits. For the others, this is a matrix with one row containing the confidence level, the indices of the two order statistics used in the calculations, and the confidence interval limits.
+There will be additional components named after each confidence interval type requested. For \code{"wald"} and \code{"norm"}, this is a matrix with one row containing the confidence level and the two confidence interval limits. For the others, this is a matrix with one row containing the confidence level, the indices of the two order statistics used in the calculations, and the confidence interval limits.
 }
 \description{
 \code{fwb.ci()} generates several types of equi-tailed two-sided nonparametric confidence intervals. These include the normal approximation, the basic bootstrap interval, the percentile bootstrap interval, the bias-corrected percentile bootstrap interval, and the bias-correct and accelerated (BCa) bootstrap interval.
@@ -49,23 +49,36 @@ There will be additional components named after each confidence interval type re
 \code{fwb.ci()} functions similarly to \pkgfun{boot}{boot.ci} in that it takes in a bootstrapped object and computes confidence intervals. This interface is a bit old-fashioned, but was designed to mimic that of \code{boot.ci()}. For a more modern interface, see \code{\link[=summary.fwb]{summary.fwb()}}.
 
 The bootstrap intervals are defined as follows, with \eqn{\alpha =} 1 - \code{conf}, \eqn{t_0} the estimate in the original sample, \eqn{\hat{t}} the average of the bootstrap estimates, \eqn{s_t} the standard deviation of the bootstrap estimates, \eqn{t^{(i)}} the set of ordered estimates with \eqn{i} corresponding to their quantile, and \eqn{z_\frac{\alpha}{2}} and \eqn{z_{1-\frac{\alpha}{2}}} the upper and lower critical \eqn{z} scores.
-\itemize{
-\item \code{"norm"} (normal approximation): \eqn{[2t_0 - \hat{t} + s_t z_\frac{\alpha}{2}, 2t_0 - \hat{t} + s_t z_{1-\frac{\alpha}{2}}]}
+
+\describe{
+\item{\code{"wald"}}{
+\deqn{\left[t_0 + s_t z_\frac{\alpha}{2}, t_0 + s_t z_{1-\frac{\alpha}{2}}\right]}
+This method is valid when the statistic is normally distributed around the estimate.
 }
+\item{\code{"norm"} (normal approximation)}{
+\deqn{\left[2t_0 - \hat{t} + s_t z_\frac{\alpha}{2}, 2t_0 - \hat{t} + s_t z_{1-\frac{\alpha}{2}}\right]}
 
 This involves subtracting the "bias" (\eqn{\hat{t} - t_0}) from the estimate \eqn{t_0} and using a standard Wald-type confidence interval. This method is valid when the statistic is normally distributed.
-\itemize{
-\item \code{"basic"}: \eqn{[2t_0 - t^{(1-\frac{\alpha}{2})}, 2t_0 - t^{(\frac{\alpha}{2})}]}
-\item \code{"perc"} (percentile confidence interval): \eqn{[t^{(\frac{\alpha}{2})}, t^{(1-\frac{\alpha}{2})}]}
-\item \code{"bc"} (bias-corrected percentile confidence interval): \eqn{[t^{(l)}, t^{(u)}]}
 }
+\item{\code{"basic"}}{
+\deqn{\left[2t_0 - t^{(1-\frac{\alpha}{2})}, 2t_0 - t^{(\frac{\alpha}{2})}\right]}
+}
+
+\item{\code{"perc"} (percentile confidence interval)}{
+\deqn{\left[t^{(\frac{\alpha}{2})}, t^{(1-\frac{\alpha}{2})}\right]}
+}
+
+\item{\code{"bc"} (bias-corrected percentile confidence interval)}{
+\deqn{\left[t^{(l)}, t^{(u)}\right]}
 
 \eqn{l = \Phi\left(2z_0 + z_\frac{\alpha}{2}\right)}, \eqn{u = \Phi\left(2z_0 + z_{1-\frac{\alpha}{2}}\right)}, where \eqn{\Phi(.)} is the normal cumulative density function (i.e., \code{\link[=pnorm]{pnorm()}}) and \eqn{z_0 = \Phi^{-1}(q)} where \eqn{q} is the proportion of bootstrap estimates less than the original estimate \eqn{t_0}. This is similar to the percentile confidence interval but changes the specific quantiles of the bootstrap estimates to use, correcting for bias in the original estimate. It is described in Xu et al. (2020). When \eqn{t^0} is the median of the bootstrap distribution, the \code{"perc"} and \code{"bc"} intervals coincide.
-\itemize{
-\item \code{"bca"} (bias-corrected and accelerated confidence interval): \eqn{[t^{(l)}, t^{(u)}]}
 }
+\item{\code{"bca"} (bias-corrected and accelerated confidence interval)}{
+\deqn{\left[t^{(l)}, t^{(u)}\right]}
 
-\eqn{l = \Phi\left(z_0 + \frac{z_0 + z_\frac{\alpha}{2}}{1-a(z_0+z_\frac{\alpha}{2})}\right)}, \eqn{u = \Phi\left(z_0 + \frac{z_0 + z_{1-\frac{\alpha}{2}}}{1-a(z_0+z_{1-\frac{\alpha}{2}})}\right)}, using the same definitions as above, but with the additional acceleration parameter \eqn{a}, where \eqn{a = \frac{1}{6}\frac{\sum{L^3}}{(\sum{L^2})^{3/2}}}. \eqn{L} is the empirical influence value of each unit, which is computed using the regression method described in \pkgfun{boot}{empinf}. When \eqn{a=0}, the \code{"bca"} and \code{"bc"} intervals coincide. The acceleration parameter corrects for bias and skewness in the statistic. It can only be used when clusters are absent and the number of bootstrap replications is larger than the sample size. Note that BCa intervals cannot be requested when \code{simple = TRUE} and there is randomness in thew \code{statistic} supplied to \code{fwb()}.
+\eqn{l = \Phi\left(z_0 + \frac{z_0 + z_\frac{\alpha}{2}}{1-a(z_0+z_\frac{\alpha}{2})}\right)}, \eqn{u = \Phi\left(z_0 + \frac{z_0 + z_{1-\frac{\alpha}{2}}}{1-a(z_0+z_{1-\frac{\alpha}{2}})}\right)}, using the same definitions as above, but with the additional acceleration parameter \eqn{a}, where \eqn{a = \frac{1}{6}\frac{\sum{L^3}}{(\sum{L^2})^{3/2}}}. \eqn{L} is the empirical influence value of each unit, which is computed using the regression method described in \pkgfun{boot}{empinf}. When \eqn{a=0}, the \code{"bca"} and \code{"bc"} intervals coincide. The acceleration parameter corrects for bias and skewness in the statistic. It can only be used when clusters are absent and the number of bootstrap replications is larger than the sample size. Note that BCa intervals cannot be requested when \code{simple = TRUE} and there is randomness in the \code{statistic} supplied to \code{fwb()}.
+}
+}
 
 Interpolation on the normal quantile scale is used when a non-integer order statistic is required, as in \code{boot::boot.ci()}. Note that unlike with \code{boot::boot.ci()}, studentized confidence intervals (\code{type = "stud"}) are not allowed.
 }

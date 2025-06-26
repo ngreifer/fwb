@@ -209,7 +209,8 @@ vcovFWB <- function(x, cluster = NULL, R = 1000, start = FALSE,
 
 nobs0 <- function (x, ...) {
   rval <- try(stats::nobs(x, ...), silent = TRUE)
-  if (inherits(rval, "try-error") || is_null(rval)) {
+
+  if (is_null(rval) || inherits(rval, "try-error")) {
     rval <- NROW(residuals(x, ...))
   }
 

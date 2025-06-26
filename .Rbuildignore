@@ -6,6 +6,6 @@
 ^\.github$
 ^README\.Rmd$
 ^CRAN-SUBMISSION$
-^poss_paper$
+^joss_paper$
 ^\.DS_Store$
 ^LICENSE\.md$

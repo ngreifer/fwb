@@ -1,6 +1,12 @@
 `cobalt` News and Updates
 ======
 
+# `fwb` (development version)
+
+* Added a new confidence interval type for `confint()`, `fwb.ci()`, and `summary()`: `"wald"`, for Wald-type confidence intervals that don't correct for any bias.
+
+* Fixed a bug in `confint()`, `fwb.ci()`, and `summary()` where the confidence level could only be as low as .5. Now levels as low as just above 0 are allowed.
+
 # `fwb` 0.4.0
 
 * Added a suite of new functions for computing weighted statistic and transformations that automatically incorporate the bootstrap weights. These include `w_mean()`, `w_var()`, `w_sd()`, `w_quantile()`, and `w_median()` for computing weighted means, variances, standard deviations, quantiles, and medians; `w_cov()` and `w_cor()` for computing weighted covariance and correlation matrices, and `w_std()`, `w_scale()`, and `w_center()` for transforming variables by standardizing, scaling, and centering using weighted statistics. These work when called inside the function supplied to the `statistic` argument of `fwb()` or inside the model that is supplied to `vcovFWB()`.

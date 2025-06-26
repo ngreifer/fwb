@@ -21,7 +21,7 @@
 
 \item{conf, level}{the desired confidence level. Default is .95 for 95\% confidence intervals.}
 
-\item{ci.type}{the type of confidence interval desired. Allowable options include \code{"norm"} (normal approximation), \code{"basic"} (basic interval), \code{"perc"} (percentile interval), \code{"bc"} (bias-correct percentile interval), and \code{"bca"} (bias-corrected and accelerated [BCa] interval). Only one is allowed. BCa intervals require that the number of bootstrap replications is larger than the sample size. See \code{\link[=fwb.ci]{fwb.ci()}} for details. The default is \code{"bc"}.}
+\item{ci.type}{the type of confidence interval desired. Allowable options include \code{"wald"} (Wald interval), \code{"norm"} (normal approximation), \code{"basic"} (basic interval), \code{"perc"} (percentile interval), \code{"bc"} (bias-correct percentile interval), and \code{"bca"} (bias-corrected and accelerated [BCa] interval). Only one is allowed. BCa intervals require that the number of bootstrap replications is larger than the sample size. See \code{\link[=fwb.ci]{fwb.ci()}} for details. The default is \code{"bc"}.}
 
 \item{p.value}{\code{logical}; whether to display p-values for the test that each parameter is equal to 0. The p-value is computed using a Z-test with the test statistic computed as the ratio of the estimate to its bootstrap standard error. This test is only valid when the bootstrap distribution is normally distributed around 0 and is not guaranteed to agree with any of the confidence intervals. Default is \code{FALSE}.}
 

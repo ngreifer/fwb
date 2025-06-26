@@ -4,7 +4,7 @@
 #'
 #' @param object an `fwb` object; the output of a call to [fwb()].
 #' @param conf,level the desired confidence level. Default is .95 for 95% confidence intervals.
-#' @param ci.type the type of confidence interval desired. Allowable options include `"norm"` (normal approximation), `"basic"` (basic interval), `"perc"` (percentile interval), `"bc"` (bias-correct percentile interval), and `"bca"` (bias-corrected and accelerated \[BCa\] interval). Only one is allowed. BCa intervals require that the number of bootstrap replications is larger than the sample size. See [fwb.ci()] for details. The default is `"bc"`.
+#' @param ci.type the type of confidence interval desired. Allowable options include `"wald"` (Wald interval), `"norm"` (normal approximation), `"basic"` (basic interval), `"perc"` (percentile interval), `"bc"` (bias-correct percentile interval), and `"bca"` (bias-corrected and accelerated \[BCa\] interval). Only one is allowed. BCa intervals require that the number of bootstrap replications is larger than the sample size. See [fwb.ci()] for details. The default is `"bc"`.
 #' @param index,parm the index or indices of the position of the quantity of interest in `x$t0` if more than one was specified in `fwb()`. Default is to display all quantities.
 #' @param p.value `logical`; whether to display p-values for the test that each parameter is equal to 0. The p-value is computed using a Z-test with the test statistic computed as the ratio of the estimate to its bootstrap standard error. This test is only valid when the bootstrap distribution is normally distributed around 0 and is not guaranteed to agree with any of the confidence intervals. Default is `FALSE`.
 #' @param ... ignored.
@@ -44,14 +44,13 @@
 summary.fwb <- function(object, conf = .95, ci.type = "bc", p.value = FALSE, index = 1L:ncol(object$t), ...) {
 
   chk::chk_number(conf)
-  chk::chk_lt(conf, 1)
-  chk::chk_gt(conf, .5)
+  chk::chk_range(conf, c(0, 1), inclusive = FALSE)
   chk::chk_string(ci.type)
   chk::chk_flag(p.value)
 
   index <- check_index(index, object[["t"]], several.ok = TRUE)
 
-  ci.type <- match_arg(ci.type, c("perc", "bc", "norm", "basic", "bca"))
+  ci.type <- match_arg(ci.type, c("perc", "bc", "wald", "norm", "basic", "bca"))
 
   pct <- fmt.prc(c((1 - conf) / 2, 1 - (1 - conf) / 2))
 
@@ -78,7 +77,7 @@ summary.fwb <- function(object, conf = .95, ci.type = "bc", p.value = FALSE, ind
 confint.fwb <- function(object, parm, level = .95, ci.type = "bc", ...) {
 
   chk::chk_number(level)
-  chk::chk_range(level, c(.5, 1), inclusive = FALSE)
+  chk::chk_range(level, c(0, 1), inclusive = FALSE)
   chk::chk_string(ci.type)
 
   if (missing(parm)) {
@@ -87,7 +86,7 @@ confint.fwb <- function(object, parm, level = .95, ci.type = "bc", ...) {
 
   index <- check_index(parm, object[["t"]], several.ok = TRUE)
 
-  ci.type <- match_arg(ci.type, c("perc", "bc", "norm", "basic", "bca"))
+  ci.type <- match_arg(ci.type, c("perc", "bc", "wald", "norm", "basic", "bca"))
 
   ci.list <- lapply(index, function(i) {
     fwb.ci(object, conf = level, type = ci.type, index = i)
