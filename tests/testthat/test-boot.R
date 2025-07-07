@@ -1,4 +1,6 @@
 test_that("fwb aligns with boot", {
+  skip_if_not_installed("boot")
+
   eps <- if (capabilities("long.double")) 1e-8 else 1e-1
 
   test_data <- readRDS(test_path("fixtures", "test_data.rds"))

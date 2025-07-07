@@ -69,8 +69,8 @@ test_that("fwb() works", {
               wtype = "mammen")
   })
 
-  expect_failure(expect_equal(f0$t, f3$t, tolerance = eps,
-                              ignore_attr = TRUE))
+  expect_not_equal(f0$t, f3$t, tolerance = eps,
+                   ignore_attr = TRUE)
 })
 
 test_that("parallel works", {

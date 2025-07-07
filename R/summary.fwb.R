@@ -24,11 +24,14 @@
 #' @details
 #' P-values are computed by inverting the confidence interval for each parameter, i.e., finding the largest confidence level yielding a confidence interval that excludes `null`, and taking the p-value to be one minus that level. This ensures conclusions from tests based on the p-value and whether the confidence interval contains the null value always yield the same conclusion. Prior to version 0.5.0, all p-values were based on inverting Wald confidence intervals, regardless of `ci.type`.
 #'
-#' Simultaneous confidence intervals are computed using the "sup-t" confidence band, which involves modifying the confidence level so that the intersection of all the adjusted confidence intervals contain the whole parameter vector with the specified coverage. This will always be less conservative than Bonferroni or Holm adjustment. Simultaneous p-values are computed by inverting the simultaneous bands. Simultaneous inference is only allowed when `ci.type` is `"wald"` or `"perc"` and `index` has length greater than 1. When `ci.type = "wald"`, the \pkg{mvtnorm} package must be installed.
+#' Simultaneous confidence intervals are computed using the "sup-t" confidence band, which involves modifying the confidence level so that the intersection of all the adjusted confidence intervals contain the whole parameter vector with the specified coverage. This will always be less conservative than Bonferroni or Holm adjustment. See Olea and Plagborg-Møller (2019) for details on implementation for Wald and percentile intervals. Simultaneous p-values are computed by inverting the simultaneous bands. Simultaneous inference is only allowed when `ci.type` is `"wald"` or `"perc"` and `index` has length greater than 1. When `ci.type = "wald"`, the \pkg{mvtnorm} package must be installed.
 #'
 #' `tidy()` and `print()` methods are available for `summary.fwb` objects.
 #'
 #' @seealso [fwb()] for performing the fractional weighted bootstrap; [fwb.ci()] for computing multiple confidence intervals for a single bootstrapped quantity
+#'
+#' @references
+#' Montiel Olea, J. L., & Plagborg-Møller, M. (2019). Simultaneous confidence bands: Theory, implementation, and an application to SVARs. *Journal of Applied Econometrics*, 34(1), 1–17. \doi{10.1002/jae.2656}
 #'
 #' @examples
 #' set.seed(123, "L'Ecuyer-CMRG")

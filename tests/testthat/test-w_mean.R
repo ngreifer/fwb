@@ -75,7 +75,7 @@ test_that("`w_*()` functions work like base R weighted functions", {
   expect_equal(w_quantile(x), w_quantile(x, w1),
                tolerance = eps)
 
-  if (requireNamespace("ggdist", quietly = TRUE)) {
+  if (rlang::is_installed("ggdist")) {
     expect_equal(w_quantile(x, sw),
                  ggdist::weighted_quantile(x, weights = sw),
                  tolerance = eps)

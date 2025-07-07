@@ -53,7 +53,7 @@ For \code{confint()}, a matrix with a row for each statistic and a column for th
 \details{
 P-values are computed by inverting the confidence interval for each parameter, i.e., finding the largest confidence level yielding a confidence interval that excludes \code{null}, and taking the p-value to be one minus that level. This ensures conclusions from tests based on the p-value and whether the confidence interval contains the null value always yield the same conclusion. Prior to version 0.5.0, all p-values were based on inverting Wald confidence intervals, regardless of \code{ci.type}.
 
-Simultaneous confidence intervals are computed using the "sup-t" confidence band, which involves modifying the confidence level so that the intersection of all the adjusted confidence intervals contain the whole parameter vector with the specified coverage. This will always be less conservative than Bonferroni or Holm adjustment. Simultaneous p-values are computed by inverting the simultaneous bands. Simultaneous inference is only allowed when \code{ci.type} is \code{"wald"} or \code{"perc"} and \code{index} has length greater than 1. When \code{ci.type = "wald"}, the \pkg{mvtnorm} package must be installed.
+Simultaneous confidence intervals are computed using the "sup-t" confidence band, which involves modifying the confidence level so that the intersection of all the adjusted confidence intervals contain the whole parameter vector with the specified coverage. This will always be less conservative than Bonferroni or Holm adjustment. See Olea and Plagborg-Møller (2019) for details on implementation for Wald and percentile intervals. Simultaneous p-values are computed by inverting the simultaneous bands. Simultaneous inference is only allowed when \code{ci.type} is \code{"wald"} or \code{"perc"} and \code{index} has length greater than 1. When \code{ci.type = "wald"}, the \pkg{mvtnorm} package must be installed.
 
 \code{tidy()} and \code{print()} methods are available for \code{summary.fwb} objects.
 }
@@ -78,6 +78,9 @@ summary(fwb_out, ci.type = "basic")
 summary(fwb_out, ci.type = "norm", conf = 0,
         index = "induced", p.value = TRUE)
 
+}
+\references{
+Montiel Olea, J. L., & Plagborg-Møller, M. (2019). Simultaneous confidence bands: Theory, implementation, and an application to SVARs. \emph{Journal of Applied Econometrics}, 34(1), 1–17. \doi{10.1002/jae.2656}
 }
 \seealso{
 \code{\link[=fwb]{fwb()}} for performing the fractional weighted bootstrap; \code{\link[=fwb.ci]{fwb.ci()}} for computing multiple confidence intervals for a single bootstrapped quantity
