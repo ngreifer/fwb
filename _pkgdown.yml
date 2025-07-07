@@ -12,4 +12,5 @@ reference:
     - w_mean
     - set_fwb_wtype
     - get_ci
+    - fwb.array
     - bearingcage

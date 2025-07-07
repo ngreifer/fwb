@@ -95,42 +95,49 @@ fwb.ci <- function(fwb.out, conf = .95, type = "bc", index = 1L,
   chk::chk_range(conf, c(0, 1), inclusive = FALSE)
 
   chk::chk_character(type)
-  type <- match_arg(type, c("perc", "bc", "wald", "norm", "basic", "bca", "all"),
+  type <- match_arg(type, c(.allowed_ci.types(), "all"),
                     several.ok = TRUE)
 
   if (any(type == "all")) {
-    type <- c("perc", "bc", "wald", "norm", "basic", "bca")
+    if (is_null(fwb.out[["cluster"]])) {
+      type <- .allowed_ci.types()
+    }
+    else {
+      type <- setdiff(.allowed_ci.types(), "bca")
+    }
   }
 
-  if (any(type == "bca") &&
-      fwb.out[["R"]] <= nrow(fwb.out[["data"]])) {
-    msg <- "BCa confidence intervals cannot be computed when there are fewer bootstrap replications than units in the original dataset"
+  if (any(type == "bca")) {
+    msg <- character(0L)
 
-    if (all(type == "bca")) {
-      .err(msg)
+    if (is_not_null(fwb.out[["cluster"]])) {
+      msg <- c(msg, "BCa confidence intervals cannot be used with clusters")
     }
 
-    .wrn(msg)
-    type <- type[type != "bca"]
-  }
-
-  if (any(type == "bca") &&
-      isTRUE(attr(fwb.out, "simple", TRUE)) &&
-      isTRUE(attr(fwb.out, "random_statistic", TRUE))) {
-    msg <- 'BCa confidence intervals cannot be computed when there is randomness in `statistic` and `simple = TRUE` in the call to `fbw()`. See `vignette("fwb-rep")` for details'
-
-    if (all(type == "bca")) {
-      .err(msg)
+    if (fwb.out[["R"]] <= nrow(fwb.out[["data"]])) {
+      msg <- c(msg, "BCa confidence intervals cannot be computed when there are fewer bootstrap replications than units in the original dataset")
     }
 
-    .wrn(msg)
-    type <- type[type != "bca"]
+    if (isTRUE(attr(fwb.out, "simple", TRUE)) &&
+        isTRUE(attr(fwb.out, "random_statistic", TRUE))) {
+      msg <- c(msg, 'BCa confidence intervals cannot be computed when there is randomness in `statistic` and `simple = TRUE` in the call to `fbw()`. See `vignette("fwb-rep")` for details')
+    }
+
+    if (is_not_null(msg)) {
+      if (all(type == "bca")) {
+        .err(msg[1L])
+      }
+
+      .wrn(msg[1L])
+
+      type <- setdiff(type, "bca")
+    }
   }
 
   index <- check_index(index, fwb.out[["t"]])
 
+  t <- fwb.out[["t"]][, index, drop = FALSE]
   t0 <- fwb.out[["t0"]][index]
-  t <- fwb.out[["t"]][, index]
 
   if (anyNA(t)) {
     .err("some bootstrap estimates are `NA`; cannot calculate confidence intervals")
@@ -150,36 +157,16 @@ fwb.ci <- function(fwb.out, conf = .95, type = "bc", index = 1L,
   }
 
   fins <- which(is.finite(t))
-  t <- t[fins]
-  R <- length(t)
-  t0 <- h(t0)
-  t <- h(t)
 
-  output <- c(list(R = R, t0 = hinv(t0), call = call),
+  output <- c(list(R = length(fins), t0 = hinv(t0), call = call),
               setNames(vector("list", length(type)), type))
 
-  if (any(type == "bc")) {
-    output[["bc"]] <- bc.ci(t, t0, conf, hinv = hinv)
+  if (!identical(t, h(t))) {
+    .err("`h` can only be `identity()`. Other transformations are not supported")
   }
 
-  if (any(type == "perc")) {
-    output[["perc"]] <- perc.ci(t, t0, conf, hinv = hinv)
-  }
-
-  if (any(type == "wald")) {
-    output[["wald"]] <- wald.ci(t, t0, conf, hinv = hinv)
-  }
-
-  if (any(type == "norm")) {
-    output[["norm"]] <- norm.ci(t, t0, conf, hinv = hinv)
-  }
-
-  if (any(type == "basic")) {
-    output[["basic"]] <- basic.ci(t, t0, conf, hinv = hinv)
-  }
-
-  if (any(type == "bca")) {
-    output[["bca"]] <- bca.ci(t, t0, fwb.out, index, conf, hinv = hinv, h = h)
+  for (i in type) {
+    output[[i]] <- compute_ci(i, t, t0, conf, 1L, hinv, fwb.out)
   }
 
   attr(output, "conf") <- conf
@@ -199,7 +186,7 @@ print.fwbci <- function (x, hinv = NULL, ...) {
   cl <- ci.out[["call"]]
 
   ci.types <- intersect(names(ci.out)[lengths(ci.out) > 0L],
-                        c("wald", "norm", "basic", "perc", "bc", "bca"))
+                        .allowed_ci.types())
 
   ntypes <- length(ci.types)
   t0 <- ci.out[["t0"]]
@@ -372,7 +359,7 @@ get_ci <- function(x, type = "all") {
   x <- name_trans(x, "student", "stud")
   x <- name_trans(x, "percent", "perc")
 
-  allowed_cis <- intersect(c("perc", "bc", "stud", "wald", "norm", "basic", "bca"),
+  allowed_cis <- intersect(.allowed_ci.types(),
                            names(x))
 
   if ("all" %in% type) {
@@ -393,165 +380,4 @@ get_ci <- function(x, type = "all") {
 
   out
 }
-
-perc.ci <- function(t, t0, conf = 0.95, hinv = identity) {
-  alpha <- (1 + c(-conf, conf)) / 2
-  qq <- norm.inter(t, alpha)
-  cbind(conf, matrix(qq[, 1L], ncol = 2L), matrix(hinv(qq[, 2L]), ncol = 2L))
-}
-
-norm.inter <- function(t, alpha) {
-  t <- t[is.finite(t)]
-  R <- length(t)
-  rk <- (R + 1) * alpha
-  if (!all(rk > 1 & rk < R)) {
-    .wrn("extreme order statistics used as endpoints")
-  }
-  k <- trunc(rk)
-  inds <- seq_along(k)
-  out <- inds
-  kvs <- k[k > 0 & k < R]
-  tstar <- sort(t, partial = sort(union(c(1, R), c(kvs, kvs + 1))))
-  ints <- (k == rk)
-  if (any(ints)) {
-    out[inds[ints]] <- tstar[k[inds[ints]]]
-  }
-  out[k == 0] <- tstar[1L]
-  out[k == R] <- tstar[R]
-  not <- function(v) xor(rep(TRUE, length(v)), v)
-  temp <- inds[not(ints) & k != 0 & k != R]
-  temp1 <- qnorm(alpha[temp])
-  temp2 <- qnorm(k[temp]/(R + 1))
-  temp3 <- qnorm((k[temp] + 1) / (R + 1))
-  tk <- tstar[k[temp]]
-  tk1 <- tstar[k[temp] + 1L]
-  out[temp] <- tk + (temp1 - temp2)/(temp3 - temp2) * (tk1 - tk)
-  cbind(round(rk, 2), out)
-}
-
-bc.ci <- function(t, t0, conf = .95, hinv = identity) {
-  alpha <- (1 + c(-conf, conf)) / 2
-  s <- min(max(1, sum(t < t0)), length(t) - 1)
-  w <- qnorm(s / length(t))
-
-  zalpha <- qnorm(alpha)
-
-  adj.alpha <- pnorm(w + (w + zalpha))
-
-  qq <- norm.inter(t, adj.alpha)
-  cbind(conf, matrix(qq[, 1L], ncol = 2L), matrix(hinv(qq[, 2]), ncol = 2L))
-}
-
-wald.ci <- function(t, t0, conf = 0.95, hinv = identity) {
-  merr <- sd(t) * qnorm((1 + conf) / 2)
-  cbind(conf, hinv(t0 - merr), hinv(t0  + merr))
-}
-
-norm.ci <- function(t, t0, conf = 0.95, hinv = identity) {
-  bias <- mean(t) - t0
-
-  merr <- sd(t) * qnorm((1 + conf) / 2)
-  cbind(conf, hinv(t0 - bias - merr), hinv(t0 - bias + merr))
-}
-
-basic.ci <- function (t, t0, conf = 0.95, hinv = identity) {
-  alpha <- (1 + c(-conf, conf)) / 2
-  qq <- norm.inter(t, rev(alpha))
-  cbind(conf,
-        matrix(qq[, 1L], ncol = 2L),
-        matrix(hinv(2 * t0 - qq[, 2L]), ncol = 2L))
-}
-
-bca.ci <- function(t, t0, boot.out, index, conf = .95, hinv = identity, h = identity) {
-  if (is_not_null(boot.out[["cluster"]])) {
-    .err("the BCa confidence interval cannot be used with clusters")
-  }
-
-  alpha <- (1 + c(-conf, conf)) / 2
-  s <- min(max(1, sum(t < t0)), length(t) - 1)
-  w <- qnorm(s / length(t))
-
-  zalpha <- qnorm(alpha)
-
-  L <- empinf.reg(boot.out, t = t)
-
-  a <- sum(L^3)/(6 * sum(L^2)^1.5)
-
-  if (!is.finite(a)) {
-    .err("estimated adjustment 'a' is NA")
-  }
-
-  adj.alpha <- pnorm(w + (w + zalpha)/(1 - a * (w + zalpha)))
-  qq <- norm.inter(t, adj.alpha)
-
-  cbind(conf, matrix(qq[, 1L], ncol = 2L), matrix(hinv(h(qq[, 2L])), ncol = 2L))
-}
-
-empinf.reg <- function(boot.out, t) {
-  fins <- which(is.finite(t))
-  t <- t[fins]
-  n <- NROW(boot.out[["data"]])
-  f <- boot.array(boot.out)[fins, ]
-  X <- f / n
-  X[, 1L] <- 1
-  beta <- .lm.fit(x = X, y = t)$coefficients[-1L]
-  l <- rep.int(0, n)
-  l[-1L] <- beta
-
-  l - mean(l)
-}
-
-boot.array <- function(boot.out) {
-  if (identical(attr(boot.out, "boot_type", TRUE), "boot")) {
-    rlang::check_installed("boot")
-    return(boot::boot.array(boot.out))
-  }
-
-  # genv <- globalenv()
-  #
-  # #Return seed to its prior state after generating weights using seed from boot.out
-  # old_seed <- get(".Random.seed", envir = genv, inherits = FALSE)
-  # on.exit(suspendInterrupts({
-  #   if (is_null(old_seed)) {
-  #     rm(".Random.seed", envir = genv, inherits = FALSE)
-  #   }
-  #   else {
-  #     assign(".Random.seed", value = old_seed, envir = genv, inherits = FALSE)
-  #   }
-  # }))
-  #
-  # assign(".Random.seed", value = boot.out[["seed"]], envir = genv)
-
-  gen_weights <- make_gen_weights(boot.out[["wtype"]])
-
-  n <- nrow(boot.out[["data"]])
-  R <- boot.out[["R"]]
-
-  if (!isTRUE(attr(boot.out, "simple", TRUE)) || is_null(attr(boot.out, "cl", TRUE))) {
-    with_seed_preserved({
-      return(gen_weights(n, R, boot.out[["strata"]]))
-    }, new_seed = boot.out[["seed"]])
-  }
-
-  if (isTRUE(attr(boot.out, "simple", TRUE)) &&
-      isTRUE(attr(boot.out, "random_statistic", TRUE))) {
-    .wrn('bootstrap weights cannot be repliably re-generated when there is randomness in `statistic` and `simple = TRUE` in the call to `fbw()`. See `vignette("fwb-rep")` for details')
-  }
-
-  FUN <- function(i) {
-    drop(gen_weights(n, 1L, boot.out[["strata"]]))
-  }
-
-  opb <- pbapply::pboptions(type = "none")
-  on.exit(pbapply::pboptions(opb))
-
-  #Run bootstrap
-  with_seed_preserved({
-    if (identical(attr(boot.out, "cl", TRUE), "future"))
-      do.call("rbind", pbapply::pblapply(seq_len(R), FUN, cl = "future", future.seed = TRUE))
-    else
-      do.call("rbind", pbapply::pblapply(seq_len(R), FUN, cl = attr(boot.out, "cl", TRUE)))
-  }, new_seed = boot.out[["seed"]])
-}
-
 

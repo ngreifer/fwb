@@ -27,6 +27,16 @@ fmt.prc <- function(probs, digits = 3L) {
   paste(format(100 * probs, trim = TRUE, scientific = FALSE, digits = digits), "%")
 }
 
+squish <- function(p, lo = 1e-6, hi = 1 - lo) {
+  if (lo > -Inf)
+    p[p < lo] <- lo
+
+  if (hi < Inf)
+    p[p > hi] <- hi
+
+  p
+}
+
 check_index <- function(index, t, several.ok = FALSE) {
   if (is_null(index)) {
     return(1L)
@@ -78,7 +88,8 @@ check_index <- function(index, t, several.ok = FALSE) {
     index <- match(index, colnames(t))
 
     if (anyNA(index)) {
-      .err("all entries in `index` must be the names of available statistics to compute.\n  The following are allowed: ", paste(add_quotes(colnames(t), 2L), collapse = ", "))
+      .err("all entries in `index` must be the names of available statistics to compute.\n  The following are allowed: ",
+           toString(add_quotes(colnames(t), 2L)))
     }
   }
 

@@ -1,11 +1,25 @@
 `cobalt` News and Updates
 ======
 
-# `fwb` (development version)
+# `fwb` 0.5.0
 
 * Added a new confidence interval type for `confint()`, `fwb.ci()`, and `summary()`: `"wald"`, for Wald-type confidence intervals that don't correct for any bias.
 
-* Fixed a bug in `confint()`, `fwb.ci()`, and `summary()` where the confidence level could only be as low as .5. Now levels as low as just above 0 are allowed.
+* When p-values are requested in `summary()`, they are now based on inverting the confidence interval. This ensures hypothesis testing using the confidence interval and using p-values yield the same conclusion. Previously, they were based on inverting the Wald confidence interval only (i.e., a standard z-test).
+
+* The null value of the estimates for the hypothesis tests in `summary()` can now be supplied using the `null` argument.
+
+* Simultaneous inference via the sup-t confidence band and its inversion are now supported by `summary()` and `confint()` by setting `simultaneous = TRUE`. This is only supported for percentile and Wald confidence intervals (and the latter requires the `mvtnorm` package to be installed).
+
+* Added new function `fwb.array()` to extract the bootstrap weights from an `fwb` object.
+
+* Confidence intervals can be suppressed in `summary()` by setting `conf = 0`.
+
+* Fixed a bug in `confint()`, `fwb.ci()`, and `summary()` where the confidence level could only be as low as .5. Now levels as low as just above 0 are allowed, except for when computing simultaneous Wald confidence intervals.
+
+* BCa confidence intervals are computed faster in `confint()` and `summary()`. These functions no longer use `fwb.ci()` internally.
+
+* Added a new `tidy()` method for `summary.fwb` objects.
 
 # `fwb` 0.4.0
 

@@ -11,21 +11,27 @@
   ci.type = "bc",
   p.value = FALSE,
   index = 1L:ncol(object$t),
+  null = 0,
+  simultaneous = FALSE,
   ...
 )
 
-\method{confint}{fwb}(object, parm, level = 0.95, ci.type = "bc", ...)
+\method{confint}{fwb}(object, parm, level = 0.95, ci.type = "bc", simultaneous = FALSE, ...)
 }
 \arguments{
 \item{object}{an \code{fwb} object; the output of a call to \code{\link[=fwb]{fwb()}}.}
 
-\item{conf, level}{the desired confidence level. Default is .95 for 95\% confidence intervals.}
+\item{conf, level}{the desired confidence level. Default is .95 for 95\% confidence intervals. Set to 0 to prevent calculation of confidence intervals.}
 
-\item{ci.type}{the type of confidence interval desired. Allowable options include \code{"wald"} (Wald interval), \code{"norm"} (normal approximation), \code{"basic"} (basic interval), \code{"perc"} (percentile interval), \code{"bc"} (bias-correct percentile interval), and \code{"bca"} (bias-corrected and accelerated [BCa] interval). Only one is allowed. BCa intervals require that the number of bootstrap replications is larger than the sample size. See \code{\link[=fwb.ci]{fwb.ci()}} for details. The default is \code{"bc"}.}
+\item{ci.type}{the type of confidence interval desired. Allowable options include \code{"wald"} (Wald interval), \code{"norm"} (normal approximation), \code{"basic"} (basic interval), \code{"perc"} (percentile interval), \code{"bc"} (bias-corrected percentile interval), and \code{"bca"} (bias-corrected and accelerated [BCa] interval). Only one is allowed. BCa intervals require the number of bootstrap replications to be larger than the sample size. See \code{\link[=fwb.ci]{fwb.ci()}} for details. The default is \code{"bc"}. Ignored if both \code{conf = 0} and \code{p.values = FALSE}.}
 
-\item{p.value}{\code{logical}; whether to display p-values for the test that each parameter is equal to 0. The p-value is computed using a Z-test with the test statistic computed as the ratio of the estimate to its bootstrap standard error. This test is only valid when the bootstrap distribution is normally distributed around 0 and is not guaranteed to agree with any of the confidence intervals. Default is \code{FALSE}.}
+\item{p.value}{\code{logical}; whether to display p-values for the test that each parameter is equal to \code{null}. Default is \code{FALSE}. See Details.}
 
-\item{index, parm}{the index or indices of the position of the quantity of interest in \code{x$t0} if more than one was specified in \code{fwb()}. Default is to display all quantities.}
+\item{index, parm}{the index or indices of the position of the quantity of interest if more than one was specified in \code{fwb()}. Default is to display all quantities.}
+
+\item{null}{\code{numeric}; when \code{p.value = TRUE}, the value of the estimate under the null hypothesis. Default is 0. Only one value can be supplied and it is applied to all tests.}
+
+\item{simultaneous}{\code{logical}; whether to adjust confidence intervals and p-values to ensure correct familywise coverage/size across all specified estimates. See Details. Default is \code{FALSE} for standard pointwise intervals. \code{TRUE} is only allowed when \code{ci.type} is \code{"wald"} or \code{"perc"}.}
 
 \item{...}{ignored.}
 }
@@ -34,15 +40,22 @@ For \code{summary()}, a \code{summary.fwb} object, which is a matrix with the fo
 \itemize{
 \item \code{Estimate}: the statistic estimated in the original sample
 \item \verb{Std. Error}: the standard deviation of the bootstrap estimates
-\item \verb{CI \{L\}\%} and \verb{CI \{U\}\%}, the upper and lower confidence interval bounds computed using the argument to \code{ci.type}.
+\item \verb{CI \{L\}\%} and \verb{CI \{U\}\%}: the upper and lower confidence interval bounds computed using the argument to \code{ci.type} (only when \code{conf} is not 0).
+\item \verb{z value}: when \code{p.value = TRUE} and \code{ci.type = "wald"}, the z-statistic for the test of the estimate against against \code{null}.
+\item \verb{Pr(>|z|)}: when \code{p.value = TRUE}, the p-value for the test of the estimate against against \code{null}.
 }
-
-When \code{p.value = TRUE}, two additional columns, \verb{z value} and \verb{Pr(>|z|)}, are included containing the z-statistic and p-value for each computed statistic, respectively.
 
 For \code{confint()}, a matrix with a row for each statistic and a column for the upper and lower confidence interval limits.
 }
 \description{
-\code{summary()} creates a regression summary-like table that displays the bootstrap estimates, their empirical standard errors, and their confidence intervals. \code{confint()} produces just the confidence intervals, which are computed using \code{\link[=fwb.ci]{fwb.ci()}}, and is called internally by \code{summary()}.
+\code{summary()} creates a regression summary-like table that displays the bootstrap estimates, their empirical standard errors, their confidence intervals, and, optionally, p-values for tests against a null value. \code{confint()} produces just the confidence intervals, and is called internally by \code{summary()}.
+}
+\details{
+P-values are computed by inverting the confidence interval for each parameter, i.e., finding the largest confidence level yielding a confidence interval that excludes \code{null}, and taking the p-value to be one minus that level. This ensures conclusions from tests based on the p-value and whether the confidence interval contains the null value always yield the same conclusion. Prior to version 0.5.0, all p-values were based on inverting Wald confidence intervals, regardless of \code{ci.type}.
+
+Simultaneous confidence intervals are computed using the "sup-t" confidence band, which involves modifying the confidence level so that the intersection of all the adjusted confidence intervals contain the whole parameter vector with the specified coverage. This will always be less conservative than Bonferroni or Holm adjustment. Simultaneous p-values are computed by inverting the simultaneous bands. Simultaneous inference is only allowed when \code{ci.type} is \code{"wald"} or \code{"perc"} and \code{index} has length greater than 1. When \code{ci.type = "wald"}, the \pkg{mvtnorm} package must be installed.
+
+\code{tidy()} and \code{print()} methods are available for \code{summary.fwb} objects.
 }
 \examples{
 set.seed(123, "L'Ecuyer-CMRG")
@@ -60,8 +73,10 @@ fwb_out <- fwb(infert, fit_fun, R = 199,
 # Basic confidence interval for both estimates
 summary(fwb_out, ci.type = "basic")
 
-# Just for "induced" coefficient; p-values requested
-summary(fwb_out, index = "induced", p.value = TRUE)
+# Just for "induced" coefficient; p-values requested,
+# no confidence intervals
+summary(fwb_out, ci.type = "norm", conf = 0,
+        index = "induced", p.value = TRUE)
 
 }
 \seealso{
