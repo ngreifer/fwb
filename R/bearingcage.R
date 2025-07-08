@@ -1,5 +1,5 @@
 #' @title Bearing Cage field failure data
-#' @description The data consist of 1703 aircraft engines put into service over time. There were 6 failures and 1697 right-censored observations. These data were originally given in Abernethy et al. (1983) and were reanalyzed in Meeker and Escobar (1998, chap.8). The dataset used here specifically comes from Xu et al. (2020) and is used in a Weibull analysis of failure times.
+#' @description The data consist of 1703 aircraft engines put into service over time. There were 6 failures and 1697 right-censored observations. These data were originally given in Abernethy et al. (1983) and were reanalyzed in Meeker and Escobar (1998, Ch. 8). The dataset used here specifically comes from Xu et al. (2020) and is used in a Weibull analysis of failure times.
 #' @usage data("bearingcage")
 #' @format A data frame with 1703 rows and 2 variables:
 #' \describe{

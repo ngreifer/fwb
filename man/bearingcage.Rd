@@ -15,7 +15,7 @@ A data frame with 1703 rows and 2 variables:
 data("bearingcage")
 }
 \description{
-The data consist of 1703 aircraft engines put into service over time. There were 6 failures and 1697 right-censored observations. These data were originally given in Abernethy et al. (1983) and were reanalyzed in Meeker and Escobar (1998, chap.8). The dataset used here specifically comes from Xu et al. (2020) and is used in a Weibull analysis of failure times.
+The data consist of 1703 aircraft engines put into service over time. There were 6 failures and 1697 right-censored observations. These data were originally given in Abernethy et al. (1983) and were reanalyzed in Meeker and Escobar (1998, Ch. 8). The dataset used here specifically comes from Xu et al. (2020) and is used in a Weibull analysis of failure times.
 }
 \references{
 Abernethy, R. B., Breneman, J. E., Medlin, C. H., and Reinman, G. L. (1983), "Weibull Analysis Handbook," Technical Report, Air Force Wright Aeronautical Laboratories. \doi{10.21236/ADA143100}
