@@ -256,7 +256,7 @@ fwb <- function(data, statistic, R = 999, cluster = NULL, simple = NULL,
       FUN <- function(i) {
         call_statistic(statistic, data = data,
                        ...,
-                       .wi = .set_class(w[i,], "fwb_internal_w"),
+                       .wi = .set_class(w[i, ], "fwb_internal_w"),
                        drop0 = drop0)
       }
     }
@@ -278,7 +278,7 @@ fwb <- function(data, statistic, R = 999, cluster = NULL, simple = NULL,
       FUN <- function(i) {
         call_statistic(statistic, data = data,
                        ...,
-                       .wi = .set_class(w[i,], "fwb_internal_w"),
+                       .wi = .set_class(w[i, ], "fwb_internal_w"),
                        drop0 = drop0)
       }
     }
@@ -287,7 +287,7 @@ fwb <- function(data, statistic, R = 999, cluster = NULL, simple = NULL,
   if (inherits(cl, "cluster")) {
     rlang::check_installed("parallel")
 
-    parallel::clusterExport(cl, varlist = c("call_statistic"),
+    parallel::clusterExport(cl, varlist = "call_statistic",
                             envir = asNamespace("fwb"))
   }
 
@@ -338,9 +338,8 @@ fwb <- function(data, statistic, R = 999, cluster = NULL, simple = NULL,
 #' @param index the index or indices of the position of the quantity of interest in `x$t0` if more than one was specified in `fwb()`. Default is to print all quantities.
 #'
 #' @exportS3Method print fwb
-print.fwb <- function(x, digits = getOption("digits"), index = 1L:ncol(x$t), ...) {
+print.fwb <- function(x, digits = getOption("digits", 3L), index = seq_len(ncol(x[["t"]])), ...) {
   index <- check_index(index, x[["t"]], several.ok = TRUE)
-  cl <- x$call
   t <- x[["t"]][, index, drop = FALSE]
   allNA <- apply(t, 2L, function(t_) all(is.na(t_)))
   ind1 <- index[allNA]
@@ -351,18 +350,16 @@ print.fwb <- function(x, digits = getOption("digits"), index = 1L:ncol(x$t), ...
   if (is_null(index)) {
     op <- NULL
   }
-  else if (is_null(t0 <- x$t0)) {
+  else if (is_null(x$t0)) {
     op <- cbind(colMeans(t, na.rm = TRUE),
                 apply(t, 2L, sd, na.rm = TRUE))
     dimnames(op) <- list(rn, c("mean", "std. error"))
   }
   else {
-    t0 <- x$t0[index]
-    op <- cbind(t0,
-                colMeans(t, na.rm = TRUE) - t0,
+    op <- cbind(x$t0[index],
+                colMeans(t, na.rm = TRUE) - x$t0[index],
                 apply(t, 2L, sd, na.rm = TRUE))
     dimnames(op) <- list(rn, c("original", "bias", "std. error"))
-
   }
 
   if (is_null(x[["strata"]]) && is_null(x[["cluster"]])) {
@@ -379,9 +376,9 @@ print.fwb <- function(x, digits = getOption("digits"), index = 1L:ncol(x$t), ...
   }
 
   cat("\nCall:\n")
-  dput(cl, control = NULL)
-  cat("\nBootstrap Statistics :\n")
+  dput(x$call, control = NULL)
   if (is_not_null(op)) {
+    cat("\nBootstrap Statistics :\n")
     print(op, digits = digits)
   }
 
@@ -430,7 +427,7 @@ make_gen_weights <- function(wtype) {
 
                   for (s in levels(strata)) {
                     in_s <- which(strata == s)
-                    w[,in_s] <- w[,in_s] / rowMeans(w[,in_s])
+                    w[, in_s] <- w[, in_s] / rowMeans(w[, in_s])
                   }
 
                   w
@@ -456,7 +453,7 @@ make_gen_weights <- function(wtype) {
                 },
                 "mammen" = function(n, R, strata = NULL) {
                   sqrt5 <- sqrt(5)
-                  w <- matrix((3 - sqrt5) / 2 + sqrt5 * rbinom(n * R, 1L, .5 - 1/(2 * sqrt5)),
+                  w <- matrix((3 - sqrt5) / 2 + sqrt5 * rbinom(n * R, 1L, .5 - 1 / (2 * sqrt5)),
                               nrow = R, ncol = n, byrow = TRUE)
 
                   if (is_null(strata) || nlevels(strata) <= 1) {
@@ -465,7 +462,7 @@ make_gen_weights <- function(wtype) {
 
                   for (s in levels(strata)) {
                     in_s <- which(strata == s)
-                    w[,in_s] <- w[,in_s] / rowMeans(w[,in_s])
+                    w[, in_s] <- w[, in_s] / rowMeans(w[, in_s])
                   }
 
                   w

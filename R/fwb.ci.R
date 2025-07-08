@@ -181,7 +181,7 @@ fwb.ci <- function(fwb.out, conf = .95, type = "bc", index = 1L,
 #' @param x an `fwbci` object; the output of a call to `fwb.ci()`.
 #'
 #' @exportS3Method print fwbci
-print.fwbci <- function (x, hinv = NULL, ...) {
+print.fwbci <- function(x, hinv = NULL, ...) {
   ci.out <- x
   cl <- ci.out[["call"]]
 
@@ -244,7 +244,7 @@ print.fwbci <- function (x, hinv = NULL, ...) {
   level <- 100 * attr(ci.out, "conf", TRUE)
 
   intervals <- do.call("rbind", lapply(ci.types, function(i) {
-    hinv(.tail(ci.out[[i]][1L,], 2L))
+    hinv(.tail(ci.out[[i]][1L, ], 2L))
   }))
 
   intervals_text <- apply(format(round(intervals, digs)), 1L, function(z) {
@@ -380,4 +380,3 @@ get_ci <- function(x, type = "all") {
 
   out
 }
-

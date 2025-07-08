@@ -10,7 +10,7 @@
   conf = 0.95,
   ci.type = "bc",
   p.value = FALSE,
-  index = 1L:ncol(object$t),
+  index = seq_len(ncol(object$t)),
   null = 0,
   simultaneous = FALSE,
   ...

@@ -19,7 +19,12 @@ fwb(
   ...
 )
 
-\method{print}{fwb}(x, digits = getOption("digits"), index = 1L:ncol(x$t), ...)
+\method{print}{fwb}(
+  x,
+  digits = getOption("digits", 3L),
+  index = seq_len(ncol(x[["t"]])),
+  ...
+)
 }
 \arguments{
 \item{data}{the dataset used to compute the statistic}

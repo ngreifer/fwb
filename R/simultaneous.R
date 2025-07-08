@@ -1,5 +1,5 @@
 # Simultaneous CIs and p-values
-simultaneous_ci_level <- function(object, level = .95, index = 1:ncol(object[["t"]]), ci.type = "perc") {
+simultaneous_ci_level <- function(object, level = .95, index = seq_len(ncol(object[["t"]])), ci.type = "perc") {
 
   chk::chk_not_missing(object, "`object`")
   chk::chk_is(object, "fwb")
@@ -68,7 +68,7 @@ simultaneous_ci_level <- function(object, level = .95, index = 1:ncol(object[["t
   new_level
 }
 
-simultaneous_p_value <- function(object, p.values, index = 1:ncol(object[["t"]]), ci.type = "perc") {
+simultaneous_p_value <- function(object, p.values, index = seq_len(ncol(object[["t"]])), ci.type = "perc") {
   chk::chk_not_missing(object, "`object`")
   chk::chk_is(object, "fwb")
 
@@ -135,4 +135,3 @@ simultaneous_p_value <- function(object, p.values, index = 1:ncol(object[["t"]])
 
   p
 }
-

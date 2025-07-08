@@ -175,10 +175,10 @@ w_cov <- function(x, w = NULL, na.rm = FALSE) {
               dimnames = list(colnames(x), colnames(x)))
 
   for (i in seq_len(ncol(x))) {
-    ki <- !is.na(x[,i])
+    ki <- !is.na(x[, i])
 
     for (j in seq_len(i - 1L)) {
-      kij <- which(ki & !is.na(x[,j]))
+      kij <- which(ki & !is.na(x[, j]))
 
       wk <- w[kij] / sum(w[kij])
 
@@ -263,17 +263,17 @@ w_quantile <- function(x, w = NULL, probs = seq(0, 1, by = 0.25), na.rm = FALSE,
     w <- w[x_order]
   }
 
-  p_k <- (cumsum(w) - w)/(1 - w)
+  p_k <- (cumsum(w) - w) / (1 - w)
 
-  q <- approxfun(p_k, x, rule = 2L, ties = "ordered")(probs)
+  qu <- approxfun(p_k, x, rule = 2L, ties = "ordered")(probs)
 
-  if (names && is_not_null(q)) {
-    names(q) <- paste0(formatC(probs * 100, format = "fg",
-                               width = 1L, digits = digits), "%")
-    names(q)[is.na(probs)] <- ""
+  if (names && is_not_null(qu)) {
+    names(qu) <- paste0(formatC(probs * 100, format = "fg",
+                                width = 1L, digits = digits), "%")
+    names(qu)[is.na(probs)] <- ""
   }
 
-  q
+  qu
 }
 
 #' @export

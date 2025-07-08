@@ -47,7 +47,7 @@ plot.fwb <- function(x, index = 1L, qdist = "norm", nclass = NULL, df, type = c(
   for (i in type) {
     if (i == "hist") {
       if (is_null(nclass)) {
-        nclass <- min(max(ceiling(length(t)/25), 10), 100)
+        nclass <- min(max(ceiling(length(t) / 25), 10), 100)
       }
       else {
         chk::chk_count(nclass)
@@ -80,11 +80,11 @@ plot.fwb <- function(x, index = 1L, qdist = "norm", nclass = NULL, df, type = c(
         else {
           chk::chk_number(df)
         }
-        qf <- function(p_) qchisq(p_, df = df)
+        qfun <- function(p_) qchisq(p_, df = df)
         qlab <- sprintf("Quantiles of Chi-squared(%s)", round(df, 2))
       }
       else if (qdist == "norm") {
-        qf <- function(p_) qnorm(p_)
+        qfun <- function(p_) qnorm(p_)
         qlab <- "Quantiles of Standard Normal"
       }
       else {
@@ -92,8 +92,8 @@ plot.fwb <- function(x, index = 1L, qdist = "norm", nclass = NULL, df, type = c(
                      add_quotes(qdist)))
       }
 
-      qqplot(qf(p), t, xlab = qlab, ylab = colnames(x[["t"]])[index])
-      qqline(t, distribution = qf, qtype = 5, lty = 2)
+      qqplot(qfun(p), t, xlab = qlab, ylab = colnames(x[["t"]])[index])
+      qqline(t, distribution = qfun, qtype = 5, lty = 2)
     }
   }
 

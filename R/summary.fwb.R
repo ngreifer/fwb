@@ -57,7 +57,7 @@
 
 #' @exportS3Method summary fwb
 summary.fwb <- function(object, conf = .95, ci.type = "bc", p.value = FALSE,
-                        index = 1L:ncol(object$t), null = 0, simultaneous = FALSE, ...) {
+                        index = seq_len(ncol(object$t)), null = 0, simultaneous = FALSE, ...) {
 
   chk::chk_number(conf)
   chk::chk_range(conf, c(0, 1), inclusive = TRUE)

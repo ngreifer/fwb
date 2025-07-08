@@ -9,3 +9,4 @@
 ^joss_paper$
 ^\.DS_Store$
 ^LICENSE\.md$
+^\.lintr

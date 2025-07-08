@@ -161,7 +161,7 @@ add_quotes <- function(x, quotes = 2L) {
   }
 
   if (!chk::vld_count(quotes) || quotes > 2L) {
-    stop("`quotes` must be boolean, 1, 2, or a string.")
+    .err("`quotes` must be boolean, 1, 2, or a string")
   }
 
   if (quotes == 0L) {
@@ -184,7 +184,7 @@ match_arg <- function(arg, choices, several.ok = FALSE) {
   #Replaces match.arg() but gives cleaner error message and processing
   #of arg.
   if (missing(arg)) {
-    stop("No argument was supplied to match_arg.")
+    .err("no argument was supplied to `match_arg()`")
   }
 
   arg.name <- deparse1(substitute(arg), width.cutoff = 500L)
@@ -309,15 +309,15 @@ with_seed_preserved <- function(expr, new_seed = NULL) {
   }
   else {
     on.exit({
-      RNGkind <- get("RNGkind")
-      RNGkind(old_seed$rng_kind[[1L]], normal.kind = old_seed$rng_kind[[2L]])
+      .RNGkind <- get("RNGkind")
+      .RNGkind(old_seed$rng_kind[[1L]], normal.kind = old_seed$rng_kind[[2L]])
       sample_kind <- old_seed$rng_kind[[3L]]
 
       if (identical(sample_kind, "Rounding")) {
-        suppressWarnings(RNGkind(sample.kind = sample_kind))
+        suppressWarnings(.RNGkind(sample.kind = sample_kind))
       }
       else {
-        RNGkind(sample.kind = sample_kind)
+        .RNGkind(sample.kind = sample_kind)
       }
 
       assign(".Random.seed", old_seed$random_seed, globalenv())

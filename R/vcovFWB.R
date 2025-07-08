@@ -151,7 +151,7 @@ vcovFWB <- function(x, cluster = NULL, R = 1000, start = FALSE,
   if (p > 1L) {
     clu <- lapply(seq_len(p), function(i) utils::combn(seq_len(p), i, simplify = FALSE))
     clu <- unlist(clu, recursive = FALSE)
-    sign <- sapply(clu, function(i) (-1L)^(length(i) + 1L))
+    sgn <- sapply(clu, function(i) (-1L)^(length(i) + 1L))
     paste_ <- function(...) paste(..., sep = "_")
     for (i in (p + 1L):length(clu)) {
       cluster <- cbind(cluster, Reduce(paste_, unclass(cluster[, clu[[i]]]))) ## faster than: interaction()
@@ -159,7 +159,7 @@ vcovFWB <- function(x, cluster = NULL, R = 1000, start = FALSE,
   }
   else {
     clu <- list(1)
-    sign <- 1
+    sgn <- 1
   }
 
   opb <- pbapply::pboptions(type = if (verbose) "timer" else "none")
@@ -190,7 +190,7 @@ vcovFWB <- function(x, cluster = NULL, R = 1000, start = FALSE,
     cf <- do.call("rbind", applyfun(seq_len(R), bootfit, ...))
 
     ## aggregate across cluster variables
-    rval <- rval + sign[i] * cov(cf, use = use)
+    rval <- rval + sgn[i] * cov(cf, use = use)
   }
 
   if (all_the_same(c(0, rval))) {
@@ -199,15 +199,19 @@ vcovFWB <- function(x, cluster = NULL, R = 1000, start = FALSE,
   }
 
   ## check (and fix) if sandwich is not positive semi-definite
-  if (fix && any((eig <- eigen(rval, symmetric = TRUE))$values < 0)) {
-    eig$values <- pmax(eig$values, 0)
-    rval[] <- crossprod(sqrt(eig$values) * t(eig$vectors))
+  if (fix) {
+    eig <- eigen(rval, symmetric = TRUE)$values
+
+    if (any(eig < 0)) {
+      eig$values <- pmax(eig$values, 0)
+      rval[] <- crossprod(sqrt(eig$values) * t(eig$vectors))
+    }
   }
 
   rval
 }
 
-nobs0 <- function (x, ...) {
+nobs0 <- function(x, ...) {
   rval <- try(stats::nobs(x, ...), silent = TRUE)
 
   if (is_null(rval) || inherits(rval, "try-error")) {
@@ -382,7 +386,7 @@ safe.glm.fit <- function(fit.fun, ...) {
   warning = function(w) {
     if (conditionMessage(w) != "non-integer #successes in a binomial glm!" &&
         !startsWith(conditionMessage(w), "non-integer x =")) {
-      warning(w)
+      .wrn(w, tidy = FALSE, immediate = FALSE)
     }
     invokeRestart("muffleWarning")
   })

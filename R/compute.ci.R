@@ -57,7 +57,7 @@ compute_ci <- function(type, t, t0, conf = .95, index = 1, hinv = identity, boot
 
       L <- empinf.reg(boot.out, t = t[, index, drop = FALSE])
 
-      a <- colSums(L^3, na.rm = TRUE)/(6 * colSums(L^2, na.rm = TRUE)^1.5)
+      a <- colSums(L^3, na.rm = TRUE) / (6 * colSums(L^2, na.rm = TRUE)^1.5)
 
       if (!all(is.finite(a))) {
         .err("estimated adjustment 'a' is NA")
@@ -68,12 +68,12 @@ compute_ci <- function(type, t, t0, conf = .95, index = 1, hinv = identity, boot
     }
 
     adj.alpha <- function(i) {
-      pnorm(w[i] + (w[i] + zalpha)/(1 - a[i] * (w[i] + zalpha)))
+      pnorm(w[i] + (w[i] + zalpha) / (1 - a[i] * (w[i] + zalpha)))
     }
   }
 
   do.call("rbind", lapply(seq_along(index), function(i) {
-    qq <- norm_inter(t[,index[i]], adj.alpha(i))
+    qq <- norm_inter(t[, index[i]], adj.alpha(i))
 
     cbind(conf,
           matrix(qq[, 1L], ncol = 2L),
@@ -91,7 +91,6 @@ norm_inter <- function(ti, alpha = c(.025, .975)) {
   # Scaled quantile ranks
   scaled_idx <- (R + 1) * alpha
   k <- floor(scaled_idx)
-  h <- scaled_idx - k  # Fractional part
 
   if (any(k < 1) || any(k >= R)) {
     .wrn("extreme order statistics used as endpoints")
@@ -202,7 +201,7 @@ invert_ci <- function(type, t, t0, null = 0, index = 1L, h = identity, boot.out 
 
     L <- empinf.reg(boot.out, t = t[, index, drop = FALSE])
 
-    a <- colSums(L^3, na.rm = TRUE)/(6 * colSums(L^2, na.rm = TRUE)^1.5)
+    a <- colSums(L^3, na.rm = TRUE) / (6 * colSums(L^2, na.rm = TRUE)^1.5)
 
     if (!all(is.finite(a))) {
       .err("estimated adjustment 'a' is NA")
@@ -224,9 +223,7 @@ invert_ci <- function(type, t, t0, null = 0, index = 1L, h = identity, boot.out 
     }
   }
 
-  p <- 2 * pmin(alpha, 1 - alpha)
-
-  return(p)
+  2 * pmin(alpha, 1 - alpha)
 }
 
 # Normal interpolation inverse; similar to mean(ti <= null)
