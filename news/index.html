@@ -38,7 +38,7 @@
 
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.5.0" id="fwb-050">
-<code>fwb</code> 0.5.0<a class="anchor" aria-label="anchor" href="#fwb-050"></a></h2>
+<code>fwb</code> 0.5.0<a class="anchor" aria-label="anchor" href="#fwb-050"></a></h2><p class="text-muted">CRAN release: 2025-07-08</p>
 <ul><li><p>Added a new confidence interval type for <code><a href="https://rdrr.io/r/stats/confint.html" class="external-link">confint()</a></code>, <code><a href="../reference/fwb.ci.html">fwb.ci()</a></code>, and <code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code>: <code>"wald"</code>, for Wald-type confidence intervals that don’t correct for any bias.</p></li>
 <li><p>When p-values are requested in <code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code>, they are now based on inverting the confidence interval. This ensures hypothesis testing using the confidence interval and using p-values yield the same conclusion. Previously, they were based on inverting the Wald confidence interval only (i.e., a standard z-test).</p></li>
 <li><p>The null value of the estimates for the hypothesis tests in <code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code> can now be supplied using the <code>null</code> argument.</p></li>
