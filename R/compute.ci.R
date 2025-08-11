@@ -245,7 +245,12 @@ norm_inter_invert <- function(ti, null = 0) {
     return(1)
   }
 
-  k <- findInterval(null, ti, checkSorted = FALSE, checkNA = FALSE)
+  if (getRversion() >= "4.5.0") {
+    k <- findInterval(null, ti, checkSorted = FALSE, checkNA = FALSE)
+  }
+  else {
+    k <- findInterval(null, ti)
+  }
 
   # Exact quantile if null equal to observed value
   if (ti[k] == null) {

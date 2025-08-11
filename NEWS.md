@@ -1,6 +1,10 @@
 `cobalt` News and Updates
 ======
 
+# `fwb` (development version)
+
+* Fixed a bug where computing confidence intervals would yield an error about unused arguments for R version prior to 4.5.0. Thanks to @vincentarelbundock. (#6)
+
 # `fwb` 0.5.0
 
 * Added a new confidence interval type for `confint()`, `fwb.ci()`, and `summary()`: `"wald"`, for Wald-type confidence intervals that don't correct for any bias.
