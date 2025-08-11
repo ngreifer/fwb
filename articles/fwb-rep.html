@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">fwb</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.0.9000</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -95,7 +95,7 @@ bit more challenging to ensure reproducibility when using
 parallelization and adds even more challenges when
 <code>statistic</code> also has a random component.</p></li>
 <li><p><code>cl</code> controls whether and how parallelization takes
-place. It is passed directly to <code><a href="https://rdrr.io/pkg/pbapply/man/pbapply.html" class="external-link">pbapply::pblapply()</a></code>, which
+place. It is passed directly to <code><a href="https://peter.solymos.org/pbapply/reference/pbapply.html" class="external-link">pbapply::pblapply()</a></code>, which
 calls either <code><a href="https://rdrr.io/r/parallel/mclapply.html" class="external-link">parallel::mclapply()</a></code>,
 <code><a href="https://rdrr.io/r/parallel/clusterApply.html" class="external-link">parallel::parLapply()</a></code>, or
 <code><a href="https://future.apply.futureverse.org/reference/future_lapply.html" class="external-link">future.apply::future_lapply()</a></code>, depending on how it is
