@@ -1,6 +1,7 @@
 url: https://ngreifer.github.io/fwb/
 template:
   bootstrap: 5
+  math-rendering: mathjax
 
 reference:
   - contents:
