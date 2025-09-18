@@ -1,4 +1,4 @@
-`cobalt` News and Updates
+`fwb` News and Updates
 ======
 
 # `fwb` 0.5.1
