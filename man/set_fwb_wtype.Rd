@@ -24,7 +24,7 @@ Set the default for the type of weights used in the weighted bootstrap computed 
 \code{set_fwb_wtype(x)} is equivalent to calling \code{options(fwb_wtype = x)}. \code{get_fwb_wtype()} is equivalent to calling \code{getOption("fwb_wtype")} when no argument is supplied and to extracting the \code{wtype} component of an \code{fwb} object when supplied.
 }
 \examples{
-\dontshow{if (requireNamespace("survival", quietly = TRUE)) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
+\dontshow{if (rlang::is_installed("survival")) withAutoprint(\{ # examplesIf}
 # Performing a Weibull analysis of the Bearing Cage
 # failure data as done in Xu et al. (2020)
 set.seed(123, "L'Ecuyer-CMRG")

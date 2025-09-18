@@ -7,6 +7,7 @@
 
 [![CRAN
 status](https://www.r-pkg.org/badges/version/fwb)](https://CRAN.R-project.org/package=fwb)
+[![CRAN_Downloads_Badge](https://cranlogs.r-pkg.org/badges/fwb)](https://CRAN.R-project.org/package=fwb)
 <!-- badges: end -->
 
 `fwb` implements the fractional weighted bootstrap (FWB), also known as

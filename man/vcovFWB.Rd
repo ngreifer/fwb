@@ -59,14 +59,14 @@ For \code{lm} objects, the model is re-fit using \code{\link[=.lm.fit]{.lm.fit()
 See \pkgfun{sandwich}{vcovBS} and \pkgfun{sandwich}{vcovCL} for more information on clustering covariance matrices, and see \code{\link[=fwb]{fwb()}} for more information on how clusters work with the fractional weighted bootstrap. When clusters are specified, each cluster is given a bootstrap weight, and all members of the cluster are given that weight; estimation then proceeds as normal. By default, when \code{cluster} is unspecified, each unit is considered its own cluster.
 }
 \examples{
-\dontshow{if (requireNamespace("lmtest", quietly = TRUE)) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
+\dontshow{if (rlang::is_installed("lmtest")) withAutoprint(\{ # examplesIf}
 set.seed(123, "L'Ecuyer-CMRG")
 data("infert")
 fit <- glm(case ~ spontaneous + induced, data = infert,
              family = "binomial")
 lmtest::coeftest(fit, vcov. = vcovFWB, R = 200)
 \dontshow{\}) # examplesIf}
-\dontshow{if (requireNamespace("sandwich", quietly = TRUE)) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
+\dontshow{if (rlang::is_installed("sandwich")) withAutoprint(\{ # examplesIf}
 # Example from help("vcovBS", package = "sandwich")
 data("PetersenCL", package = "sandwich")
 m <- lm(y ~ x, data = PetersenCL)
@@ -89,7 +89,7 @@ f <- vcovFWB(m, R = 200, wtype = "multinom")
 
 all.equal(s, f)
 \dontshow{\}) # examplesIf}
-\dontshow{if (requireNamespace("nnet", quietly = TRUE)) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
+\dontshow{if (rlang::is_installed("nnet")) withAutoprint(\{ # examplesIf}
 # Using a custom argument to `.coef`
 set.seed(123)
 data("infert")

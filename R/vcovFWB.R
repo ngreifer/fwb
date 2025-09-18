@@ -23,14 +23,14 @@
 #'
 #' @seealso [fwb()] for performing the fractional weighted bootstrap on an arbitrary quantity; [fwb.ci()] for computing nonparametric confidence intervals for `fwb` objects; [summary.fwb()] for producing standard errors and confidence intervals for `fwb` objects; \pkgfun{sandwich}{vcovBS} for computing covariance matrices using the traditional bootstrap (the fractional weighted bootstrap is also available but with limited options).
 #'
-#' @examplesIf requireNamespace("lmtest", quietly = TRUE)
+#' @examplesIf rlang::is_installed("lmtest")
 #' set.seed(123, "L'Ecuyer-CMRG")
 #' data("infert")
 #' fit <- glm(case ~ spontaneous + induced, data = infert,
 #'              family = "binomial")
 #' lmtest::coeftest(fit, vcov. = vcovFWB, R = 200)
 #'
-#' @examplesIf requireNamespace("sandwich", quietly = TRUE)
+#' @examplesIf rlang::is_installed("sandwich")
 #' # Example from help("vcovBS", package = "sandwich")
 #' data("PetersenCL", package = "sandwich")
 #' m <- lm(y ~ x, data = PetersenCL)
@@ -52,7 +52,7 @@
 #' f <- vcovFWB(m, R = 200, wtype = "multinom")
 #'
 #' all.equal(s, f)
-#' @examplesIf requireNamespace("nnet", quietly = TRUE)
+#' @examplesIf rlang::is_installed("nnet")
 #' # Using a custom argument to `.coef`
 #' set.seed(123)
 #' data("infert")

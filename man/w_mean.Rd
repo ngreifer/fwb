@@ -102,7 +102,7 @@ Weighted transformations use the weighted mean and/or standard deviation to re-c
 }
 }
 \examples{
-\dontshow{if (requireNamespace("cobalt", quietly = TRUE) && requireNamespace("lmtest", quietly = TRUE)) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
+\dontshow{if (rlang::is_installed(c("cobalt", "lmtest"))) withAutoprint(\{ # examplesIf}
 # G-computation of average treatment effects using lalonde
 # dataset
 

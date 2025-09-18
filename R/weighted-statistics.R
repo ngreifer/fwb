@@ -58,7 +58,7 @@
 #' * [cov()], [cor()], and [cov.wt()] for unweighted and weighted covariance and correlation matrices
 #' * [scale()] for standardizing variables using arbitrary (by default, unweighted) centering and scaling factors
 #'
-#' @examplesIf requireNamespace("cobalt", quietly = TRUE) && requireNamespace("lmtest", quietly = TRUE)
+#' @examplesIf rlang::is_installed(c("cobalt", "lmtest"))
 #' # G-computation of average treatment effects using lalonde
 #' # dataset
 #'

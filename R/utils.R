@@ -161,7 +161,7 @@ add_quotes <- function(x, quotes = 2L) {
   }
 
   if (!chk::vld_count(quotes) || quotes > 2L) {
-    .err("`quotes` must be boolean, 1, 2, or a string")
+    stop("`quotes` must be boolean, 1, 2, or a string.")
   }
 
   if (quotes == 0L) {
@@ -252,11 +252,7 @@ pkg_caller_call <- function() {
 
     n <- rlang::call_name(e)
 
-    if (is_null(n)) {
-      next
-    }
-
-    if (n %in% package.funs) {
+    if (is_not_null(n) && n %in% package.funs) {
       return(e)
     }
   }

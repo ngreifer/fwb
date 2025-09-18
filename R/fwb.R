@@ -76,7 +76,7 @@
 #'
 #' The use of the `"mammen"` formulation of the bootstrap weights was suggested by Lihua Lei [here](https://x.com/lihua_lei_stat/status/1641538993090351106).
 #'
-#' @examplesIf requireNamespace("survival", quietly = TRUE)
+#' @examplesIf rlang::is_installed("survival")
 #' # Performing a Weibull analysis of the Bearing Cage
 #' # failure data as done in Xu et al. (2020)
 #' set.seed(123, "L'Ecuyer-CMRG")
