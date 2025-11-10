@@ -49,5 +49,10 @@ empinf <- lm.fit(x = fwb_weights / ncol(fwb_weights),
 empinf <- sweep(empinf, 2L, colMeans(empinf))
 }
 \seealso{
-\code{\link[=fwb]{fwb()}} for performing the fractional weighted bootstrap; \pkgfun{boot}{boot.array} for the equivalent function in \pkg{boot}; \code{vignette("fwb-rep")} for information on replicability.
+\itemize{
+\item \code{\link[=fwb]{fwb()}} for performing the fractional weighted bootstrap
+\item \pkgfun{boot}{boot.array} for the equivalent function in \pkg{boot}
+}
+
+See \code{vignette("fwb-rep")} for information on replicability.
 }

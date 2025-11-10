@@ -37,7 +37,7 @@ fwb(
 
 \item{simple}{\code{logical}; if \code{TRUE}, weights will be generated on-the-fly in each bootstrap replication; if \code{FALSE}, all weights will be generated at once and then supplied to \code{statistic}. Cannot be \code{TRUE} when \code{wtype = "multinom"}. The default (\code{NULL}) sets to \code{FALSE} if \code{wtype = "multinom"} and to \code{TRUE} otherwise.}
 
-\item{wtype}{string; the type of weights to use. Allowable options include \code{"exp"} (the default), \code{"pois"}, \code{"multinom"}, and \code{"mammen"}. See Details. See \code{\link[=set_fwb_wtype]{set_fwb_wtype()}} to set a global default.}
+\item{wtype}{string; the type of weights to use. Allowable options include \code{"exp"} (the default), \code{"pois"}, \code{"multinom"}, \code{"mammen"}, \code{"beta"}, and \code{"power"}. See Details. See \code{\link[=set_fwb_wtype]{set_fwb_wtype()}} to set a global default.}
 
 \item{strata}{optional; a vector containing stratum membership for stratified bootstrapping. If supplied, will essentially perform a separate bootstrap within each level of \code{strata}. This does not affect results when \code{wtype = "poisson"}.}
 
@@ -92,7 +92,7 @@ Different types of weights can be supplied to the \code{wtype} argument. A globa
 
 \describe{
 \item{\code{"exp"}}{
-Draws weights from an exponential distribution with rate parameter 1 using \code{\link[=rexp]{rexp()}}. These weights are the usual "Bayesian bootstrap" weights described in Xu et al. (2020). They are equivalent to drawing weights from a uniform Dirichlet distribution, which is what gives these weights the interpretation of a Bayesian prior. The weights are scaled to have a mean of 1 within each stratum (or in the full sample if \code{strata} is not supplied).
+Draws weights from an exponential distribution with rate parameter 1 using \code{\link[=rexp]{rexp()}}. These weights are the usual "Bayesian bootstrap" weights described in Xu et al. (2020). They are equivalent to drawing weights from a uniform Dirichlet distribution, which is what gives these weights the interpretation of a Bayesian prior. These positive weights have a mean and variance of 1 and skewness of 2. The weights are scaled to have a mean of 1 within each stratum (or in the full sample if \code{strata} is not supplied).
 }
 \item{\code{"multinom"}}{
 Draws integer weights using \code{\link[=sample]{sample()}}, which samples unit indices with replacement and uses the tabulation of the indices as frequency weights. This is equivalent to drawing weights from a multinomial distribution. Using \code{wtype = "multinom"} is the same as using \code{boot::boot(., stype = "f")} instead of \code{fwb()} (i.e., the resulting estimates will be identical). When \code{strata} is supplied, unit indices are drawn with replacement within each stratum so that the sum of the weights in each stratum is equal to the stratum size.
@@ -103,9 +103,15 @@ Draws integer weights from a Poisson distribution with 1 degree of freedom using
 \item{\code{"mammen"}}{
 Draws weights from a modification of the distribution described by Mammen (1983) for use in the wild bootstrap. These positive weights have a mean, variance, and skewness of 1, making them second-order accurate (in contrast to the usual exponential weights, which are only first-order accurate). The weights \eqn{w} are drawn such that \eqn{P(w=(3+\sqrt{5})/2)=(\sqrt{5}-1)/2\sqrt{5}} and \eqn{P(w=(3-\sqrt{5})/2)=(\sqrt{5}+1)/2\sqrt{5}}. The weights are scaled to have a mean of 1 within each stratum (or in the full sample if \code{strata} is not supplied).
 }
+\item{\code{"beta"}}{
+Draws weights from a \eqn{\text{Beta}(1/2, 3/2)} distribution using \code{\link[=rbeta]{rbeta()}} as described by Owen (2025). These positive weights have a mean, variance, and skewness of 1 when scaled by a factor of 4, making them second-order accurate. The weights are scaled to have a mean of 1 within each stratum (or in the full sample if \code{strata} is not supplied).
+}
+\item{\code{"power"}}{
+Draws weights from a \eqn{\text{Beta}(\sqrt{2} - 1, 1)} distribution using \code{\link[=rbeta]{rbeta()}} as described by Owen (2025). These positive weights have a mean and variance of 1 and skewness of \eqn{2(\sqrt{2} - 1)} when scaled by a factor of \eqn{2+\sqrt{2}}. The weights are scaled to have a mean of 1 within each stratum (or in the full sample if \code{strata} is not supplied).
+}
 }
 
-\code{"exp"} is the default due to it being the formulation described in Xu et al. (2020) and in the most formulations of the Bayesian bootstrap; it should be used if one wants to remain in line with these guidelines or to maintain a Bayesian flavor to the analysis, whereas \code{"mammen"} might be preferred for its frequentist operating characteristics, though its performance has not been studied in this context. \code{"multinom"} and \code{"poisson"} should only be used for comparison purposes.
+\code{"exp"} is the default due to it being the formulation described in Xu et al. (2020) and in the most formulations of the Bayesian bootstrap; it should be used if one wants to remain in line with these guidelines or to maintain a Bayesian flavor to the analysis, whereas \code{"mammen"}, \code{"beta"}, and \code{"power"} might be preferred for their frequentist operating characteristics, though though more research is needed on their general performance. \code{"multinom"} and \code{"poisson"} should only be used for comparison purposes or as an alternative interface to \pkg{boot}.
 }
 }
 \section{Methods (by generic)}{
@@ -143,14 +149,21 @@ plot(boot_est, index = "beta", type = "hist")
 \references{
 Mammen, E. (1993). Bootstrap and Wild Bootstrap for High Dimensional Linear Models. \emph{The Annals of Statistics}, 21(1). \doi{10.1214/aos/1176349025}
 
+Owen, A. B. (2025). Better bootstrap t confidence intervals for the mean. arXiv. \doi{10.48550/arXiv.2508.10083}
+
 Rubin, D. B. (1981). The Bayesian Bootstrap. \emph{The Annals of Statistics}, 9(1), 130–134. \doi{10.1214/aos/1176345338}
 
 Xu, L., Gotwalt, C., Hong, Y., King, C. B., & Meeker, W. Q. (2020). Applications of the Fractional-Random-Weight Bootstrap. \emph{The American Statistician}, 74(4), 345–358. \doi{10.1080/00031305.2020.1731599}
-
-The use of the \code{"mammen"} formulation of the bootstrap weights was suggested by Lihua Lei \href{https://x.com/lihua_lei_stat/status/1641538993090351106}{here}.
 }
 \seealso{
-\code{\link[=fwb.ci]{fwb.ci()}} for calculating confidence intervals; \code{\link[=summary.fwb]{summary.fwb()}} for displaying output in a clean way; \code{\link[=plot.fwb]{plot.fwb()}} for plotting the bootstrap distributions; \code{\link[=vcovFWB]{vcovFWB()}} for estimating the covariance matrix of estimates using the FWB; \code{\link[=set_fwb_wtype]{set_fwb_wtype()}} for an example of using weights other than the default exponential weights; \pkgfun{boot}{boot} for the traditional bootstrap.
+\itemize{
+\item \code{\link[=fwb.ci]{fwb.ci()}} for calculating confidence intervals
+\item \code{\link[=summary.fwb]{summary.fwb()}} for displaying output in a clean way
+\item \code{\link[=plot.fwb]{plot.fwb()}} for plotting the bootstrap distributions
+\item \code{\link[=vcovFWB]{vcovFWB()}} for estimating the covariance matrix of estimates using the FWB
+\item \code{\link[=set_fwb_wtype]{set_fwb_wtype()}} for an example of using weights other than the default exponential weights
+\item \pkgfun{boot}{boot} for the traditional bootstrap.
+}
 
 See \code{vignette("fwb-rep")} for information on reproducibility.
 }

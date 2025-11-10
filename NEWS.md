@@ -1,6 +1,12 @@
 `fwb` News and Updates
 ======
 
+# `fwb` (development version)
+
+* `wtype` can now be set to `"beta"` to sample weights from a $\text{Beta}(1/2,3/2)$ distribution and `"power"` to sample from a $\text{Beta}(\sqrt{2} - 1, 1)$ distribution as described by [Owen (2025)](https://doi.org/10.48550/arXiv.2508.10083).
+
+* Added code of conduct to README.
+
 # `fwb` 0.5.1
 
 * Fixed a bug where computing confidence intervals would yield an error about unused arguments for R versions prior to 4.5.0. Thanks to @vincentarelbundock. (#6)

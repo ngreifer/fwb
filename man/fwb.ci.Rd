@@ -115,5 +115,11 @@ fwb.ci(fwb_out, index = "induced", type = "norm",
        hinv = exp)
 }
 \seealso{
-\code{\link[=fwb]{fwb()}} for performing the fractional weighted bootstrap; \code{\link[=get_ci]{get_ci()}} for extracting confidence intervals from an \code{fwbci} object; \code{\link[=summary.fwb]{summary.fwb()}} for producing clean output from \code{fwb()} that includes confidence intervals calculated by \code{fwb.ci()}; \pkgfun{boot}{boot.ci} for computing confidence intervals from the traditional bootstrap; \code{\link[=vcovFWB]{vcovFWB()}} for computing parameter estimate covariance matrices using the fractional weighted bootstrap
+\itemize{
+\item \code{\link[=fwb]{fwb()}} for performing the fractional weighted bootstrap
+\item \code{\link[=get_ci]{get_ci()}} for extracting confidence intervals from an \code{fwbci} object
+\item \code{\link[=summary.fwb]{summary.fwb()}} for producing clean output from \code{fwb()} that includes confidence intervals calculated by \code{fwb.ci()}
+\item \pkgfun{boot}{boot.ci} for computing confidence intervals from the traditional bootstrap
+\item \code{\link[=vcovFWB]{vcovFWB()}} for computing parameter estimate covariance matrices using the fractional weighted bootstrap
+}
 }
