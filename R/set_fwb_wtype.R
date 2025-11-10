@@ -47,9 +47,9 @@ set_fwb_wtype <- function(wtype = getOption("fwb_wtype", "exp")) {
   chk::chk_string(wtype)
 
   wtype <- tolower(wtype)
-  wtype <- match_arg(wtype, c("exp", "multinom", "poisson", "mammen"))
+  wtype <- match_arg(wtype, .w_types())
 
-  op <- options("fwb_wtype" = wtype)
+  op <- options(fwb_wtype = wtype)
 
   invisible(op)
 }
@@ -66,4 +66,8 @@ get_fwb_wtype <- function(fwb) {
   }
 
   fwb[["wtype"]]
+}
+
+.w_types <- function() {
+  c("exp", "multinom", "poisson", "mammen", "beta", "power")
 }

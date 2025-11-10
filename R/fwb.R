@@ -7,7 +7,7 @@
 #' @param R the number of bootstrap replicates. Default is 999 but more is always better. For the percentile bootstrap confidence interval to be exact, it can be beneficial to use one less than a multiple of 100.
 #' @param cluster optional; a vector containing cluster membership. If supplied, will run the cluster bootstrap. See Details. Evaluated first in `data` and then in the global environment.
 #' @param simple `logical`; if `TRUE`, weights will be generated on-the-fly in each bootstrap replication; if `FALSE`, all weights will be generated at once and then supplied to `statistic`. Cannot be `TRUE` when `wtype = "multinom"`. The default (`NULL`) sets to `FALSE` if `wtype = "multinom"` and to `TRUE` otherwise.
-#' @param wtype string; the type of weights to use. Allowable options include `"exp"` (the default), `"pois"`, `"multinom"`, and `"mammen"`. See Details. See [set_fwb_wtype()] to set a global default.
+#' @param wtype string; the type of weights to use. Allowable options include `"exp"` (the default), `"pois"`, `"multinom"`, `"mammen"`, `"beta"`, and `"power"`. See Details. See [set_fwb_wtype()] to set a global default.
 #' @param strata optional; a vector containing stratum membership for stratified bootstrapping. If supplied, will essentially perform a separate bootstrap within each level of `strata`. This does not affect results when `wtype = "poisson"`.
 #' @param drop0 `logical`; when `wtype` is `"multinom"` or `"poisson"`, whether to drop units that are given weights of 0 from the dataset and weights supplied to `statistic` in each iteration. Ignored for other `wtype`s because they don't produce 0 weights. Default is `FALSE`.
 #' @param verbose `logical`; whether to display a progress bar.
@@ -48,7 +48,7 @@
 #'
 #' \describe{
 #' \item{`"exp"`}{
-#' Draws weights from an exponential distribution with rate parameter 1 using [rexp()]. These weights are the usual "Bayesian bootstrap" weights described in Xu et al. (2020). They are equivalent to drawing weights from a uniform Dirichlet distribution, which is what gives these weights the interpretation of a Bayesian prior. The weights are scaled to have a mean of 1 within each stratum (or in the full sample if `strata` is not supplied).
+#' Draws weights from an exponential distribution with rate parameter 1 using [rexp()]. These weights are the usual "Bayesian bootstrap" weights described in Xu et al. (2020). They are equivalent to drawing weights from a uniform Dirichlet distribution, which is what gives these weights the interpretation of a Bayesian prior. These positive weights have a mean and variance of 1 and skewness of 2. The weights are scaled to have a mean of 1 within each stratum (or in the full sample if `strata` is not supplied).
 #' }
 #' \item{`"multinom"`}{
 #' Draws integer weights using [sample()], which samples unit indices with replacement and uses the tabulation of the indices as frequency weights. This is equivalent to drawing weights from a multinomial distribution. Using `wtype = "multinom"` is the same as using `boot::boot(., stype = "f")` instead of `fwb()` (i.e., the resulting estimates will be identical). When `strata` is supplied, unit indices are drawn with replacement within each stratum so that the sum of the weights in each stratum is equal to the stratum size.
@@ -59,22 +59,34 @@
 #' \item{`"mammen"`}{
 #' Draws weights from a modification of the distribution described by Mammen (1983) for use in the wild bootstrap. These positive weights have a mean, variance, and skewness of 1, making them second-order accurate (in contrast to the usual exponential weights, which are only first-order accurate). The weights \eqn{w} are drawn such that \eqn{P(w=(3+\sqrt{5})/2)=(\sqrt{5}-1)/2\sqrt{5}} and \eqn{P(w=(3-\sqrt{5})/2)=(\sqrt{5}+1)/2\sqrt{5}}. The weights are scaled to have a mean of 1 within each stratum (or in the full sample if `strata` is not supplied).
 #' }
+#' \item{`"beta"`}{
+#' Draws weights from a \eqn{\text{Beta}(1/2, 3/2)} distribution using [rbeta()] as described by Owen (2025). These positive weights have a mean, variance, and skewness of 1 when scaled by a factor of 4, making them second-order accurate. The weights are scaled to have a mean of 1 within each stratum (or in the full sample if `strata` is not supplied).
+#' }
+#' \item{`"power"`}{
+#' Draws weights from a \eqn{\text{Beta}(\sqrt{2} - 1, 1)} distribution using [rbeta()] as described by Owen (2025). These positive weights have a mean and variance of 1 and skewness of \eqn{2(\sqrt{2} - 1)} when scaled by a factor of \eqn{2+\sqrt{2}}. The weights are scaled to have a mean of 1 within each stratum (or in the full sample if `strata` is not supplied).
+#' }
 #' }
 #'
-#' `"exp"` is the default due to it being the formulation described in Xu et al. (2020) and in the most formulations of the Bayesian bootstrap; it should be used if one wants to remain in line with these guidelines or to maintain a Bayesian flavor to the analysis, whereas `"mammen"` might be preferred for its frequentist operating characteristics, though its performance has not been studied in this context. `"multinom"` and `"poisson"` should only be used for comparison purposes.
+#' `"exp"` is the default due to it being the formulation described in Xu et al. (2020) and in the most formulations of the Bayesian bootstrap; it should be used if one wants to remain in line with these guidelines or to maintain a Bayesian flavor to the analysis, whereas `"mammen"`, `"beta"`, and `"power"` might be preferred for their frequentist operating characteristics, though though more research is needed on their general performance. `"multinom"` and `"poisson"` should only be used for comparison purposes or as an alternative interface to \pkg{boot}.
 #'
-#' @seealso [fwb.ci()] for calculating confidence intervals; [summary.fwb()] for displaying output in a clean way; [plot.fwb()] for plotting the bootstrap distributions; [vcovFWB()] for estimating the covariance matrix of estimates using the FWB; [set_fwb_wtype()] for an example of using weights other than the default exponential weights; \pkgfun{boot}{boot} for the traditional bootstrap.
+#' @seealso
+#' * [fwb.ci()] for calculating confidence intervals
+#' * [summary.fwb()] for displaying output in a clean way
+#' * [plot.fwb()] for plotting the bootstrap distributions
+#' * [vcovFWB()] for estimating the covariance matrix of estimates using the FWB
+#' * [set_fwb_wtype()] for an example of using weights other than the default exponential weights
+#' * \pkgfun{boot}{boot} for the traditional bootstrap.
 #'
 #' See `vignette("fwb-rep")` for information on reproducibility.
 #'
 #' @references
 #' Mammen, E. (1993). Bootstrap and Wild Bootstrap for High Dimensional Linear Models. *The Annals of Statistics*, 21(1). \doi{10.1214/aos/1176349025}
 #'
+#' Owen, A. B. (2025). Better bootstrap t confidence intervals for the mean. arXiv. \doi{10.48550/arXiv.2508.10083}
+#'
 #' Rubin, D. B. (1981). The Bayesian Bootstrap. *The Annals of Statistics*, 9(1), 130–134. \doi{10.1214/aos/1176345338}
 #'
 #' Xu, L., Gotwalt, C., Hong, Y., King, C. B., & Meeker, W. Q. (2020). Applications of the Fractional-Random-Weight Bootstrap. *The American Statistician*, 74(4), 345–358. \doi{10.1080/00031305.2020.1731599}
-#'
-#' The use of the `"mammen"` formulation of the bootstrap weights was suggested by Lihua Lei [here](https://x.com/lihua_lei_stat/status/1641538993090351106).
 #'
 #' @examplesIf rlang::is_installed("survival")
 #' # Performing a Weibull analysis of the Bearing Cage
@@ -166,7 +178,7 @@ fwb <- function(data, statistic, R = 999, cluster = NULL, simple = NULL,
   chk::chk_string(wtype)
 
   gen_weights <- make_gen_weights(wtype)
-  wtype <- attr(gen_weights, "wtype", TRUE)
+  wtype <- .attr(gen_weights, "wtype")
 
   #Check drop0
   if (wtype %in% c("multinom", "poisson")) {
@@ -210,7 +222,7 @@ fwb <- function(data, statistic, R = 999, cluster = NULL, simple = NULL,
 
   if (inherits(t0, "try-error")) {
     .err("There was an error running the function supplied to `statistic` on unit-weighted data. Error produced:\n\t",
-         conditionMessage(attr(t0, "condition", TRUE)),
+         conditionMessage(.attr(t0, "condition")),
          tidy = FALSE)
   }
 
@@ -400,7 +412,7 @@ check_statistic <- function(statistic) {
     .err("the function supplied to `statistic` must have at least two named arguments, the first corresponding to the dataset and the second corresponding to the weights")
   }
 
-  forbidden_args <- setdiff(c(names(formals(fwb)), names(formals(call_statistic))),
+  forbidden_args <- setdiff(c(rlang::fn_fmls_names(fwb), rlang::fn_fmls_names(call_statistic)),
                             c("data", "..."))
 
   bad_args <- intersect(statistic_args, forbidden_args)
@@ -415,11 +427,12 @@ check_statistic <- function(statistic) {
 
 make_gen_weights <- function(wtype) {
   wtype <- tolower(wtype)
-  wtype <- match_arg(wtype, c("exp", "multinom", "poisson", "mammen"))
+  wtype <- match_arg(wtype, .w_types())
 
   fun <- switch(wtype,
                 "exp" = function(n, R, strata = NULL) {
-                  w <- matrix(rexp(n * R), nrow = R, ncol = n, byrow = TRUE)
+                  w <- matrix(rexp(n * R),
+                              nrow = R, ncol = n, byrow = TRUE)
 
                   if (is_null(strata) || nlevels(strata) <= 1L) {
                     return(w / rowMeans(w))
@@ -433,10 +446,11 @@ make_gen_weights <- function(wtype) {
                   w
                 },
                 "poisson" = function(n, R, strata = NULL) {
-                  matrix(rpois(n * R, 1), nrow = R, ncol = n, byrow = TRUE)
+                  matrix(rpois(n * R, 1),
+                         nrow = R, ncol = n, byrow = TRUE)
                 },
                 "multinom" = function(n, R, strata = NULL) {
-                  if (is_null(strata) || nlevels(strata) <= 1) {
+                  if (is_null(strata) || nlevels(strata) <= 1L) {
                     i <- sample.int(n, n * R, replace = TRUE)
                     dim(i) <- c(R, n)
                   }
@@ -456,7 +470,37 @@ make_gen_weights <- function(wtype) {
                   w <- matrix((3 - sqrt5) / 2 + sqrt5 * rbinom(n * R, 1L, .5 - 1 / (2 * sqrt5)),
                               nrow = R, ncol = n, byrow = TRUE)
 
-                  if (is_null(strata) || nlevels(strata) <= 1) {
+                  if (is_null(strata) || nlevels(strata) <= 1L) {
+                    return(w / rowMeans(w))
+                  }
+
+                  for (s in levels(strata)) {
+                    in_s <- which(strata == s)
+                    w[, in_s] <- w[, in_s] / rowMeans(w[, in_s])
+                  }
+
+                  w
+                },
+                "beta" = function(n, R, strata = NULL) {
+                  w <- matrix(4 * rbeta(n * R, .5, 1.5),
+                              nrow = R, ncol = n, byrow = TRUE)
+
+                  if (is_null(strata) || nlevels(strata) <= 1L) {
+                    return(w / rowMeans(w))
+                  }
+
+                  for (s in levels(strata)) {
+                    in_s <- which(strata == s)
+                    w[, in_s] <- w[, in_s] / rowMeans(w[, in_s])
+                  }
+
+                  w
+                },
+                "power" = function(n, R, strata = NULL) {
+                  w <- matrix((2 + sqrt(2)) * rbeta(n * R, sqrt(2) - 1, 1),
+                              nrow = R, ncol = n, byrow = TRUE)
+
+                  if (is_null(strata) || nlevels(strata) <= 1L) {
                     return(w / rowMeans(w))
                   }
 
