@@ -55,14 +55,15 @@ This example involves performing a Weibull analysis to estimate the $\beta$ (sha
 
 ```{r, fig.align='center', fig.height=3, fig.width=7}
 data("bearingcage", package = "fwb")
+library(survival)
 
 # Function to compute the scale (eta) and shape (beta) parameters
 # from weighted data
 weibull_est <- function(data, w) {
-  fit <- survival::survreg(survival::Surv(hours, failure) ~ 1,
-                           data = data, weights = w,
-                           dist = "weibull")
-
+  fit <- survreg(Surv(hours, failure) ~ 1,
+                 data = data, weights = w,
+                 dist = "weibull")
+  
   c(eta = unname(exp(coef(fit))),
     beta = 1 / fit$scale)
 }
