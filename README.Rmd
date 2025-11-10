@@ -155,6 +155,12 @@ The FWB is uniformly more reliable than the traditional bootstrap when a weighte
 
 To cite `fwb`, please use `citation("fwb")`, which generates a package citation.
 
+## Community guidelines
+
+To report a bug, please use the GitHub [Issues](https://github.com/ngreifer/fwb/issues) page. If possible, please provide enough information to reproduce the bug, including the version of the package you are using, the version of R you are using, and the code you ran.
+
+If you have a question or feature request, you are welcome to use GitHub issues or email the author (see **Author** section above). General feedback is always welcome. In general, I prefer an email or GitHub issue over a pull request (except for typos in the documentation).
+
 ## References
 
 Trichopoulos, D., Handanos, N., Danezis, J., Kalandidi, A. and Kalapothaki, V. (1976), Induced Abortion and Secondary Infertility. *BJOG: An International Journal of Obstetrics & Gynaecology*, 83, 645-650. https://doi.org/10.1111/j.1471-0528.1976.tb00904.x

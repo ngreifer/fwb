@@ -104,7 +104,7 @@ summary(fwb_est, ci.type = "bca")
 plot(fwb_est, index = "beta", qdist = "chisq")
 ```
 
-<img src="man/figures/README-unnamed-chunk-5-1.png" width="80%" style="display: block; margin: auto;" />
+<img src="man/figures/README-unnamed-chunk-5-1.png" width="80%" style="display: block; margin: auto;" /><img src="man/figures/README-unnamed-chunk-5-2.png" width="80%" style="display: block; margin: auto;" />
 
 ### Infertility logistic regression analysis using `infert` dataset
 
@@ -213,7 +213,7 @@ plot(boot_est, index = 2)
 plot(fwb_est, index = 2)
 ```
 
-<img src="man/figures/README-unnamed-chunk-10-1.png" width="80%" style="display: block; margin: auto;" />
+<img src="man/figures/README-unnamed-chunk-10-1.png" width="80%" style="display: block; margin: auto;" /><img src="man/figures/README-unnamed-chunk-10-2.png" width="80%" style="display: block; margin: auto;" />
 
 It is clear that the estimates from the traditional bootstrap are
 pathological, whereas the estimates from the FWB are more reasonable.
@@ -269,6 +269,19 @@ it. Still, though, the FWB deserves a place in an analyst’s toolbox.
 
 To cite `fwb`, please use `citation("fwb")`, which generates a package
 citation.
+
+## Community guidelines
+
+To report a bug, please use the GitHub
+[Issues](https://github.com/ngreifer/fwb/issues) page. If possible,
+please provide enough information to reproduce the bug, including the
+version of the package you are using, the version of R you are using,
+and the code you ran.
+
+If you have a question or feature request, you are welcome to use GitHub
+issues or email the author (see **Author** section above). General
+feedback is always welcome. In general, I prefer an email or GitHub
+issue over a pull request (except for typos in the documentation).
 
 ## References
 
