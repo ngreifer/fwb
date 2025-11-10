@@ -154,10 +154,11 @@ test_that("wtype = 'multinom' replcates boot::boot()", {
   cl <- parallel::makeCluster(2)
   on.exit(parallel::stopCluster(cl))
 
-  expect_error({
-    f <- fwb(test_data, boot_fun, R = 10, verbose = FALSE,
+  set.seed(1234, "L")
+  expect_no_condition({
+    f0 <- fwb(test_data, boot_fun, R = 10, verbose = FALSE,
              wtype = "multinom", simple = TRUE)
-  }, "`simple` cannot be `TRUE`")
+  })
 
   #Without strata
   set.seed(1234, "L")
@@ -165,6 +166,8 @@ test_that("wtype = 'multinom' replcates boot::boot()", {
     f <- fwb(test_data, boot_fun, R = 10, verbose = FALSE,
              wtype = "multinom")
   })
+
+  expect_not_equal(f$t, f0$t)
 
   set.seed(1234, "L")
   expect_no_condition({
@@ -189,5 +192,56 @@ test_that("wtype = 'multinom' replcates boot::boot()", {
   })
 
   expect_equal(f$t, b$t, tolerance = eps,
+               ignore_attr = TRUE)
+})
+
+test_that("drop0 works as expected", {
+  skip_on_cran()
+  eps <- if (capabilities("long.double")) 1e-8 else 1e-1
+
+  test_data <- readRDS(test_path("fixtures", "test_data.rds"))
+
+  set.seed(123, "L")
+
+  clus <- sample(1:50, nrow(test_data), replace = TRUE)
+
+  boot_fun <- function(data, w, abort = TRUE) {
+    if (abort && any(w[!is.na(w)] == 0)) {
+      stop("bad w")
+    }
+
+    fit <- glm(Y_B ~ A + X1 + X2 + X3 + X4, data = data,
+               family = quasibinomial("probit"), weights = w)
+    coef(fit)
+  }
+
+  set.seed(1234, "L")
+  expect_error({
+    f <- fwb(test_data, boot_fun, R = 20, verbose = FALSE,
+             wtype = "multinom")
+  }, .w("bad w"))
+
+  set.seed(1234, "L")
+  expect_no_condition({
+    fF <- fwb(test_data, boot_fun, R = 20, verbose = FALSE,
+              wtype = "multinom", drop0 = FALSE, abort = FALSE)
+  })
+
+  set.seed(1234, "L")
+  expect_no_condition({
+    fT <- fwb(test_data, boot_fun, R = 20, verbose = FALSE,
+             wtype = "multinom", drop0 = TRUE)
+  })
+
+  expect_equal(fT$t, fF$t, tolerance = eps,
+               ignore_attr = TRUE)
+
+  set.seed(1234, "L")
+  expect_no_condition({
+    fNA <- fwb(test_data, boot_fun, R = 20, verbose = FALSE,
+              wtype = "multinom", drop0 = NA)
+  })
+
+  expect_equal(fT$t, fNA$t, tolerance = eps,
                ignore_attr = TRUE)
 })

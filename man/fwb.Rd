@@ -35,13 +35,13 @@ fwb(
 
 \item{cluster}{optional; a vector containing cluster membership. If supplied, will run the cluster bootstrap. See Details. Evaluated first in \code{data} and then in the global environment.}
 
-\item{simple}{\code{logical}; if \code{TRUE}, weights will be generated on-the-fly in each bootstrap replication; if \code{FALSE}, all weights will be generated at once and then supplied to \code{statistic}. Cannot be \code{TRUE} when \code{wtype = "multinom"}. The default (\code{NULL}) sets to \code{FALSE} if \code{wtype = "multinom"} and to \code{TRUE} otherwise.}
+\item{simple}{\code{logical}; if \code{TRUE}, weights will be generated on-the-fly in each bootstrap replication; if \code{FALSE}, all weights will be generated at once and then supplied to \code{statistic}. The default (\code{NULL}) sets to \code{FALSE} if \code{wtype = "multinom"} and to \code{TRUE} otherwise.}
 
 \item{wtype}{string; the type of weights to use. Allowable options include \code{"exp"} (the default), \code{"pois"}, \code{"multinom"}, \code{"mammen"}, \code{"beta"}, and \code{"power"}. See Details. See \code{\link[=set_fwb_wtype]{set_fwb_wtype()}} to set a global default.}
 
 \item{strata}{optional; a vector containing stratum membership for stratified bootstrapping. If supplied, will essentially perform a separate bootstrap within each level of \code{strata}. This does not affect results when \code{wtype = "poisson"}.}
 
-\item{drop0}{\code{logical}; when \code{wtype} is \code{"multinom"} or \code{"poisson"}, whether to drop units that are given weights of 0 from the dataset and weights supplied to \code{statistic} in each iteration. Ignored for other \code{wtype}s because they don't produce 0 weights. Default is \code{FALSE}.}
+\item{drop0}{\code{logical}; when \code{wtype} is \code{"multinom"} or \code{"poisson"}, whether to drop units that are given weights of 0 from the dataset and weights supplied to \code{statistic} in each iteration. If \code{NA}, weights of 0 will be set to \code{NA} instead. Ignored for other \code{wtype}s because they don't produce 0 weights. Default is \code{FALSE}.}
 
 \item{verbose}{\code{logical}; whether to display a progress bar.}
 

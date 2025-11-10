@@ -10,6 +10,7 @@ vcovFWB(
   R = 1000,
   start = FALSE,
   wtype = getOption("fwb_wtype", "exp"),
+  drop0 = FALSE,
   ...,
   fix = FALSE,
   use = "pairwise.complete.obs",
@@ -27,11 +28,13 @@ vcovFWB(
     By default (\code{cluster = NULL}), either \code{attr(x, "cluster")} is used
     (if any) or otherwise every observation is assumed to be its own cluster.}
 
-\item{R}{the number of bootstrap replications.}
+\item{R}{the number of bootstrap replications. Default is 1000 (more is better but slower).}
 
-\item{start}{\code{logical}; should \code{.coef(x)} be passed as \code{start} to the \code{update(x, weights = ...)} call? In case the model \code{x} is computed by some numeric iteration, this may speed up the bootstrapping.}
+\item{start}{\code{logical}; should \code{.coef(x)} be passed as \code{start} to the \code{update(x, weights = ...)} call? In case the model \code{x} is computed by some numeric iteration, this may speed up the bootstrapping. Default is \code{FALSE}.}
 
-\item{wtype}{string; the type of weights to use. Allowable options include \code{"exp"} (the default), \code{"pois"}, \code{"multinom"}, and \code{"mammen"}. See \code{\link[=fwb]{fwb()}} for details. See \code{\link[=set_fwb_wtype]{set_fwb_wtype()}} to set a global default.}
+\item{wtype}{string; the type of weights to use. Allowable options include \code{"exp"} (the default), \code{"pois"}, \code{"multinom"}, \code{"mammen"}, \code{"beta"}, and \code{"power"}. See \code{\link[=fwb]{fwb()}} for details. See \code{\link[=set_fwb_wtype]{set_fwb_wtype()}} to set a global default.}
+
+\item{drop0}{\code{logical}; when \code{wtype} is \code{"multinom"} or \code{"poisson"}, whether to drop units that are given weights of 0 from the model call in each iteration. If \code{TRUE}, the model will be called with an additional \code{subset} argument, filtering out units with weights of 0 (note this will overwrite any argument to \code{subset} in the original call). If \code{NA}, weights of 0 will be set to \code{NA} instead. Ignored for other \code{wtype}s because they don't produce 0 weights. Default is \code{FALSE}.}
 
 \item{...}{ignored.}
 
@@ -49,7 +52,7 @@ vcovFWB(
 A matrix containing the covariance matrix estimate.
 }
 \description{
-\code{vcovFWB()} estimates the covariance matrix of model coefficient estimates using the fractional weighted bootstrap. It serves as a drop-in for \code{stats::vcov()} or \code{sandwich::vcovBS()}. Clustered covariances are can be requested.
+\code{vcovFWB()} estimates the covariance matrix of model coefficient estimates using the fractional weighted bootstrap. It serves as a drop-in for \verb{[stats::vcov()]} or \code{sandwich::vcovBS()}. Clustered covariances are can be requested.
 }
 \details{
 \code{vcovFWB()} functions like other \code{vcov()}-like functions, such as those in the \pkg{sandwich} package, in particular, \pkgfun{sandwich}{vcovBS}, which implements the traditional bootstrap (and a few other bootstrap varieties for linear models). Sets of weights are generated as described in the documentation for \code{\link[=fwb]{fwb()}}, and the supplied model is re-fit using those weights. When the fitted model already has weights, these are multiplied by the bootstrap weights.
@@ -116,5 +119,10 @@ vcovFWB(fit, R = 200, .coef = coef_multinom)
 \dontshow{\}) # examplesIf}
 }
 \seealso{
-\code{\link[=fwb]{fwb()}} for performing the fractional weighted bootstrap on an arbitrary quantity; \code{\link[=fwb.ci]{fwb.ci()}} for computing nonparametric confidence intervals for \code{fwb} objects; \code{\link[=summary.fwb]{summary.fwb()}} for producing standard errors and confidence intervals for \code{fwb} objects; \pkgfun{sandwich}{vcovBS} for computing covariance matrices using the traditional bootstrap (the fractional weighted bootstrap is also available but with limited options).
+\itemize{
+\item \code{\link[=fwb]{fwb()}} for performing the fractional weighted bootstrap on an arbitrary quantity
+\item \code{\link[=fwb.ci]{fwb.ci()}} for computing nonparametric confidence intervals for \code{fwb} objects
+\item \code{\link[=summary.fwb]{summary.fwb()}} for producing standard errors and confidence intervals for \code{fwb} objects
+\item \pkgfun{sandwich}{vcovBS} for computing covariance matrices using the traditional bootstrap (the fractional weighted bootstrap is also available but with limited options).
+}
 }

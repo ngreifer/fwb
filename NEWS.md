@@ -5,7 +5,17 @@
 
 * `wtype` can now be set to `"beta"` to sample weights from a $\text{Beta}(1/2,3/2)$ distribution and `"power"` to sample from a $\text{Beta}(\sqrt{2} - 1, 1)$ distribution as described by [Owen (2025)](https://doi.org/10.48550/arXiv.2508.10083).
 
+* `drop0` can now be set to `NA` in `fwb()`; this sets all weights of 0 to `NA` instead of removing those observations from the dataset.
+
+* `vcovFWB()` now accepts `drop0` to control how to treat units with weights of 0.
+
+* In `fwb()`, `simple` can now be set to `TRUE` with `wtype = "multinom"`. `simple = FALSE` is still the default with `wtype = "multinom"` to maintain comparability with `boot::boot()`.
+
+* `vcovFWB()` has improved support for `coxph` objects from *survival*.
+
 * Added code of conduct to README.
+
+* New tests.
 
 # `fwb` 0.5.1
 

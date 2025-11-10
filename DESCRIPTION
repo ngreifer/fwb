@@ -1,7 +1,7 @@
 Package: fwb
 Type: Package
 Title: Fractional Weighted Bootstrap
-Version: 0.5.1.9000
+Version: 0.5.1.9001
 Authors@R: c(
     person("Noah", "Greifer", role=c("aut", "cre"), 
            email = "noah.greifer@gmail.com",
