@@ -251,7 +251,7 @@ is_not_null <- function(x) {!is_null(x)}
     return(x)
   }
 
-  class(x) <- c(.class, class(x))
+  class(x) <- c(class(x), .class)
 
   x
 }
