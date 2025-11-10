@@ -6,10 +6,10 @@
 #' @param statistic a function, which, when applied to `data`, returns a vector containing the statistic(s) of interest. The function should take at least two arguments; the first argument should correspond to the dataset and the second argument should correspond to a vector of weights. Any further arguments can be passed to `statistic` through the `...` argument.
 #' @param R the number of bootstrap replicates. Default is 999 but more is always better. For the percentile bootstrap confidence interval to be exact, it can be beneficial to use one less than a multiple of 100.
 #' @param cluster optional; a vector containing cluster membership. If supplied, will run the cluster bootstrap. See Details. Evaluated first in `data` and then in the global environment.
-#' @param simple `logical`; if `TRUE`, weights will be generated on-the-fly in each bootstrap replication; if `FALSE`, all weights will be generated at once and then supplied to `statistic`. Cannot be `TRUE` when `wtype = "multinom"`. The default (`NULL`) sets to `FALSE` if `wtype = "multinom"` and to `TRUE` otherwise.
+#' @param simple `logical`; if `TRUE`, weights will be generated on-the-fly in each bootstrap replication; if `FALSE`, all weights will be generated at once and then supplied to `statistic`. The default (`NULL`) sets to `FALSE` if `wtype = "multinom"` and to `TRUE` otherwise.
 #' @param wtype string; the type of weights to use. Allowable options include `"exp"` (the default), `"pois"`, `"multinom"`, `"mammen"`, `"beta"`, and `"power"`. See Details. See [set_fwb_wtype()] to set a global default.
 #' @param strata optional; a vector containing stratum membership for stratified bootstrapping. If supplied, will essentially perform a separate bootstrap within each level of `strata`. This does not affect results when `wtype = "poisson"`.
-#' @param drop0 `logical`; when `wtype` is `"multinom"` or `"poisson"`, whether to drop units that are given weights of 0 from the dataset and weights supplied to `statistic` in each iteration. Ignored for other `wtype`s because they don't produce 0 weights. Default is `FALSE`.
+#' @param drop0 `logical`; when `wtype` is `"multinom"` or `"poisson"`, whether to drop units that are given weights of 0 from the dataset and weights supplied to `statistic` in each iteration. If `NA`, weights of 0 will be set to `NA` instead. Ignored for other `wtype`s because they don't produce 0 weights. Default is `FALSE`.
 #' @param verbose `logical`; whether to display a progress bar.
 #' @param cl a cluster object created by \pkgfun{parallel}{makeCluster}, an integer to indicate the number of child-processes (integer values are ignored on Windows) for parallel evaluations, or the string `"future"` to use a `future` backend. See the `cl` argument of \pkgfun{pbapply}{pblapply} for details. If `NULL`, no parallelization will take place. See `vignette("fwb-rep")` for details.
 #' @param ... other arguments passed to `statistic`.
@@ -175,14 +175,13 @@ fwb <- function(data, statistic, R = 999, cluster = NULL, simple = NULL,
   chk::chk_flag(verbose)
 
   #Check wtype
-  chk::chk_string(wtype)
-
   gen_weights <- make_gen_weights(wtype)
   wtype <- .attr(gen_weights, "wtype")
 
   #Check drop0
   if (wtype %in% c("multinom", "poisson")) {
-    chk::chk_flag(drop0)
+    chk::chk_scalar(drop0)
+    chk::chk_logical(drop0)
   }
   else {
     drop0 <- FALSE
@@ -192,9 +191,9 @@ fwb <- function(data, statistic, R = 999, cluster = NULL, simple = NULL,
   if (is_not_null(simple)) {
     chk::chk_flag(simple)
 
-    if (simple && wtype == "multinom") {
-      .err('`simple` cannot be `TRUE` when `wtype = "multinom"`')
-    }
+    # if (simple && wtype == "multinom") {
+    #   .err('`simple` cannot be `TRUE` when `wtype = "multinom"`')
+    # }
   }
   else {
     simple <- wtype != "multinom"
@@ -426,6 +425,7 @@ check_statistic <- function(statistic) {
 }
 
 make_gen_weights <- function(wtype) {
+  chk::chk_string(wtype)
   wtype <- tolower(wtype)
   wtype <- match_arg(wtype, .w_types())
 
@@ -519,25 +519,31 @@ make_gen_weights <- function(wtype) {
 call_statistic <- function(statistic, data, ..., .wi, drop0 = FALSE) {
   rlang::local_options(fwb_internal_w_env = rlang::current_env())
 
-  if (drop0) {
+  if (!isFALSE(drop0)) {
     non0_wi <- which(.wi != 0)
 
     if (length(non0_wi) != length(.wi)) {
-      .wi <- .wi[non0_wi]
+      if (isTRUE(drop0)) {
+        .wi <- .wi[non0_wi]
 
-      return(statistic(data[non0_wi, , drop = FALSE], .wi, ...))
+        return(statistic(data[non0_wi, , drop = FALSE], .wi, ...))
+      }
+
+      if (is.na(drop0)) {
+        is.na(.wi)[-non0_wi] <- TRUE
+      }
     }
   }
 
   statistic(data, .wi, ...)
 }
 
-#' @exportS3Method coef fwb
+#' @exportS3Method stats::coef fwb
 coef.fwb <- function(object, ...) {
   object[["t0"]]
 }
 
-#' @exportS3Method vcov fwb
+#' @exportS3Method stats::vcov fwb
 vcov.fwb <- function(object, ...) {
-  cov(object[["t"]])
+  stats::cov(object[["t"]])
 }

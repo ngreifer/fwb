@@ -1,13 +1,14 @@
 #' Fractional Weighted Bootstrap Covariance Matrix Estimation
 #'
-#' `vcovFWB()` estimates the covariance matrix of model coefficient estimates using the fractional weighted bootstrap. It serves as a drop-in for `stats::vcov()` or `sandwich::vcovBS()`. Clustered covariances are can be requested.
+#' `vcovFWB()` estimates the covariance matrix of model coefficient estimates using the fractional weighted bootstrap. It serves as a drop-in for `[stats::vcov()]` or `sandwich::vcovBS()`. Clustered covariances are can be requested.
 #'
 #' @inheritParams sandwich::vcovBS
 #' @inheritParams fwb
 #' @param x a fitted model object, such as the output of a call to `lm()` or `glm()`. The model object must result from a function that can be updated using [update()] and has a `weights` argument to input non-integer case weights.
-#' @param R the number of bootstrap replications.
-#' @param start `logical`; should `.coef(x)` be passed as `start` to the `update(x, weights = ...)` call? In case the model `x` is computed by some numeric iteration, this may speed up the bootstrapping.
-#' @param wtype string; the type of weights to use. Allowable options include `"exp"` (the default), `"pois"`, `"multinom"`, and `"mammen"`. See [fwb()] for details. See [set_fwb_wtype()] to set a global default.
+#' @param R the number of bootstrap replications. Default is 1000 (more is better but slower).
+#' @param start `logical`; should `.coef(x)` be passed as `start` to the `update(x, weights = ...)` call? In case the model `x` is computed by some numeric iteration, this may speed up the bootstrapping. Default is `FALSE`.
+#' @param wtype string; the type of weights to use. Allowable options include `"exp"` (the default), `"pois"`, `"multinom"`, `"mammen"`, `"beta"`, and `"power"`. See [fwb()] for details. See [set_fwb_wtype()] to set a global default.
+#' @param drop0 `logical`; when `wtype` is `"multinom"` or `"poisson"`, whether to drop units that are given weights of 0 from the model call in each iteration. If `TRUE`, the model will be called with an additional `subset` argument, filtering out units with weights of 0 (note this will overwrite any argument to `subset` in the original call). If `NA`, weights of 0 will be set to `NA` instead. Ignored for other `wtype`s because they don't produce 0 weights. Default is `FALSE`.
 #' @param ... ignored.
 #' @param fix `logical`; if `TRUE`, the covariance matrix is fixed to be positive semi-definite in case it is not.
 #' @param use `character`; specification passed to [stats::cov()] for handling missing coefficients/parameters.
@@ -15,13 +16,18 @@
 #'
 #' @inherit sandwich::vcovBS return
 #'
-#' @details `vcovFWB()` functions like other `vcov()`-like functions, such as those in the \pkg{sandwich} package, in particular, \pkgfun{sandwich}{vcovBS}, which implements the traditional bootstrap (and a few other bootstrap varieties for linear models). Sets of weights are generated as described in the documentation for [fwb()], and the supplied model is re-fit using those weights. When the fitted model already has weights, these are multiplied by the bootstrap weights.
+#' @details
+#' `vcovFWB()` functions like other `vcov()`-like functions, such as those in the \pkg{sandwich} package, in particular, \pkgfun{sandwich}{vcovBS}, which implements the traditional bootstrap (and a few other bootstrap varieties for linear models). Sets of weights are generated as described in the documentation for [fwb()], and the supplied model is re-fit using those weights. When the fitted model already has weights, these are multiplied by the bootstrap weights.
 #'
 #' For `lm` objects, the model is re-fit using [.lm.fit()] for speed, and, similarly, `glm` objects are re-fit using [glm.fit()] (or whichever fitting method was originally used). For other objects, [update()] is used to populate the weights and re-fit the model (this assumes the fitting function accepts non-integer case weights through a `weights` argument). If a model accepts weights in some other way, [fwb()] should be used instead; `vcovFWB()` is inherently limited in its ability to handle all possible models. It is important that the original model was not fit using frequency weights (i.e., weights that allow one row of data to represent multiple full, identical, individual units) unless clustering is used.
 #'
 #' See \pkgfun{sandwich}{vcovBS} and \pkgfun{sandwich}{vcovCL} for more information on clustering covariance matrices, and see [fwb()] for more information on how clusters work with the fractional weighted bootstrap. When clusters are specified, each cluster is given a bootstrap weight, and all members of the cluster are given that weight; estimation then proceeds as normal. By default, when `cluster` is unspecified, each unit is considered its own cluster.
 #'
-#' @seealso [fwb()] for performing the fractional weighted bootstrap on an arbitrary quantity; [fwb.ci()] for computing nonparametric confidence intervals for `fwb` objects; [summary.fwb()] for producing standard errors and confidence intervals for `fwb` objects; \pkgfun{sandwich}{vcovBS} for computing covariance matrices using the traditional bootstrap (the fractional weighted bootstrap is also available but with limited options).
+#' @seealso
+#' * [fwb()] for performing the fractional weighted bootstrap on an arbitrary quantity
+#' * [fwb.ci()] for computing nonparametric confidence intervals for `fwb` objects
+#' * [summary.fwb()] for producing standard errors and confidence intervals for `fwb` objects
+#' * \pkgfun{sandwich}{vcovBS} for computing covariance matrices using the traditional bootstrap (the fractional weighted bootstrap is also available but with limited options).
 #'
 #' @examplesIf rlang::is_installed("lmtest")
 #' set.seed(123, "L'Ecuyer-CMRG")
@@ -79,7 +85,7 @@
 
 #' @export
 vcovFWB <- function(x, cluster = NULL, R = 1000, start = FALSE,
-                    wtype = getOption("fwb_wtype", "exp"),
+                    wtype = getOption("fwb_wtype", "exp"), drop0 = FALSE,
                     ..., fix = FALSE, use = "pairwise.complete.obs",
                     .coef = stats::coef,
                     verbose = FALSE, cl = NULL) {
@@ -87,13 +93,22 @@ vcovFWB <- function(x, cluster = NULL, R = 1000, start = FALSE,
   #Check arguments
   chk::chk_count(R)
   chk::chk_flag(start)
-  chk::chk_string(wtype)
   chk::chk_flag(fix)
   chk::chk_string(use)
   chk::chk_flag(verbose)
   chk::chk_function(.coef)
 
   gen_weights <- make_gen_weights(wtype)
+  wtype <- .attr(gen_weights, "wtype")
+
+  #Check drop0
+  if (wtype %in% c("multinom", "poisson")) {
+    chk::chk_scalar(drop0)
+    chk::chk_logical(drop0)
+  }
+  else {
+    drop0 <- FALSE
+  }
 
   ## set up return value with correct dimension and names
   cf <- .coef(x)
@@ -177,13 +192,14 @@ vcovFWB <- function(x, cluster = NULL, R = 1000, start = FALSE,
     cli <- factor(cluster[[i]])
 
     ## bootstrap fitting function
-    bootfit <- make.bootfit(x, cli, start, gen_weights, .coef, .env)
+    bootfit <- make.bootfit(x, cli, start, drop0 = drop0,
+                            gen_weights, .coef, .env)
 
     ## actually refit
     cf <- do.call("rbind", applyfun(seq_len(R), bootfit, ...))
 
     ## aggregate across cluster variables
-    rval <- rval + sgn[i] * cov(cf, use = use)
+    rval <- rval + sgn[i] * stats::cov(cf, use = use)
   }
 
   if (all_the_same(c(0, rval))) {
@@ -205,7 +221,12 @@ vcovFWB <- function(x, cluster = NULL, R = 1000, start = FALSE,
 }
 
 nobs0 <- function(x, ...) {
-  rval <- try(stats::nobs(x, ...), silent = TRUE)
+  if (inherits(x, "coxph")) {
+    rval <- x[["n"]]
+  }
+  else {
+    rval <- try(stats::nobs(x, ...), silent = TRUE)
+  }
 
   if (is_null(rval) || inherits(rval, "try-error")) {
     rval <- NROW(residuals(x, ...))
@@ -214,11 +235,11 @@ nobs0 <- function(x, ...) {
   rval
 }
 
-make.bootfit <- function(fit, cli, start, gen_weights, .coef, .env) {
+make.bootfit <- function(fit, cli, start, drop0, gen_weights, .coef, .env) {
   cli <- as.factor(cli)
   nc <- nlevels(cli)
   cluster_numeric <- as.integer(cli)
-  special_coef <- !identical(.coef(fit), try(coef(fit), silent = TRUE))
+  special_coef <- !identical(.coef(fit), try(stats::coef(fit), silent = TRUE))
   bootfit <- NULL
 
   w0 <- weights(fit) %or% 1
@@ -242,12 +263,24 @@ make.bootfit <- function(fit, cli, start, gen_weights, .coef, .env) {
 
         w <- .wi * w0
 
-        utils::capture.output({
-          up <- {
-            if (is_null(start)) do.call("update", list(fit, weights = w, evaluate = FALSE))
-            else do.call("update", list(fit, weights = w, start = start, evaluate = FALSE))
-          }
+        args <- list(fit,
+                     weights = w,
+                     evaluate = FALSE)
 
+        if (isTRUE(drop0)) {
+          args[["subset"]] <- w > 0
+        }
+        else if (is.na(drop0)) {
+          is.na(args[["weights"]][w == 0]) <- TRUE
+        }
+
+        if (is_not_null(start)) {
+          args[["start"]] <- start
+        }
+
+        up <- do.call("update", args)
+
+        utils::capture.output({
           up <- eval(up, envir = .env)
         })
 
@@ -292,6 +325,7 @@ make.bootfit <- function(fit, cli, start, gen_weights, .coef, .env) {
   else if (!special_coef && identical(class(fit)[1L], "glm")) {
     x <- model.matrix(fit)
     y <- fit[["y"]]
+    offset <- fit[["offset"]] %or% rep.int(0, nrow(x))
 
     w0 <- weights(fit) %or% 1
 
@@ -320,9 +354,27 @@ make.bootfit <- function(fit, cli, start, gen_weights, .coef, .env) {
 
       .wi <- .wi * w0
 
+      if (!isFALSE(drop0)) {
+        zero_w <- .wi == 0
+
+        if (any(zero_w)) {
+          if (isTRUE(drop0)) {
+            .wi <- .wi[!zero_w]
+
+            x <- x[!zero_w, , drop = FALSE]
+            y <- y[!zero_w]
+            offset <- offset[!zero_w]
+          }
+          else {
+            is.na(.wi)[!zero_w] <- TRUE
+          }
+        }
+      }
+
       safe.glm.fit(fit.fun, x = x, y = y,
-                   weights = .wi, start = start,
-                   offset = fit$offset,
+                   weights = .wi,
+                   start = start,
+                   offset = offset,
                    family = fit$family,
                    control = fit$control,
                    intercept = .attr(fit$terms, "intercept") > 0)$coefficients
@@ -342,11 +394,23 @@ make.bootfit <- function(fit, cli, start, gen_weights, .coef, .env) {
 
       w <- .wi * w0
 
+      args <- list(fit,
+                   weights = w,
+                   evaluate = FALSE)
+
+      if (isTRUE(drop0)) {
+        args[["subset"]] <- w > 0
+      }
+      else if (is.na(drop0)) {
+        is.na(args[["weights"]][w == 0]) <- TRUE
+      }
+
+      if (is_not_null(start)) {
+        args[["start"]] <- start
+      }
+
       utils::capture.output({
-        up <- {
-          if (is_null(start)) do.call("update", list(fit, weights = w, evaluate = FALSE))
-          else do.call("update", list(fit, weights = w, start = start, evaluate = FALSE))
-        }
+        up <- do.call("update", args)
 
         up <- eval(up, envir = .env)
       })
