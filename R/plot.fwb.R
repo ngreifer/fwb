@@ -36,22 +36,34 @@ plot.fwb <- function(x, index = 1L, qdist = "norm", nclass = NULL, df, type = c(
   }
 
   chk::chk_character(type)
-  type <- tryCatch(match.arg(tolower(type), c("hist", "qq"), several.ok = TRUE),
-                   error = function(e) {
-                     .err('`type` must be one or more of "hist" or "qq"')
-                   })
+  type <- tolower(type)
+  type <- match_arg(type, c("hist", "qq"), several.ok = TRUE)
 
-  rlang::local_options(mfrow = c(1L, length(type)))
+  if (any(type == "hist")) {
+    if (is_null(nclass)) {
+      nclass <- min(max(ceiling(length(t) / 25), 10), 100)
+    }
+    else {
+      chk::chk_count(nclass)
+    }
+  }
+
+  if (any(type == "qq")) {
+    if (qdist == "chisq") {
+      if (missing(df)) {
+        df <- estimate_chisq_df(t)
+      }
+      else {
+        chk::chk_number(df)
+      }
+    }
+  }
+
+  op <- graphics::par(mfrow = c(1L, length(type)))
+  on.exit(graphics::par(op), add = TRUE)
 
   for (i in type) {
     if (i == "hist") {
-      if (is_null(nclass)) {
-        nclass <- min(max(ceiling(length(t) / 25), 10), 100)
-      }
-      else {
-        chk::chk_count(nclass)
-      }
-
       rg <- range(t)
       if (t0 < rg[1L])
         rg[1L] <- t0
@@ -73,12 +85,6 @@ plot.fwb <- function(x, index = 1L, qdist = "norm", nclass = NULL, df, type = c(
       p <- ppoints(x$R, a = .5)
 
       if (qdist == "chisq") {
-        if (missing(df)) {
-          df <- estimate_chisq_df(t)
-        }
-        else {
-          chk::chk_number(df)
-        }
         qfun <- function(p_) qchisq(p_, df = df)
         qlab <- sprintf("Quantiles of Chi-squared(%s)", round(df, 2))
       }

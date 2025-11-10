@@ -77,7 +77,7 @@ fwb_est
 summary(fwb_est, ci.type = "bca")
 
 # Plot the bootstrap distribution
-plot(fwb_est, index = "beta", qdist = "chisq")
+plot(fwb_est, index = "beta")
 ```
 
 ### Infertility logistic regression analysis using `infert` dataset

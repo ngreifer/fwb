@@ -101,10 +101,10 @@ summary(fwb_est, ci.type = "bca")
 #> beta 2.04e+00   8.79e-01 1.24e+00  4.55e+00
 
 # Plot the bootstrap distribution
-plot(fwb_est, index = "beta", qdist = "chisq")
+plot(fwb_est, index = "beta")
 ```
 
-<img src="man/figures/README-unnamed-chunk-5-1.png" width="80%" style="display: block; margin: auto;" /><img src="man/figures/README-unnamed-chunk-5-2.png" width="80%" style="display: block; margin: auto;" />
+<img src="man/figures/README-unnamed-chunk-5-1.png" width="80%" style="display: block; margin: auto;" />
 
 ### Infertility logistic regression analysis using `infert` dataset
 
@@ -213,7 +213,7 @@ plot(boot_est, index = 2)
 plot(fwb_est, index = 2)
 ```
 
-<img src="man/figures/README-unnamed-chunk-10-1.png" width="80%" style="display: block; margin: auto;" /><img src="man/figures/README-unnamed-chunk-10-2.png" width="80%" style="display: block; margin: auto;" />
+<img src="man/figures/README-unnamed-chunk-10-1.png" width="80%" style="display: block; margin: auto;" />
 
 It is clear that the estimates from the traditional bootstrap are
 pathological, whereas the estimates from the FWB are more reasonable.
