@@ -28,7 +28,7 @@
 
     <a class="navbar-brand me-2" href="index.html">fwb</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.1.9000</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -125,7 +125,7 @@
 <span></span>
 <span><span class="co"># Plot the bootstrap distribution</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">fwb_est</span>, index <span class="op">=</span> <span class="st">"beta"</span>, qdist <span class="op">=</span> <span class="st">"chisq"</span><span class="op">)</span></span></code></pre></div>
-<p><img src="reference/figures/README-unnamed-chunk-5-1.png" width="80%" style="display: block; margin: auto;"></p>
+<p><img src="reference/figures/README-unnamed-chunk-5-1.png" width="80%" style="display: block; margin: auto;"><img src="reference/figures/README-unnamed-chunk-5-2.png" width="80%" style="display: block; margin: auto;"></p>
 </div>
 <div class="section level3">
 <h3 id="infertility-logistic-regression-analysis-using-infert-dataset">Infertility logistic regression analysis using <code>infert</code> dataset<a class="anchor" aria-label="anchor" href="#infertility-logistic-regression-analysis-using-infert-dataset"></a>
@@ -202,7 +202,7 @@
 <p><img src="reference/figures/README-unnamed-chunk-9-1.png" width="80%" style="display: block; margin: auto;"></p>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">fwb_est</span>, index <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span></code></pre></div>
-<p><img src="reference/figures/README-unnamed-chunk-10-1.png" width="80%" style="display: block; margin: auto;"></p>
+<p><img src="reference/figures/README-unnamed-chunk-10-1.png" width="80%" style="display: block; margin: auto;"><img src="reference/figures/README-unnamed-chunk-10-2.png" width="80%" style="display: block; margin: auto;"></p>
 <p>It is clear that the estimates from the traditional bootstrap are pathological, whereas the estimates from the FWB are more reasonable. The non-normality of the FWB distributions also suggests that the usual Wald-style confidence intervals may not be accurate, and a bias-corrected percentile interval should probably be computed instead.</p>
 </div>
 </div>
@@ -239,6 +239,12 @@
 <a class="anchor" aria-label="anchor" href="#citing-fwb"></a>
 </h2>
 <p>To cite <code>fwb</code>, please use <code>citation("fwb")</code>, which generates a package citation.</p>
+</div>
+<div class="section level2">
+<h2 id="community-guidelines">Community guidelines<a class="anchor" aria-label="anchor" href="#community-guidelines"></a>
+</h2>
+<p>To report a bug, please use the GitHub <a href="https://github.com/ngreifer/fwb/issues" class="external-link">Issues</a> page. If possible, please provide enough information to reproduce the bug, including the version of the package you are using, the version of R you are using, and the code you ran.</p>
+<p>If you have a question or feature request, you are welcome to use GitHub issues or email the author (see <strong>Author</strong> section above). General feedback is always welcome. In general, I prefer an email or GitHub issue over a pull request (except for typos in the documentation).</p>
 </div>
 <div class="section level2">
 <h2 id="references">References<a class="anchor" aria-label="anchor" href="#references"></a>
@@ -296,7 +302,7 @@
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.3.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
 </div>
 
     </footer>

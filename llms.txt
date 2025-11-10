@@ -1,0 +1,367 @@
+# `fwb`: Fractional Weighted Bootstrap
+
+`fwb` implements the fractional weighted bootstrap (FWB), also known as
+the Bayesian bootstrap, following the treatment by Xu et al. (2020). The
+FWB involves generating sets of weights from a uniform Dirichlet
+distribution to be used in estimating statistics of interest, which
+yields a posterior distribution that can be interpreted in the same way
+the traditional (resampling-based) bootstrap distribution can be. The
+primary function is
+[`fwb()`](https://ngreifer.github.io/fwb/reference/fwb.md), which is
+essentially a drop-in for
+[`boot::boot()`](https://rdrr.io/pkg/boot/man/boot.html) in that it
+takes in a dataset and a function and applies that function to the
+dataset and a randomly generated set of case weights. Also included are
+[`fwb.ci()`](https://ngreifer.github.io/fwb/reference/fwb.ci.md), a
+drop-in for
+[`boot::boot.ci()`](https://rdrr.io/pkg/boot/man/boot.ci.html) for
+computing various kinds of confidence intervals (e.g., percentile,
+normal, bias-corrected percentile, etc.), and
+[`vcovFWB()`](https://ngreifer.github.io/fwb/reference/vcovFWB.md), a
+drop-in for
+[`sandwich::vcovBS()`](https://sandwich.R-Forge.R-project.org/reference/vcovBS.html)
+for computing a coefficient covariance matrix from a regression model
+using the FWB.
+
+Check out the `fwb` [website](https://ngreifer.github.io/fwb/)!
+
+## Installation
+
+You can install the current stable version of `fwb` from CRAN with:
+
+``` r
+install.packages("fwb")
+```
+
+You can install the development version of `fwb` from
+[GitHub](https://github.com/) with:
+
+``` r
+# install.packages("remotes")
+remotes::install_github("ngreifer/fwb")
+```
+
+## Examples
+
+Below are some examples of how to use `fwb`. We set a seed to ensure all
+results are replicable. (Note that when parallel processing is used, a
+special kind of seed needs to be set; see
+[`vignette("fwb-rep")`](https://ngreifer.github.io/fwb/articles/fwb-rep.md)
+for details.)
+
+``` r
+library("fwb")
+set.seed(123456, "L'Ecuyer-CMRG")
+```
+
+### Bearing cage field failure Weibull analysis from Xu et al. (2020)
+
+This example involves performing a Weibull analysis to estimate the
+\\\beta\\ (shape) parameter of the Weibull distribution characterizing
+the time to failure of a set of aircraft engines. Among the 1703
+engines, there were only 6 failures and 1697 right-censored
+observations. The traditional (resampling-based) bootstrap would fail if
+a bootstrap replication omitted the 6 failures, but all failures are
+retained when using the FWB, which makes it particularly effective for
+this analysis.
+
+``` r
+data("bearingcage", package = "fwb")
+
+# Function to compute the scale (eta) and shape (beta) parameters
+# from weighted data
+weibull_est <- function(data, w) {
+  fit <- survival::survreg(survival::Surv(hours, failure) ~ 1,
+                           data = data, weights = w,
+                           dist = "weibull")
+
+  c(eta = unname(exp(coef(fit))),
+    beta = 1 / fit$scale)
+}
+
+# 1999 bootstrap replications; more is always better
+fwb_est <- fwb(bearingcage, statistic = weibull_est,
+               R = 1999, verbose = FALSE)
+fwb_est
+#> FRACTIONAL WEIGHTED BOOTSTRAP
+#> 
+#> Call:
+#> fwb(data = bearingcage, statistic = weibull_est, R = 1999, verbose = FALSE)
+#> 
+#> Bootstrap Statistics :
+#>          original         bias   std. error
+#> eta  11792.178173 7722.5390790 2.652048e+04
+#> beta     2.035319    0.2326988 8.790395e-01
+
+# Bias-corrected accelerated percentile
+# confidence interval
+summary(fwb_est, ci.type = "bca")
+#>      Estimate Std. Error CI 2.5 % CI 97.5 %
+#> eta  1.18e+04   2.65e+04 3.15e+03  7.17e+04
+#> beta 2.04e+00   8.79e-01 1.24e+00  4.55e+00
+
+# Plot the bootstrap distribution
+plot(fwb_est, index = "beta", qdist = "chisq")
+```
+
+![](reference/figures/README-unnamed-chunk-5-1.png)![](reference/figures/README-unnamed-chunk-5-2.png)
+
+### Infertility logistic regression analysis using `infert` dataset
+
+This example demonstrates using
+[`vcovFWB()`](https://ngreifer.github.io/fwb/reference/vcovFWB.md) to
+estimate standard errors for the effect of spontaneous and induced
+abortions on infertility as analyzed in Trichopoulos et al. (1976).
+Patients are organized into matched sets of 3 patients each. We use a
+fixed effects logistic regression to adjust for matched set membership
+(ignoring the potential bias in this approach for the sake of the
+example). The traditional bootstrap fails because many matched sets will
+fully omit either cases or non-cases, leading to perfect prediction and
+the failure of the model to converge, yielding invalid estimates.
+Because all units are retained when using the FWB, the model always
+converges and the estimates are reasonable.
+
+``` r
+data("infert")
+
+fit <- glm(case ~ spontaneous + induced + factor(stratum),
+           data = infert, family = quasibinomial())
+
+library("lmtest")
+
+# The traditional bootstrap fails
+coeftest(fit, vcov = sandwich::vcovBS)[1:3, ]
+#>              Estimate   Std. Error       z value Pr(>|z|)
+#> (Intercept) -6.904101 2.285991e+22 -3.020179e-22        1
+#> spontaneous  3.230286 1.670378e+14  1.933866e-14        1
+#> induced      2.190303 1.194912e+14  1.833025e-14        1
+
+# The fractional weighted bootstrap succeeds
+coeftest(fit, vcov = vcovFWB)[1:3, ]
+#>              Estimate Std. Error   z value     Pr(>|z|)
+#> (Intercept) -6.904101  1.8325484 -3.767486 1.648995e-04
+#> spontaneous  3.230286  0.7493112  4.311007 1.625127e-05
+#> induced      2.190303  0.6880744  3.183235 1.456391e-03
+```
+
+We can also perform cluster-robust inference by bootstrapping the
+strata. (Note in this case the traditional bootstrap does fine, but the
+FWB is still more accurate.)
+
+``` r
+# Including stratum membership as a clustering variable
+coeftest(fit, vcov = vcovFWB, cluster = ~stratum)[1:3, ]
+#>              Estimate Std. Error   z value     Pr(>|z|)
+#> (Intercept) -6.904101  1.6343290 -4.224426 2.395510e-05
+#> spontaneous  3.230286  0.7317966  4.414185 1.013912e-05
+#> induced      2.190303  0.6745283  3.247162 1.165621e-03
+```
+
+Let’s look more in-depth at the results of the traditional and
+fractional weighted bootstrap by comparing the output of
+[`fwb()`](https://ngreifer.github.io/fwb/reference/fwb.md) and
+[`boot::boot()`](https://rdrr.io/pkg/boot/man/boot.html). (Note the
+traditional bootstrap can also be requested using
+`fwb(., wtype = "multinom")`, which will give identical results to
+[`boot::boot()`](https://rdrr.io/pkg/boot/man/boot.html) when the same
+seed is set.)
+
+``` r
+fit_fun <- function(data, w) {
+  fit <- glm(case ~ spontaneous + induced + factor(stratum),
+           data = data, weights = w, family = quasibinomial())
+  coef(fit)[1:3]
+}
+
+boot_est <- boot::boot(infert, fit_fun, R = 999, stype = "f")
+boot_est
+#> 
+#> ORDINARY NONPARAMETRIC BOOTSTRAP
+#> 
+#> 
+#> Call:
+#> boot::boot(data = infert, statistic = fit_fun, R = 999, stype = "f")
+#> 
+#> 
+#> Bootstrap Statistics :
+#>      original       bias     std. error
+#> t1* -6.904101 2.629510e+21 8.083197e+22
+#> t2*  3.230286 2.114656e+13 2.336509e+14
+#> t3*  2.190303 1.696351e+13 1.878001e+14
+
+fwb_est <- fwb(infert, fit_fun, R = 999, verbose = FALSE)
+fwb_est
+#> FRACTIONAL WEIGHTED BOOTSTRAP
+#> 
+#> Call:
+#> fwb(data = infert, statistic = fit_fun, R = 999, verbose = FALSE)
+#> 
+#> Bootstrap Statistics :
+#>              original       bias std. error
+#> (Intercept) -6.904101 -1.7026157  1.8743631
+#> spontaneous  3.230286  0.7069076  0.7657147
+#> induced      2.190303  0.5690742  0.7096401
+```
+
+Already the bias and standard errors indicate problems with the
+traditional bootstrap. Let’s plot histograms of the estimates to see
+where the failure is:
+
+``` r
+plot(boot_est, index = 2)
+```
+
+![](reference/figures/README-unnamed-chunk-9-1.png)
+
+``` r
+plot(fwb_est, index = 2)
+```
+
+![](reference/figures/README-unnamed-chunk-10-1.png)![](reference/figures/README-unnamed-chunk-10-2.png)
+
+It is clear that the estimates from the traditional bootstrap are
+pathological, whereas the estimates from the FWB are more reasonable.
+The non-normality of the FWB distributions also suggests that the usual
+Wald-style confidence intervals may not be accurate, and a
+bias-corrected percentile interval should probably be computed instead.
+
+## Weighted statistics and transformations
+
+`fwb` also contains utility functions for computing weighted statistics
+to facilitate incorporation of bootstrapped weights into estimates.
+These include
+[`w_mean()`](https://ngreifer.github.io/fwb/reference/w_mean.md),
+[`w_var()`](https://ngreifer.github.io/fwb/reference/w_mean.md),
+[`w_sd()`](https://ngreifer.github.io/fwb/reference/w_mean.md),
+[`w_quantile()`](https://ngreifer.github.io/fwb/reference/w_mean.md),
+and [`w_median()`](https://ngreifer.github.io/fwb/reference/w_mean.md)
+for computing weighted means, variances, standard deviations, quantiles,
+and medians;
+[`w_cov()`](https://ngreifer.github.io/fwb/reference/w_mean.md) and
+[`w_cor()`](https://ngreifer.github.io/fwb/reference/w_mean.md) for
+computing weighted covariance and correlation matrices, and
+[`w_std()`](https://ngreifer.github.io/fwb/reference/w_mean.md),
+[`w_scale()`](https://ngreifer.github.io/fwb/reference/w_mean.md), and
+[`w_center()`](https://ngreifer.github.io/fwb/reference/w_mean.md) for
+transforming variables by standardizing, scaling, and centering using
+weighted statistics. Many of these serve as drop-ins for base R
+functions, like
+[`weighted.mean()`](https://rdrr.io/r/stats/weighted.mean.html) for
+computing the weighted mean, but have the advantage that the weights do
+not need to be manually supplied: when the functions are called from
+within [`fwb()`](https://ngreifer.github.io/fwb/reference/fwb.md) or
+[`vcovFWB()`](https://ngreifer.github.io/fwb/reference/vcovFWB.md), the
+bootstrap weights are automatically incorporated.
+
+## When to use the fractional weighted bootstrap
+
+The FWB is uniformly more reliable than the traditional bootstrap when a
+weighted statistic can be computed (though this doesn’t mean the
+bootstrap is always valid). In most simple cases, both methods will
+yield the same results. In some pathological examples like those above,
+the FWB dramatically outperforms the traditional bootstrap. This will be
+true when running regression models with sparse categorical variables
+either in the outcome or among the predictors, for example, when
+estimating fixed effects or when a binary outcome is rare. However, it
+is important to know when a weighted statistic can be computed; for
+example, computing the weighted median is not always straightforward,
+making the traditional bootstrap potentially more useful for computing
+it. Still, though, the FWB deserves a place in an analyst’s toolbox.
+
+## Related packages
+
+- `boot`, which provides the traditional bootstrap, including an
+  interface that accepts frequency weights to compute weighted
+  statistics, as was used above
+- `bayesboot`, which also provides functionality for the Bayesian
+  bootstrap but does so in a more explicitly Bayesian fashion and with
+  returned objects that are less consistent with those from `boot`
+
+## Author
+
+- Noah Greifer (<noah.greifer@gmail.com>)
+
+## Citing `fwb`
+
+To cite `fwb`, please use `citation("fwb")`, which generates a package
+citation.
+
+## Community guidelines
+
+To report a bug, please use the GitHub
+[Issues](https://github.com/ngreifer/fwb/issues) page. If possible,
+please provide enough information to reproduce the bug, including the
+version of the package you are using, the version of R you are using,
+and the code you ran.
+
+If you have a question or feature request, you are welcome to use GitHub
+issues or email the author (see **Author** section above). General
+feedback is always welcome. In general, I prefer an email or GitHub
+issue over a pull request (except for typos in the documentation).
+
+## References
+
+Trichopoulos, D., Handanos, N., Danezis, J., Kalandidi, A. and
+Kalapothaki, V. (1976), Induced Abortion and Secondary Infertility.
+*BJOG: An International Journal of Obstetrics & Gynaecology*, 83,
+645-650. <https://doi.org/10.1111/j.1471-0528.1976.tb00904.x>
+
+Xu, L., Gotwalt, C., Hong, Y., King, C. B., & Meeker, W. Q. (2020).
+Applications of the Fractional-Random-Weight Bootstrap. *The American
+Statistician*, 74(4), 345–358.
+<https://doi.org/10.1080/00031305.2020.1731599>
+
+# Package index
+
+- [`fwb()`](https://ngreifer.github.io/fwb/reference/fwb.md)
+  [`print(`*`<fwb>`*`)`](https://ngreifer.github.io/fwb/reference/fwb.md)
+  : Fractional Weighted Bootstrap
+
+- [`fwb.ci()`](https://ngreifer.github.io/fwb/reference/fwb.ci.md)
+  [`print(`*`<fwbci>`*`)`](https://ngreifer.github.io/fwb/reference/fwb.ci.md)
+  : Fractional Weighted Bootstrap Confidence Intervals
+
+- [`summary(`*`<fwb>`*`)`](https://ngreifer.github.io/fwb/reference/summary.fwb.md)
+  [`confint(`*`<fwb>`*`)`](https://ngreifer.github.io/fwb/reference/summary.fwb.md)
+  :
+
+  Summarize `fwb` Output
+
+- [`plot(`*`<fwb>`*`)`](https://ngreifer.github.io/fwb/reference/plot.fwb.md)
+  : Plots of the Output of a Fractional Weighted Bootstrap
+
+- [`vcovFWB()`](https://ngreifer.github.io/fwb/reference/vcovFWB.md) :
+  Fractional Weighted Bootstrap Covariance Matrix Estimation
+
+- [`w_mean()`](https://ngreifer.github.io/fwb/reference/w_mean.md)
+  [`w_var()`](https://ngreifer.github.io/fwb/reference/w_mean.md)
+  [`w_sd()`](https://ngreifer.github.io/fwb/reference/w_mean.md)
+  [`w_cov()`](https://ngreifer.github.io/fwb/reference/w_mean.md)
+  [`w_cor()`](https://ngreifer.github.io/fwb/reference/w_mean.md)
+  [`w_quantile()`](https://ngreifer.github.io/fwb/reference/w_mean.md)
+  [`w_median()`](https://ngreifer.github.io/fwb/reference/w_mean.md)
+  [`w_std()`](https://ngreifer.github.io/fwb/reference/w_mean.md)
+  [`w_scale()`](https://ngreifer.github.io/fwb/reference/w_mean.md)
+  [`w_center()`](https://ngreifer.github.io/fwb/reference/w_mean.md) :
+  Calculate weighted statistics
+
+- [`set_fwb_wtype()`](https://ngreifer.github.io/fwb/reference/set_fwb_wtype.md)
+  [`get_fwb_wtype()`](https://ngreifer.github.io/fwb/reference/set_fwb_wtype.md)
+  : Set weights type
+
+- [`get_ci()`](https://ngreifer.github.io/fwb/reference/get_ci.md) :
+
+  Extract Confidence Intervals from a `bootci` Object
+
+- [`fwb.array()`](https://ngreifer.github.io/fwb/reference/fwb.array.md)
+  : Recover Bootstrap Weights
+
+- [`bearingcage`](https://ngreifer.github.io/fwb/reference/bearingcage.md)
+  : Bearing Cage field failure data
+
+# Articles
+
+### All vignettes
+
+- [Reproducibility and Parallelization with
+  \`fwb\`](https://ngreifer.github.io/fwb/articles/fwb-rep.md):
