@@ -112,15 +112,8 @@ vcovFWB <- function(x, cluster = NULL, R = 1000, start = FALSE,
   rval <- matrix(0, nrow = k, ncol = k, dimnames = list(names(cf), names(cf)))
   cf <- matrix(NA_real_, ncol = k, nrow = R, dimnames = list(NULL, names(cf)))
 
-  ## cluster can either be supplied explicitly or
-  ## be an attribute of the model...
   if (is_null(cluster)) {
-    cluster <- attr(x, "cluster", TRUE)
-  }
-
-  ## resort to cross-section if no clusters are supplied
-  if (is_null(cluster)) {
-    cluster <- seq_len(n)
+    cluster <- .attr(x, "cluster") %or% seq_len(n)
   }
 
   ## collect 'cluster' variables in a data frame
@@ -151,7 +144,7 @@ vcovFWB <- function(x, cluster = NULL, R = 1000, start = FALSE,
   if (p > 1L) {
     clu <- lapply(seq_len(p), function(i) utils::combn(seq_len(p), i, simplify = FALSE))
     clu <- unlist(clu, recursive = FALSE)
-    sgn <- sapply(clu, function(i) (-1L)^(length(i) + 1L))
+    sgn <- (-1L)^(lengths(clu) + 1L)
     paste_ <- function(...) paste(..., sep = "_")
     for (i in (p + 1L):length(clu)) {
       cluster <- cbind(cluster, Reduce(paste_, unclass(cluster[, clu[[i]]]))) ## faster than: interaction()
@@ -228,10 +221,7 @@ make.bootfit <- function(fit, cli, start, gen_weights, .coef, .env) {
   special_coef <- !identical(.coef(fit), try(coef(fit), silent = TRUE))
   bootfit <- NULL
 
-  w0 <- weights(fit)
-  if (is_null(w0)) {
-    w0 <- 1
-  }
+  w0 <- weights(fit) %or% 1
 
   if (!special_coef) {
     # Test if model uses w_*() functions by seeing if weighted
@@ -283,15 +273,9 @@ make.bootfit <- function(fit, cli, start, gen_weights, .coef, .env) {
   if (!special_coef && identical(class(fit), "lm")) {
     mf <- model.frame(fit)
     x <- model.matrix(fit)
-    y <- model.response(mf)
-    if (is_not_null(fit$offset)) {
-      y <- y - fit$offset
-    }
+    y <- model.response(mf) - (fit$offset %or% 0)
 
-    w0 <- weights(fit)
-    if (is_null(w0)) {
-      w0 <- 1
-    }
+    w0 <- weights(fit) %or% 1
 
     bootfit <- function(j, ...) {
       #Generate cluster weights, assign to units
@@ -309,10 +293,7 @@ make.bootfit <- function(fit, cli, start, gen_weights, .coef, .env) {
     x <- model.matrix(fit)
     y <- fit[["y"]]
 
-    w0 <- weights(fit)
-    if (is_null(w0)) {
-      w0 <- 1
-    }
+    w0 <- weights(fit) %or% 1
 
     if (is_null(fit[["method"]])) {
       fit.fun <- stats::glm.fit
@@ -341,16 +322,14 @@ make.bootfit <- function(fit, cli, start, gen_weights, .coef, .env) {
 
       safe.glm.fit(fit.fun, x = x, y = y,
                    weights = .wi, start = start,
-                   offset = fit$offset, family = fit$family,
+                   offset = fit$offset,
+                   family = fit$family,
                    control = fit$control,
-                   intercept = attr(fit$terms, "intercept", TRUE) > 0)$coefficients
+                   intercept = .attr(fit$terms, "intercept") > 0)$coefficients
     }
   }
   else {
-    w0 <- weights(fit)
-    if (is_null(w0)) {
-      w0 <- 1
-    }
+    w0 <- weights(fit) %or% 1
 
     bootfit <- function(j, ...) {
       rlang::local_options(fwb_internal_w_env = rlang::current_env())

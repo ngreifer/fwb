@@ -218,6 +218,7 @@ invert_ci <- function(type, t, t0, null = 0, index = 1L, h = identity, boot.out 
     alpha <- rep.int(0.0, length(index))
 
     fins <- is.finite(z)
+
     if (any(fins)) {
       alpha[fins] <- pnorm(z[fins] / (1 + z[fins] * a[fins]) - w[fins])
     }

@@ -5,7 +5,7 @@ na.rem <- function(x) {
 
 check_if_zero <- function(x) {
   # this is the default tolerance used in all.equal
-  tolerance <- .Machine$double.eps^0.5
+  tolerance <- sqrt(.Machine$double.eps)
   abs(x) < tolerance
 }
 
@@ -140,7 +140,9 @@ word_list <- function(word.list = NULL, and.or = "and", is.are = FALSE, quotes =
     }
   }
 
-  if (is.are) out <- sprintf("%s are", out)
+  if (is.are) {
+    out <- sprintf("%s are", out)
+  }
 
   attr(out, "plural") <- TRUE
 
@@ -180,11 +182,11 @@ str_rev <- function(x) {
   vapply(lapply(strsplit(x, NULL), rev), paste, character(1L), collapse = "")
 }
 
-match_arg <- function(arg, choices, several.ok = FALSE) {
+match_arg <- function(arg, choices, several.ok = FALSE, context = NULL) {
   #Replaces match.arg() but gives cleaner error message and processing
   #of arg.
   if (missing(arg)) {
-    .err("no argument was supplied to `match_arg()`")
+    stop("No argument was supplied to match_arg.")
   }
 
   arg.name <- deparse1(substitute(arg), width.cutoff = 500L)
@@ -211,11 +213,15 @@ match_arg <- function(arg, choices, several.ok = FALSE) {
   }
 
   i <- pmatch(arg, choices, nomatch = 0L, duplicates.ok = TRUE)
-  if (all(i == 0L))
-    .err(sprintf("the argument to `%s` should be %s%s",
+
+  if (all(i == 0L)) {
+    .err(sprintf("%sthe argument to `%s` should be %s%s",
+                 if (is_null(context)) "" else sprintf("%s ", context),
                  arg.name,
                  ngettext(length(choices), "", if (several.ok) "at least one of " else "one of "),
                  word_list(choices, and.or = "or", quotes = 2L)))
+  }
+
   i <- i[i > 0L]
 
   choices[i]
@@ -229,8 +235,16 @@ match_arg <- function(arg, choices, several.ok = FALSE) {
   x[seq(max(1L, l - n + 1L), l)]
 }
 
+.attr <- function(x, which, exact = TRUE) {
+  attr(x, which, exact = exact)
+}
+
 is_null <- function(x) {length(x) == 0L}
 is_not_null <- function(x) {!is_null(x)}
+`%or%` <- function(x, y) {
+  # like `%||%` but works for non-NULL length 0 objects
+  if (is_null(x)) y else x
+}
 
 .set_class <- function(x, .class = NULL) {
   if (is_null(.class)) {
@@ -252,7 +266,11 @@ pkg_caller_call <- function() {
 
     n <- rlang::call_name(e)
 
-    if (is_not_null(n) && n %in% package.funs) {
+    if (is_null(n)) {
+      next
+    }
+
+    if (n %in% package.funs) {
       return(e)
     }
   }
@@ -286,8 +304,11 @@ pkg_caller_call <- function() {
   if (is.atomic(x) && !is.matrix(x) && !is.array(x)) {
     return(invisible(x))
   }
-  if (is.null(x_name))
+
+  if (is_null(x_name)) {
     x_name <- chk::deparse_backtick_chk(substitute(x))
+  }
+
   chk::abort_chk(x_name, " must be an atomic vector", x = x)
 }
 
@@ -299,9 +320,9 @@ with_seed_preserved <- function(expr, new_seed = NULL) {
 
   if (is_null(old_seed)) {
     on.exit({
-        set.seed(seed = NULL)
-        rm(".Random.seed", envir = globalenv())
-      }, add = TRUE)
+      set.seed(seed = NULL)
+      rm(".Random.seed", envir = globalenv())
+    }, add = TRUE)
   }
   else {
     on.exit({

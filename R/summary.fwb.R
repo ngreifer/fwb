@@ -181,6 +181,7 @@ confint.fwb <- function(object, parm, level = .95, ci.type = "bc", simultaneous 
   ci.out <- compute_ci(ci.type, t = object[["t"]], t0 = object[["t0"]],
                        conf = new_level, index = index, boot.out = object)
 
+  # Label CIs with original levels
   pct <- fmt.prc(c((1 - level) / 2, 1 - (1 - level) / 2))
 
   out <- matrix(NA_real_, nrow = length(index), ncol = 2L,
@@ -198,9 +199,9 @@ confint.fwb <- function(object, parm, level = .95, ci.type = "bc", simultaneous 
 
 #' @exportS3Method print summary.fwb
 print.summary.fwb <- function(x, digits = 3L, ...) {
-  has.p <- is_not_null(attr(x, "null", TRUE))
-  has.ci <- attr(x, "conf", TRUE) > 0
-  has.z <- has.p && identical(attr(x, "ci.type", TRUE), "wald")
+  has.p <- is_not_null(.attr(x, "null"))
+  has.ci <- .attr(x, "conf") > 0
+  has.z <- has.p && identical(.attr(x, "ci.type"), "wald")
 
   stats::printCoefmat(x, digits = digits,
                       cs.ind = if (has.ci) 1:4 else 1:2,
@@ -213,9 +214,9 @@ print.summary.fwb <- function(x, digits = 3L, ...) {
 #' @importFrom generics tidy
 #' @exportS3Method tidy summary.fwb
 tidy.summary.fwb <- function(x, ...) {
-  has.p <- is_not_null(attr(x, "null", TRUE))
-  has.ci <- attr(x, "conf", TRUE) > 0
-  has.z <- has.p && identical(attr(x, "ci.type", TRUE), "wald")
+  has.p <- is_not_null(.attr(x, "null"))
+  has.ci <- .attr(x, "conf") > 0
+  has.z <- has.p && identical(.attr(x, "ci.type"), "wald")
 
   x <- as.data.frame(x)
 

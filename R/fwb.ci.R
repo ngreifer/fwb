@@ -18,7 +18,8 @@
 #'
 #' There will be additional components named after each confidence interval type requested. For `"wald"` and `"norm"`, this is a matrix with one row containing the confidence level and the two confidence interval limits. For the others, this is a matrix with one row containing the confidence level, the indices of the two order statistics used in the calculations, and the confidence interval limits.
 #'
-#' @details `fwb.ci()` functions similarly to \pkgfun{boot}{boot.ci} in that it takes in a bootstrapped object and computes confidence intervals. This interface is a bit old-fashioned, but was designed to mimic that of `boot.ci()`. For a more modern interface, see [summary.fwb()].
+#' @details
+#' `fwb.ci()` functions similarly to \pkgfun{boot}{boot.ci} in that it takes in a bootstrapped object and computes confidence intervals. This interface is a bit old-fashioned, but was designed to mimic that of `boot.ci()`. For a more modern interface, see [summary.fwb()].
 #'
 #' The bootstrap intervals are defined as follows, with \eqn{\alpha =} 1 - `conf`, \eqn{t_0} the estimate in the original sample, \eqn{\hat{t}} the average of the bootstrap estimates, \eqn{s_t} the standard deviation of the bootstrap estimates, \eqn{t^{(i)}} the set of ordered estimates with \eqn{i} corresponding to their quantile, and \eqn{z_\frac{\alpha}{2}} and \eqn{z_{1-\frac{\alpha}{2}}} the upper and lower critical \eqn{z} scores.
 #'
@@ -54,8 +55,12 @@
 #'
 #' Interpolation on the normal quantile scale is used when a non-integer order statistic is required, as in `boot::boot.ci()`. Note that unlike with `boot::boot.ci()`, studentized confidence intervals (`type = "stud"`) are not allowed.
 #'
-#' @seealso [fwb()] for performing the fractional weighted bootstrap; [get_ci()] for extracting confidence intervals from an `fwbci` object; [summary.fwb()] for producing clean output from `fwb()` that includes confidence intervals calculated by `fwb.ci()`; \pkgfun{boot}{boot.ci} for computing confidence intervals from the traditional bootstrap; [vcovFWB()] for computing parameter estimate covariance matrices using the fractional weighted bootstrap
-#'
+#' @seealso
+#' * [fwb()] for performing the fractional weighted bootstrap
+#' * [get_ci()] for extracting confidence intervals from an `fwbci` object
+#' * [summary.fwb()] for producing clean output from `fwb()` that includes confidence intervals calculated by `fwb.ci()`
+#' * \pkgfun{boot}{boot.ci} for computing confidence intervals from the traditional bootstrap
+#' * [vcovFWB()] for computing parameter estimate covariance matrices using the fractional weighted bootstrap
 #'
 #' @examples
 #' set.seed(123, "L'Ecuyer-CMRG")
@@ -118,8 +123,8 @@ fwb.ci <- function(fwb.out, conf = .95, type = "bc", index = 1L,
       msg <- c(msg, "BCa confidence intervals cannot be computed when there are fewer bootstrap replications than units in the original dataset")
     }
 
-    if (isTRUE(attr(fwb.out, "simple", TRUE)) &&
-        isTRUE(attr(fwb.out, "random_statistic", TRUE))) {
+    if (isTRUE(.attr(fwb.out, "simple")) &&
+        isTRUE(.attr(fwb.out, "random_statistic"))) {
       msg <- c(msg, 'BCa confidence intervals cannot be computed when there is randomness in `statistic` and `simple = TRUE` in the call to `fbw()`. See `vignette("fwb-rep")` for details')
     }
 
@@ -241,7 +246,7 @@ print.fwbci <- function(x, hinv = NULL, ...) {
     bcarg <- range(ci.out[["bca"]][, 2:3])
   }
 
-  level <- 100 * attr(ci.out, "conf", TRUE)
+  level <- 100 * .attr(ci.out, "conf")
 
   intervals <- do.call("rbind", lapply(ci.types, function(i) {
     hinv(.tail(ci.out[[i]][1L, ], 2L))
@@ -373,10 +378,7 @@ get_ci <- function(x, type = "all") {
     setNames(.tail(x[[t]][1L, ], 2L), c("L", "U"))
   }), type)
 
-  attr(out, "conf") <- {
-    if (is_not_null(attr(x, "conf", TRUE))) attr(x, "conf", TRUE)
-    else x[[4L]][, 1L]
-  }
+  attr(out, "conf") <- .attr(x, "conf") %or% x[[4L]][, 1L]
 
   out
 }

@@ -11,7 +11,11 @@
 #'
 #' Bootstrap weights are used in computing BCa confidence intervals by approximating the empirical influence function for each unit with respect to each parameter (see Examples).
 #'
-#' @seealso [fwb()] for performing the fractional weighted bootstrap; \pkgfun{boot}{boot.array} for the equivalent function in \pkg{boot}; `vignette("fwb-rep")` for information on replicability.
+#' @seealso
+#' * [fwb()] for performing the fractional weighted bootstrap
+#' * \pkgfun{boot}{boot.array} for the equivalent function in \pkg{boot}
+#'
+#' See `vignette("fwb-rep")` for information on replicability.
 #'
 #'
 #' @examples
@@ -47,7 +51,7 @@ fwb.array <- function(fwb.out) {
   chk::chk_not_missing(fwb.out, "`fwb.out`")
   chk::chk_is(fwb.out, "boot")
 
-  if (identical(attr(fwb.out, "boot_type", TRUE), "boot")) {
+  if (identical(.attr(fwb.out, "boot_type"), "boot")) {
     rlang::check_installed("boot")
     return(boot::boot.array(fwb.out))
   }
@@ -59,14 +63,14 @@ fwb.array <- function(fwb.out) {
   n <- nrow(fwb.out[["data"]])
   R <- fwb.out[["R"]]
 
-  if (!isTRUE(attr(fwb.out, "simple", TRUE)) || is_null(attr(fwb.out, "cl", TRUE))) {
+  if (!isTRUE(.attr(fwb.out, "simple")) || is_null(.attr(fwb.out, "cl"))) {
     with_seed_preserved({
       return(gen_weights(n, R, fwb.out[["strata"]]))
     }, new_seed = fwb.out[["seed"]])
   }
 
-  if (isTRUE(attr(fwb.out, "simple", TRUE)) &&
-      isTRUE(attr(fwb.out, "random_statistic", TRUE))) {
+  if (isTRUE(.attr(fwb.out, "simple")) &&
+      isTRUE(.attr(fwb.out, "random_statistic"))) {
     .wrn('bootstrap weights cannot be reliably re-generated when there is randomness in `statistic` and `simple = TRUE` in the call to `fbw()`. See `vignette("fwb-rep")` for details')
   }
 
@@ -79,9 +83,9 @@ fwb.array <- function(fwb.out) {
 
   #Run bootstrap
   with_seed_preserved({
-    if (identical(attr(fwb.out, "cl", TRUE), "future"))
+    if (identical(.attr(fwb.out, "cl"), "future"))
       do.call("rbind", pbapply::pblapply(seq_len(R), FUN, cl = "future", future.seed = TRUE))
     else
-      do.call("rbind", pbapply::pblapply(seq_len(R), FUN, cl = attr(fwb.out, "cl", TRUE)))
+      do.call("rbind", pbapply::pblapply(seq_len(R), FUN, cl = .attr(fwb.out, "cl")))
   }, new_seed = fwb.out[["seed"]])
 }

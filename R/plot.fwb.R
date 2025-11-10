@@ -41,8 +41,7 @@ plot.fwb <- function(x, index = 1L, qdist = "norm", nclass = NULL, df, type = c(
                      .err('`type` must be one or more of "hist" or "qq"')
                    })
 
-  opar <- graphics::par(mfrow = c(1L, length(type)))
-  on.exit(graphics::par(opar))
+  rlang::local_options(mfrow = c(1L, length(type)))
 
   for (i in type) {
     if (i == "hist") {
