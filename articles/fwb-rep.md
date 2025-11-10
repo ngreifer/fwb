@@ -78,9 +78,9 @@ f.out <- fwb(.)
 If `simple = FALSE` and `statistic` does not have a random component,
 see Case 1, regardless of whether or how parallelization is used. In
 this case, no random process occurs within each cluster, so no special
-steps need to be taken beyond setting a seed. Note that `simple` is
-`TRUE` by default unless `wtype = "multinom"`, so this must be set
-manually. See below for a code example:
+steps need to be taken beyond setting a seed. Note that `simple = TRUE`
+by default unless `wtype = "multinom"`, so this must be set manually.
+See below for a code example:
 
 ``` r
 set.seed({N})
@@ -176,7 +176,8 @@ weights, and
 [`fwb.ci()`](https://ngreifer.github.io/fwb/reference/fwb.ci.md) recalls
 that seed to re-generate the weights and then computes the required
 statistics for the BCa interval without requiring any extra involvement
-by the user.
+by the user. Remember, `simple = TRUE` by default unless
+`wtype = "multinom"`.
 
 Otherwise, when the following condition is met, an additional step is
 required:

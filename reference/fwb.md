@@ -61,9 +61,8 @@ print(
 
   `logical`; if `TRUE`, weights will be generated on-the-fly in each
   bootstrap replication; if `FALSE`, all weights will be generated at
-  once and then supplied to `statistic`. Cannot be `TRUE` when
-  `wtype = "multinom"`. The default (`NULL`) sets to `FALSE` if
-  `wtype = "multinom"` and to `TRUE` otherwise.
+  once and then supplied to `statistic`. The default (`NULL`) sets to
+  `FALSE` if `wtype = "multinom"` and to `TRUE` otherwise.
 
 - wtype:
 
@@ -84,8 +83,9 @@ print(
 
   `logical`; when `wtype` is `"multinom"` or `"poisson"`, whether to
   drop units that are given weights of 0 from the dataset and weights
-  supplied to `statistic` in each iteration. Ignored for other `wtype`s
-  because they don't produce 0 weights. Default is `FALSE`.
+  supplied to `statistic` in each iteration. If `NA`, weights of 0 will
+  be set to `NA` instead. Ignored for other `wtype`s because they don't
+  produce 0 weights. Default is `FALSE`.
 
 - verbose:
 

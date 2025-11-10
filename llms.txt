@@ -67,14 +67,15 @@ this analysis.
 
 ``` r
 data("bearingcage", package = "fwb")
+library(survival)
 
 # Function to compute the scale (eta) and shape (beta) parameters
 # from weighted data
 weibull_est <- function(data, w) {
-  fit <- survival::survreg(survival::Surv(hours, failure) ~ 1,
-                           data = data, weights = w,
-                           dist = "weibull")
-
+  fit <- survreg(Surv(hours, failure) ~ 1,
+                 data = data, weights = w,
+                 dist = "weibull")
+  
   c(eta = unname(exp(coef(fit))),
     beta = 1 / fit$scale)
 }

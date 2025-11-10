@@ -7,7 +7,26 @@
   \\\text{Beta}(\sqrt{2} - 1, 1)\\ distribution as described by [Owen
   (2025)](https://doi.org/10.48550/arXiv.2508.10083).
 
+- `drop0` can now be set to `NA` in
+  [`fwb()`](https://ngreifer.github.io/fwb/reference/fwb.md); this sets
+  all weights of 0 to `NA` instead of removing those observations from
+  the dataset.
+
+- [`vcovFWB()`](https://ngreifer.github.io/fwb/reference/vcovFWB.md) now
+  accepts `drop0` to control how to treat units with weights of 0.
+
+- In [`fwb()`](https://ngreifer.github.io/fwb/reference/fwb.md),
+  `simple` can now be set to `TRUE` with `wtype = "multinom"`.
+  `simple = FALSE` is still the default with `wtype = "multinom"` to
+  maintain comparability with
+  [`boot::boot()`](https://rdrr.io/pkg/boot/man/boot.html).
+
+- [`vcovFWB()`](https://ngreifer.github.io/fwb/reference/vcovFWB.md) has
+  improved support for `coxph` objects from *survival*.
+
 - Added code of conduct to README.
+
+- New tests.
 
 ## `fwb` 0.5.1
 

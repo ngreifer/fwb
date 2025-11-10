@@ -13,7 +13,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">fwb</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.1.9000</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.1.9001</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -93,7 +93,7 @@
 
 
 <dt id="arg-simple">simple<a class="anchor" aria-label="anchor" href="#arg-simple"></a></dt>
-<dd><p><code>logical</code>; if <code>TRUE</code>, weights will be generated on-the-fly in each bootstrap replication; if <code>FALSE</code>, all weights will be generated at once and then supplied to <code>statistic</code>. Cannot be <code>TRUE</code> when <code>wtype = "multinom"</code>. The default (<code>NULL</code>) sets to <code>FALSE</code> if <code>wtype = "multinom"</code> and to <code>TRUE</code> otherwise.</p></dd>
+<dd><p><code>logical</code>; if <code>TRUE</code>, weights will be generated on-the-fly in each bootstrap replication; if <code>FALSE</code>, all weights will be generated at once and then supplied to <code>statistic</code>. The default (<code>NULL</code>) sets to <code>FALSE</code> if <code>wtype = "multinom"</code> and to <code>TRUE</code> otherwise.</p></dd>
 
 
 <dt id="arg-wtype">wtype<a class="anchor" aria-label="anchor" href="#arg-wtype"></a></dt>
@@ -105,7 +105,7 @@
 
 
 <dt id="arg-drop-">drop0<a class="anchor" aria-label="anchor" href="#arg-drop-"></a></dt>
-<dd><p><code>logical</code>; when <code>wtype</code> is <code>"multinom"</code> or <code>"poisson"</code>, whether to drop units that are given weights of 0 from the dataset and weights supplied to <code>statistic</code> in each iteration. Ignored for other <code>wtype</code>s because they don't produce 0 weights. Default is <code>FALSE</code>.</p></dd>
+<dd><p><code>logical</code>; when <code>wtype</code> is <code>"multinom"</code> or <code>"poisson"</code>, whether to drop units that are given weights of 0 from the dataset and weights supplied to <code>statistic</code> in each iteration. If <code>NA</code>, weights of 0 will be set to <code>NA</code> instead. Ignored for other <code>wtype</code>s because they don't produce 0 weights. Default is <code>FALSE</code>.</p></dd>
 
 
 <dt id="arg-verbose">verbose<a class="anchor" aria-label="anchor" href="#arg-verbose"></a></dt>

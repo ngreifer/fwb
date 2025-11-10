@@ -2,7 +2,7 @@
 
 `vcovFWB()` estimates the covariance matrix of model coefficient
 estimates using the fractional weighted bootstrap. It serves as a
-drop-in for [`stats::vcov()`](https://rdrr.io/r/stats/vcov.html) or
+drop-in for `[stats::vcov()]` or
 [`sandwich::vcovBS()`](https://sandwich.R-Forge.R-project.org/reference/vcovBS.html).
 Clustered covariances are can be requested.
 
@@ -15,6 +15,7 @@ vcovFWB(
   R = 1000,
   start = FALSE,
   wtype = getOption("fwb_wtype", "exp"),
+  drop0 = FALSE,
   ...,
   fix = FALSE,
   use = "pairwise.complete.obs",
@@ -45,22 +46,35 @@ vcovFWB(
 
 - R:
 
-  the number of bootstrap replications.
+  the number of bootstrap replications. Default is 1000 (more is better
+  but slower).
 
 - start:
 
   `logical`; should `.coef(x)` be passed as `start` to the
   `update(x, weights = ...)` call? In case the model `x` is computed by
-  some numeric iteration, this may speed up the bootstrapping.
+  some numeric iteration, this may speed up the bootstrapping. Default
+  is `FALSE`.
 
 - wtype:
 
   string; the type of weights to use. Allowable options include `"exp"`
-  (the default), `"pois"`, `"multinom"`, and `"mammen"`. See
+  (the default), `"pois"`, `"multinom"`, `"mammen"`, `"beta"`, and
+  `"power"`. See
   [`fwb()`](https://ngreifer.github.io/fwb/reference/fwb.md) for
   details. See
   [`set_fwb_wtype()`](https://ngreifer.github.io/fwb/reference/set_fwb_wtype.md)
   to set a global default.
+
+- drop0:
+
+  `logical`; when `wtype` is `"multinom"` or `"poisson"`, whether to
+  drop units that are given weights of 0 from the model call in each
+  iteration. If `TRUE`, the model will be called with an additional
+  `subset` argument, filtering out units with weights of 0 (note this
+  will overwrite any argument to `subset` in the original call). If
+  `NA`, weights of 0 will be set to `NA` instead. Ignored for other
+  `wtype`s because they don't produce 0 weights. Default is `FALSE`.
 
 - ...:
 
@@ -151,17 +165,20 @@ is considered its own cluster.
 
 ## See also
 
-[`fwb()`](https://ngreifer.github.io/fwb/reference/fwb.md) for
-performing the fractional weighted bootstrap on an arbitrary quantity;
-[`fwb.ci()`](https://ngreifer.github.io/fwb/reference/fwb.ci.md) for
-computing nonparametric confidence intervals for `fwb` objects;
-[`summary.fwb()`](https://ngreifer.github.io/fwb/reference/summary.fwb.md)
-for producing standard errors and confidence intervals for `fwb`
-objects;
-[`sandwich::vcovBS()`](https://sandwich.R-Forge.R-project.org/reference/vcovBS.html)
-for computing covariance matrices using the traditional bootstrap (the
-fractional weighted bootstrap is also available but with limited
-options).
+- [`fwb()`](https://ngreifer.github.io/fwb/reference/fwb.md) for
+  performing the fractional weighted bootstrap on an arbitrary quantity
+
+- [`fwb.ci()`](https://ngreifer.github.io/fwb/reference/fwb.ci.md) for
+  computing nonparametric confidence intervals for `fwb` objects
+
+- [`summary.fwb()`](https://ngreifer.github.io/fwb/reference/summary.fwb.md)
+  for producing standard errors and confidence intervals for `fwb`
+  objects
+
+- [`sandwich::vcovBS()`](https://sandwich.R-Forge.R-project.org/reference/vcovBS.html)
+  for computing covariance matrices using the traditional bootstrap (the
+  fractional weighted bootstrap is also available but with limited
+  options).
 
 ## Examples
 

@@ -13,7 +13,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">fwb</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.1.9000</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.1.9001</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -46,7 +46,12 @@
 <h2 class="pkg-version" data-toc-text="development version" id="fwb-development-version">
 <code>fwb</code> (development version)<a class="anchor" aria-label="anchor" href="#fwb-development-version"></a></h2>
 <ul><li><p><code>wtype</code> can now be set to <code>"beta"</code> to sample weights from a <span class="math inline">\(\text{Beta}(1/2,3/2)\)</span> distribution and <code>"power"</code> to sample from a <span class="math inline">\(\text{Beta}(\sqrt{2} - 1, 1)\)</span> distribution as described by <a href="https://doi.org/10.48550/arXiv.2508.10083" class="external-link">Owen (2025)</a>.</p></li>
+<li><p><code>drop0</code> can now be set to <code>NA</code> in <code><a href="../reference/fwb.html">fwb()</a></code>; this sets all weights of 0 to <code>NA</code> instead of removing those observations from the dataset.</p></li>
+<li><p><code><a href="../reference/vcovFWB.html">vcovFWB()</a></code> now accepts <code>drop0</code> to control how to treat units with weights of 0.</p></li>
+<li><p>In <code><a href="../reference/fwb.html">fwb()</a></code>, <code>simple</code> can now be set to <code>TRUE</code> with <code>wtype = "multinom"</code>. <code>simple = FALSE</code> is still the default with <code>wtype = "multinom"</code> to maintain comparability with <code><a href="https://rdrr.io/pkg/boot/man/boot.html" class="external-link">boot::boot()</a></code>.</p></li>
+<li><p><code><a href="../reference/vcovFWB.html">vcovFWB()</a></code> has improved support for <code>coxph</code> objects from <em>survival</em>.</p></li>
 <li><p>Added code of conduct to README.</p></li>
+<li><p>New tests.</p></li>
 </ul></div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.5.1" id="fwb-051">

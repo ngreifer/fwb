@@ -5,7 +5,7 @@
       fontURL: "https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/output/chtml/fonts/woff-v2"
     }
   };
-</script><script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"><link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet"><script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet"><link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet"><script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Fractional Weighted Bootstrap Covariance Matrix Estimation — vcovFWB"><meta name="description" content="vcovFWB() estimates the covariance matrix of model coefficient estimates using the fractional weighted bootstrap. It serves as a drop-in for stats::vcov() or sandwich::vcovBS(). Clustered covariances are can be requested."><meta property="og:description" content="vcovFWB() estimates the covariance matrix of model coefficient estimates using the fractional weighted bootstrap. It serves as a drop-in for stats::vcov() or sandwich::vcovBS(). Clustered covariances are can be requested."></head><body>
+</script><script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"><link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet"><script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet"><link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet"><script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Fractional Weighted Bootstrap Covariance Matrix Estimation — vcovFWB"><meta name="description" content="vcovFWB() estimates the covariance matrix of model coefficient estimates using the fractional weighted bootstrap. It serves as a drop-in for [stats::vcov()] or sandwich::vcovBS(). Clustered covariances are can be requested."><meta property="og:description" content="vcovFWB() estimates the covariance matrix of model coefficient estimates using the fractional weighted bootstrap. It serves as a drop-in for [stats::vcov()] or sandwich::vcovBS(). Clustered covariances are can be requested."></head><body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
 
 
@@ -13,7 +13,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">fwb</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.1.9000</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.1.9001</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -44,7 +44,7 @@
     </div>
 
     <div class="ref-description section level2">
-    <p><code>vcovFWB()</code> estimates the covariance matrix of model coefficient estimates using the fractional weighted bootstrap. It serves as a drop-in for <code><a href="https://rdrr.io/r/stats/vcov.html" class="external-link">stats::vcov()</a></code> or <code><a href="https://sandwich.R-Forge.R-project.org/reference/vcovBS.html" class="external-link">sandwich::vcovBS()</a></code>. Clustered covariances are can be requested.</p>
+    <p><code>vcovFWB()</code> estimates the covariance matrix of model coefficient estimates using the fractional weighted bootstrap. It serves as a drop-in for <code>[stats::vcov()]</code> or <code><a href="https://sandwich.R-Forge.R-project.org/reference/vcovBS.html" class="external-link">sandwich::vcovBS()</a></code>. Clustered covariances are can be requested.</p>
     </div>
 
     <div class="section level2">
@@ -55,6 +55,7 @@
 <span>  R <span class="op">=</span> <span class="fl">1000</span>,</span>
 <span>  start <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  wtype <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">getOption</a></span><span class="op">(</span><span class="st">"fwb_wtype"</span>, <span class="st">"exp"</span><span class="op">)</span>,</span>
+<span>  drop0 <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  <span class="va">...</span>,</span>
 <span>  fix <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  use <span class="op">=</span> <span class="st">"pairwise.complete.obs"</span>,</span>
@@ -81,15 +82,19 @@
 
 
 <dt id="arg-r">R<a class="anchor" aria-label="anchor" href="#arg-r"></a></dt>
-<dd><p>the number of bootstrap replications.</p></dd>
+<dd><p>the number of bootstrap replications. Default is 1000 (more is better but slower).</p></dd>
 
 
 <dt id="arg-start">start<a class="anchor" aria-label="anchor" href="#arg-start"></a></dt>
-<dd><p><code>logical</code>; should <code>.coef(x)</code> be passed as <code>start</code> to the <code>update(x, weights = ...)</code> call? In case the model <code>x</code> is computed by some numeric iteration, this may speed up the bootstrapping.</p></dd>
+<dd><p><code>logical</code>; should <code>.coef(x)</code> be passed as <code>start</code> to the <code>update(x, weights = ...)</code> call? In case the model <code>x</code> is computed by some numeric iteration, this may speed up the bootstrapping. Default is <code>FALSE</code>.</p></dd>
 
 
 <dt id="arg-wtype">wtype<a class="anchor" aria-label="anchor" href="#arg-wtype"></a></dt>
-<dd><p>string; the type of weights to use. Allowable options include <code>"exp"</code> (the default), <code>"pois"</code>, <code>"multinom"</code>, and <code>"mammen"</code>. See <code><a href="fwb.html">fwb()</a></code> for details. See <code><a href="set_fwb_wtype.html">set_fwb_wtype()</a></code> to set a global default.</p></dd>
+<dd><p>string; the type of weights to use. Allowable options include <code>"exp"</code> (the default), <code>"pois"</code>, <code>"multinom"</code>, <code>"mammen"</code>, <code>"beta"</code>, and <code>"power"</code>. See <code><a href="fwb.html">fwb()</a></code> for details. See <code><a href="set_fwb_wtype.html">set_fwb_wtype()</a></code> to set a global default.</p></dd>
+
+
+<dt id="arg-drop-">drop0<a class="anchor" aria-label="anchor" href="#arg-drop-"></a></dt>
+<dd><p><code>logical</code>; when <code>wtype</code> is <code>"multinom"</code> or <code>"poisson"</code>, whether to drop units that are given weights of 0 from the model call in each iteration. If <code>TRUE</code>, the model will be called with an additional <code>subset</code> argument, filtering out units with weights of 0 (note this will overwrite any argument to <code>subset</code> in the original call). If <code>NA</code>, weights of 0 will be set to <code>NA</code> instead. Ignored for other <code>wtype</code>s because they don't produce 0 weights. Default is <code>FALSE</code>.</p></dd>
 
 
 <dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>
@@ -128,7 +133,12 @@
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
-    <div class="dont-index"><p><code><a href="fwb.html">fwb()</a></code> for performing the fractional weighted bootstrap on an arbitrary quantity; <code><a href="fwb.ci.html">fwb.ci()</a></code> for computing nonparametric confidence intervals for <code>fwb</code> objects; <code><a href="summary.fwb.html">summary.fwb()</a></code> for producing standard errors and confidence intervals for <code>fwb</code> objects; <code><a href="https://sandwich.R-Forge.R-project.org/reference/vcovBS.html" class="external-link">sandwich::vcovBS()</a></code> for computing covariance matrices using the traditional bootstrap (the fractional weighted bootstrap is also available but with limited options).</p></div>
+    <div class="dont-index">
+<ul><li><p><code><a href="fwb.html">fwb()</a></code> for performing the fractional weighted bootstrap on an arbitrary quantity</p></li>
+<li><p><code><a href="fwb.ci.html">fwb.ci()</a></code> for computing nonparametric confidence intervals for <code>fwb</code> objects</p></li>
+<li><p><code><a href="summary.fwb.html">summary.fwb()</a></code> for producing standard errors and confidence intervals for <code>fwb</code> objects</p></li>
+<li><p><code><a href="https://sandwich.R-Forge.R-project.org/reference/vcovBS.html" class="external-link">sandwich::vcovBS()</a></code> for computing covariance matrices using the traditional bootstrap (the fractional weighted bootstrap is also available but with limited options).</p></li>
+</ul></div>
     </div>
 
     <div class="section level2">

@@ -26,7 +26,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">fwb</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.1.9000</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.1.9001</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -138,9 +138,9 @@ with your favorite integer.</p>
 have a random component, see Case 1, regardless of whether or how
 parallelization is used. In this case, no random process occurs within
 each cluster, so no special steps need to be taken beyond setting a
-seed. Note that <code>simple</code> is <code>TRUE</code> by default
-unless <code>wtype = "multinom"</code>, so this must be set manually.
-See below for a code example:</p>
+seed. Note that <code>simple = TRUE</code> by default unless
+<code>wtype = "multinom"</code>, so this must be set manually. See below
+for a code example:</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="op">{</span><span class="va">N</span><span class="op">}</span><span class="op">)</span></span>
 <span></span>
@@ -232,7 +232,9 @@ randomness in <code>statistic</code>
 that was used to originally generate the weights, and
 <code><a href="../reference/fwb.ci.html">fwb.ci()</a></code> recalls that seed to re-generate the weights and
 then computes the required statistics for the BCa interval without
-requiring any extra involvement by the user.</p>
+requiring any extra involvement by the user. Remember,
+<code>simple = TRUE</code> by default unless
+<code>wtype = "multinom"</code>.</p>
 <p>Otherwise, when the following condition is met, an additional step is
 required:</p>
 <ul>
