@@ -124,8 +124,8 @@
 <span><span class="co">#&gt; beta 2.04e+00   8.79e-01 1.24e+00  4.55e+00</span></span>
 <span></span>
 <span><span class="co"># Plot the bootstrap distribution</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">fwb_est</span>, index <span class="op">=</span> <span class="st">"beta"</span>, qdist <span class="op">=</span> <span class="st">"chisq"</span><span class="op">)</span></span></code></pre></div>
-<p><img src="reference/figures/README-unnamed-chunk-5-1.png" width="80%" style="display: block; margin: auto;"><img src="reference/figures/README-unnamed-chunk-5-2.png" width="80%" style="display: block; margin: auto;"></p>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">fwb_est</span>, index <span class="op">=</span> <span class="st">"beta"</span><span class="op">)</span></span></code></pre></div>
+<p><img src="reference/figures/README-unnamed-chunk-5-1.png" width="80%" style="display: block; margin: auto;"></p>
 </div>
 <div class="section level3">
 <h3 id="infertility-logistic-regression-analysis-using-infert-dataset">Infertility logistic regression analysis using <code>infert</code> dataset<a class="anchor" aria-label="anchor" href="#infertility-logistic-regression-analysis-using-infert-dataset"></a>
@@ -202,7 +202,7 @@
 <p><img src="reference/figures/README-unnamed-chunk-9-1.png" width="80%" style="display: block; margin: auto;"></p>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">fwb_est</span>, index <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span></code></pre></div>
-<p><img src="reference/figures/README-unnamed-chunk-10-1.png" width="80%" style="display: block; margin: auto;"><img src="reference/figures/README-unnamed-chunk-10-2.png" width="80%" style="display: block; margin: auto;"></p>
+<p><img src="reference/figures/README-unnamed-chunk-10-1.png" width="80%" style="display: block; margin: auto;"></p>
 <p>It is clear that the estimates from the traditional bootstrap are pathological, whereas the estimates from the FWB are more reasonable. The non-normality of the FWB distributions also suggests that the usual Wald-style confidence intervals may not be accurate, and a bias-corrected percentile interval should probably be computed instead.</p>
 </div>
 </div>
