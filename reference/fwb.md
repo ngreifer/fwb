@@ -300,9 +300,9 @@ et al. (2020) and in the most formulations of the Bayesian bootstrap; it
 should be used if one wants to remain in line with these guidelines or
 to maintain a Bayesian flavor to the analysis, whereas `"mammen"`,
 `"beta"`, and `"power"` might be preferred for their frequentist
-operating characteristics, though though more research is needed on
-their general performance. `"multinom"` and `"poisson"` should only be
-used for comparison purposes or as an alternative interface to boot.
+operating characteristics, though more research is needed on their
+general performance. `"multinom"` and `"poisson"` should only be used
+for comparison purposes or as an alternative interface to boot.
 
 ## Methods (by generic)
 

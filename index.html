@@ -60,27 +60,27 @@
 <div class="row">
   <main id="main" class="col-md-9"><div class="section level1">
 <div class="page-header"><h1 id="fwb-fractional-weighted-bootstrap">
-<code>fwb</code>: Fractional Weighted Bootstrap<a class="anchor" aria-label="anchor" href="#fwb-fractional-weighted-bootstrap"></a>
+<em>fwb</em>: Fractional Weighted Bootstrap<a class="anchor" aria-label="anchor" href="#fwb-fractional-weighted-bootstrap"></a>
 </h1></div>
 <!-- badges: start -->
 
-<p><code>fwb</code> implements the fractional weighted bootstrap (FWB), also known as the Bayesian bootstrap, following the treatment by Xu et al. (2020). The FWB involves generating sets of weights from a uniform Dirichlet distribution to be used in estimating statistics of interest, which yields a posterior distribution that can be interpreted in the same way the traditional (resampling-based) bootstrap distribution can be. The primary function is <code><a href="reference/fwb.html">fwb()</a></code>, which is essentially a drop-in for <code><a href="https://rdrr.io/pkg/boot/man/boot.html" class="external-link">boot::boot()</a></code> in that it takes in a dataset and a function and applies that function to the dataset and a randomly generated set of case weights. Also included are <code><a href="reference/fwb.ci.html">fwb.ci()</a></code>, a drop-in for <code><a href="https://rdrr.io/pkg/boot/man/boot.ci.html" class="external-link">boot::boot.ci()</a></code> for computing various kinds of confidence intervals (e.g., percentile, normal, bias-corrected percentile, etc.), and <code><a href="reference/vcovFWB.html">vcovFWB()</a></code>, a drop-in for <code><a href="https://sandwich.R-Forge.R-project.org/reference/vcovBS.html" class="external-link">sandwich::vcovBS()</a></code> for computing a coefficient covariance matrix from a regression model using the FWB.</p>
-<p>Check out the <code>fwb</code> <a href="https://ngreifer.github.io/fwb/">website</a>!</p>
+<p><em>fwb</em> implements the fractional weighted bootstrap (FWB), also known as the Bayesian bootstrap, following the treatment by Xu et al. (2020). The FWB involves generating sets of weights from a uniform Dirichlet distribution to be used in estimating statistics of interest, which yields a posterior distribution that can be interpreted in the same way the traditional (resampling-based) bootstrap distribution can be. The primary function is <code><a href="reference/fwb.html">fwb()</a></code>, which is essentially a drop-in for <code><a href="https://rdrr.io/pkg/boot/man/boot.html" class="external-link">boot::boot()</a></code> in that it takes in a dataset and a function and applies that function to the dataset and a randomly generated set of case weights. Also included are <code><a href="reference/fwb.ci.html">fwb.ci()</a></code>, a drop-in for <code><a href="https://rdrr.io/pkg/boot/man/boot.ci.html" class="external-link">boot::boot.ci()</a></code> for computing various kinds of confidence intervals (e.g., percentile, normal, bias-corrected percentile, etc.), and <code><a href="reference/vcovFWB.html">vcovFWB()</a></code>, a drop-in for <code><a href="https://sandwich.R-Forge.R-project.org/reference/vcovBS.html" class="external-link">sandwich::vcovBS()</a></code> for computing a coefficient covariance matrix from a regression model using the FWB.</p>
+<p>Check out the <em>fwb</em> <a href="https://ngreifer.github.io/fwb/">website</a>!</p>
 <div class="section level2">
 <h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
 </h2>
-<p>You can install the current stable version of <code>fwb</code> from CRAN with:</p>
+<p>You can install the current stable version of <em>fwb</em> from CRAN with:</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"fwb"</span><span class="op">)</span></span></code></pre></div>
-<p>You can install the development version of <code>fwb</code> from <a href="https://github.com/" class="external-link">GitHub</a> with:</p>
+<p>You can install the development version of <em>fwb</em> from <a href="https://github.com/ngreifer/fwb" class="external-link">GitHub</a> with:</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># install.packages("remotes")</span></span>
-<span><span class="fu">remotes</span><span class="fu">::</span><span class="fu">install_github</span><span class="op">(</span><span class="st">"ngreifer/fwb"</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="co"># install.packages("pak")</span></span>
+<span><span class="fu">pak</span><span class="fu">::</span><span class="fu"><a href="https://pak.r-lib.org/reference/pak.html" class="external-link">pak</a></span><span class="op">(</span><span class="st">"ngreifer/fwb"</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="examples">Examples<a class="anchor" aria-label="anchor" href="#examples"></a>
 </h2>
-<p>Below are some examples of how to use <code>fwb</code>. We set a seed to ensure all results are replicable. (Note that when parallel processing is used, a special kind of seed needs to be set; see <code><a href="articles/fwb-rep.html">vignette("fwb-rep")</a></code> for details.)</p>
+<p>Below are some examples of how to use <em>fwb</em>. We set a seed to ensure all results are replicable. (Note that when parallel processing is used, a special kind of seed needs to be set; see <code><a href="articles/fwb-rep.html">vignette("fwb-rep")</a></code> for details.)</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="st"><a href="https://ngreifer.github.io/fwb/">"fwb"</a></span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">123456</span>, <span class="st">"L'Ecuyer-CMRG"</span><span class="op">)</span></span></code></pre></div>
@@ -143,9 +143,9 @@
 <span><span class="co"># The traditional bootstrap fails</span></span>
 <span><span class="fu"><a href="https://rdrr.io/pkg/lmtest/man/coeftest.html" class="external-link">coeftest</a></span><span class="op">(</span><span class="va">fit</span>, vcov <span class="op">=</span> <span class="fu">sandwich</span><span class="fu">::</span><span class="va"><a href="https://sandwich.R-Forge.R-project.org/reference/vcovBS.html" class="external-link">vcovBS</a></span><span class="op">)</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">3</span>, <span class="op">]</span></span>
 <span><span class="co">#&gt;              Estimate   Std. Error       z value Pr(&gt;|z|)</span></span>
-<span><span class="co">#&gt; (Intercept) -6.904101 2.285991e+22 -3.020179e-22        1</span></span>
-<span><span class="co">#&gt; spontaneous  3.230286 1.670378e+14  1.933866e-14        1</span></span>
-<span><span class="co">#&gt; induced      2.190303 1.194912e+14  1.833025e-14        1</span></span>
+<span><span class="co">#&gt; (Intercept) -6.904101 2.191250e+14 -3.150760e-14        1</span></span>
+<span><span class="co">#&gt; spontaneous  3.230286 2.109943e+14  1.530982e-14        1</span></span>
+<span><span class="co">#&gt; induced      2.190303 1.382598e+14  1.584193e-14        1</span></span>
 <span></span>
 <span><span class="co"># The fractional weighted bootstrap succeeds</span></span>
 <span><span class="fu"><a href="https://rdrr.io/pkg/lmtest/man/coeftest.html" class="external-link">coeftest</a></span><span class="op">(</span><span class="va">fit</span>, vcov <span class="op">=</span> <span class="va">vcovFWB</span><span class="op">)</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">3</span>, <span class="op">]</span></span>
@@ -181,9 +181,9 @@
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Bootstrap Statistics :</span></span>
 <span><span class="co">#&gt;      original       bias     std. error</span></span>
-<span><span class="co">#&gt; t1* -6.904101 2.629510e+21 8.083197e+22</span></span>
-<span><span class="co">#&gt; t2*  3.230286 2.114656e+13 2.336509e+14</span></span>
-<span><span class="co">#&gt; t3*  2.190303 1.696351e+13 1.878001e+14</span></span>
+<span><span class="co">#&gt; t1* -6.904101 1.012278e+20 2.447447e+21</span></span>
+<span><span class="co">#&gt; t2*  3.230286 2.020323e+13 2.080529e+14</span></span>
+<span><span class="co">#&gt; t3*  2.190303 1.533283e+13 1.656799e+14</span></span>
 <span></span>
 <span><span class="va">fwb_est</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/fwb.html">fwb</a></span><span class="op">(</span><span class="va">infert</span>, <span class="va">fit_fun</span>, R <span class="op">=</span> <span class="fl">999</span>, verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
 <span><span class="va">fwb_est</span></span>
@@ -210,21 +210,21 @@
 <div class="section level2">
 <h2 id="weighted-statistics-and-transformations">Weighted statistics and transformations<a class="anchor" aria-label="anchor" href="#weighted-statistics-and-transformations"></a>
 </h2>
-<p><code>fwb</code> also contains utility functions for computing weighted statistics to facilitate incorporation of bootstrapped weights into estimates. These include <code><a href="reference/w_mean.html">w_mean()</a></code>, <code><a href="reference/w_mean.html">w_var()</a></code>, <code><a href="reference/w_mean.html">w_sd()</a></code>, <code><a href="reference/w_mean.html">w_quantile()</a></code>, and <code><a href="reference/w_mean.html">w_median()</a></code> for computing weighted means, variances, standard deviations, quantiles, and medians; <code><a href="reference/w_mean.html">w_cov()</a></code> and <code><a href="reference/w_mean.html">w_cor()</a></code> for computing weighted covariance and correlation matrices, and <code><a href="reference/w_mean.html">w_std()</a></code>, <code><a href="reference/w_mean.html">w_scale()</a></code>, and <code><a href="reference/w_mean.html">w_center()</a></code> for transforming variables by standardizing, scaling, and centering using weighted statistics. Many of these serve as drop-ins for base R functions, like <code><a href="https://rdrr.io/r/stats/weighted.mean.html" class="external-link">weighted.mean()</a></code> for computing the weighted mean, but have the advantage that the weights do not need to be manually supplied: when the functions are called from within <code><a href="reference/fwb.html">fwb()</a></code> or <code><a href="reference/vcovFWB.html">vcovFWB()</a></code>, the bootstrap weights are automatically incorporated.</p>
+<p><em>fwb</em> also contains utility functions for computing weighted statistics to facilitate incorporation of bootstrapped weights into estimates. These include <code><a href="reference/w_mean.html">w_mean()</a></code>, <code><a href="reference/w_mean.html">w_var()</a></code>, <code><a href="reference/w_mean.html">w_sd()</a></code>, <code><a href="reference/w_mean.html">w_quantile()</a></code>, and <code><a href="reference/w_mean.html">w_median()</a></code> for computing weighted means, variances, standard deviations, quantiles, and medians; <code><a href="reference/w_mean.html">w_cov()</a></code> and <code><a href="reference/w_mean.html">w_cor()</a></code> for computing weighted covariance and correlation matrices, and <code><a href="reference/w_mean.html">w_std()</a></code>, <code><a href="reference/w_mean.html">w_scale()</a></code>, and <code><a href="reference/w_mean.html">w_center()</a></code> for transforming variables by standardizing, scaling, and centering using weighted statistics. Many of these serve as drop-ins for base R functions, like <code><a href="https://rdrr.io/r/stats/weighted.mean.html" class="external-link">weighted.mean()</a></code> for computing the weighted mean, but have the advantage that the weights do not need to be manually supplied: when the functions are called from within <code><a href="reference/fwb.html">fwb()</a></code> or <code><a href="reference/vcovFWB.html">vcovFWB()</a></code>, the bootstrap weights are automatically incorporated.</p>
 </div>
 <div class="section level2">
 <h2 id="when-to-use-the-fractional-weighted-bootstrap">When to use the fractional weighted bootstrap<a class="anchor" aria-label="anchor" href="#when-to-use-the-fractional-weighted-bootstrap"></a>
 </h2>
-<p>The FWB is uniformly more reliable than the traditional bootstrap when a weighted statistic can be computed (though this doesn’t mean the bootstrap is always valid). In most simple cases, both methods will yield the same results. In some pathological examples like those above, the FWB dramatically outperforms the traditional bootstrap. This will be true when running regression models with sparse categorical variables either in the outcome or among the predictors, for example, when estimating fixed effects or when a binary outcome is rare. However, it is important to know when a weighted statistic can be computed; for example, computing the weighted median is not always straightforward, making the traditional bootstrap potentially more useful for computing it. Still, though, the FWB deserves a place in an analyst’s toolbox.</p>
+<p>The FWB is typically more reliable than the traditional bootstrap when a weighted statistic can be computed (though this doesn’t mean the bootstrap is always valid). In most simple cases, both methods will yield similar results. In some pathological examples like those above, the FWB dramatically outperforms the traditional bootstrap. This will be true when running regression models with sparse categorical variables either in the outcome or among the predictors, for example, when estimating fixed effects or when a binary outcome is rare. However, it is important to know when a weighted statistic can be computed; for example, computing the weighted median is not always straightforward, making the traditional bootstrap potentially more useful for computing it. Still, though, the FWB deserves a place in an analyst’s toolbox.</p>
 </div>
 <div class="section level2">
 <h2 id="related-packages">Related packages<a class="anchor" aria-label="anchor" href="#related-packages"></a>
 </h2>
 <ul>
 <li>
-<code>boot</code>, which provides the traditional bootstrap, including an interface that accepts frequency weights to compute weighted statistics, as was used above</li>
+<em>boot</em>, which provides the traditional bootstrap, including an interface that accepts frequency weights to compute weighted statistics, as was used above</li>
 <li>
-<code>bayesboot</code>, which also provides functionality for the Bayesian bootstrap but does so in a more explicitly Bayesian fashion and with returned objects that are less consistent with those from <code>boot</code>
+<em>bayesboot</em>, which also provides functionality for the Bayesian bootstrap but does so in a more explicitly Bayesian fashion and with returned objects that are less consistent with those from <em>boot</em>
 </li>
 </ul>
 </div>
@@ -236,10 +236,10 @@
 </ul>
 </div>
 <div class="section level2">
-<h2 id="citing-fwb">Citing <code>fwb</code>
+<h2 id="citing-fwb">Citing <em>fwb</em>
 <a class="anchor" aria-label="anchor" href="#citing-fwb"></a>
 </h2>
-<p>To cite <code>fwb</code>, please use <code>citation("fwb")</code>, which generates a package citation.</p>
+<p>To cite <em>fwb</em>, please use <code>citation("fwb")</code>, which generates a package citation.</p>
 </div>
 <div class="section level2">
 <h2 id="community-guidelines">Community guidelines<a class="anchor" aria-label="anchor" href="#community-guidelines"></a>
