@@ -1,7 +1,7 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
-# `fwb`: Fractional Weighted Bootstrap
+# *fwb*: Fractional Weighted Bootstrap
 
 <!-- badges: start -->
 
@@ -10,7 +10,7 @@ status](https://www.r-pkg.org/badges/version/fwb)](https://CRAN.R-project.org/pa
 [![CRAN_Downloads_Badge](https://cranlogs.r-pkg.org/badges/fwb)](https://CRAN.R-project.org/package=fwb)
 <!-- badges: end -->
 
-`fwb` implements the fractional weighted bootstrap (FWB), also known as
+*fwb* implements the fractional weighted bootstrap (FWB), also known as
 the Bayesian bootstrap, following the treatment by Xu et al. (2020). The
 FWB involves generating sets of weights from a uniform Dirichlet
 distribution to be used in estimating statistics of interest, which
@@ -25,27 +25,27 @@ normal, bias-corrected percentile, etc.), and `vcovFWB()`, a drop-in for
 `sandwich::vcovBS()` for computing a coefficient covariance matrix from
 a regression model using the FWB.
 
-Check out the `fwb` [website](https://ngreifer.github.io/fwb/)!
+Check out the *fwb* [website](https://ngreifer.github.io/fwb/)!
 
 ## Installation
 
-You can install the current stable version of `fwb` from CRAN with:
+You can install the current stable version of *fwb* from CRAN with:
 
 ``` r
 install.packages("fwb")
 ```
 
-You can install the development version of `fwb` from
-[GitHub](https://github.com/) with:
+You can install the development version of *fwb* from
+[GitHub](https://github.com/ngreifer/fwb) with:
 
 ``` r
-# install.packages("remotes")
-remotes::install_github("ngreifer/fwb")
+# install.packages("pak")
+pak::pak("ngreifer/fwb")
 ```
 
 ## Examples
 
-Below are some examples of how to use `fwb`. We set a seed to ensure all
+Below are some examples of how to use *fwb*. We set a seed to ensure all
 results are replicable. (Note that when parallel processing is used, a
 special kind of seed needs to be set; see `vignette("fwb-rep")` for
 details.)
@@ -132,9 +132,9 @@ library("lmtest")
 # The traditional bootstrap fails
 coeftest(fit, vcov = sandwich::vcovBS)[1:3, ]
 #>              Estimate   Std. Error       z value Pr(>|z|)
-#> (Intercept) -6.904101 2.285991e+22 -3.020179e-22        1
-#> spontaneous  3.230286 1.670378e+14  1.933866e-14        1
-#> induced      2.190303 1.194912e+14  1.833025e-14        1
+#> (Intercept) -6.904101 2.191250e+14 -3.150760e-14        1
+#> spontaneous  3.230286 2.109943e+14  1.530982e-14        1
+#> induced      2.190303 1.382598e+14  1.584193e-14        1
 
 # The fractional weighted bootstrap succeeds
 coeftest(fit, vcov = vcovFWB)[1:3, ]
@@ -182,9 +182,9 @@ boot_est
 #> 
 #> Bootstrap Statistics :
 #>      original       bias     std. error
-#> t1* -6.904101 2.629510e+21 8.083197e+22
-#> t2*  3.230286 2.114656e+13 2.336509e+14
-#> t3*  2.190303 1.696351e+13 1.878001e+14
+#> t1* -6.904101 1.012278e+20 2.447447e+21
+#> t2*  3.230286 2.020323e+13 2.080529e+14
+#> t3*  2.190303 1.533283e+13 1.656799e+14
 
 fwb_est <- fwb(infert, fit_fun, R = 999, verbose = FALSE)
 fwb_est
@@ -224,7 +224,7 @@ bias-corrected percentile interval should probably be computed instead.
 
 ## Weighted statistics and transformations
 
-`fwb` also contains utility functions for computing weighted statistics
+*fwb* also contains utility functions for computing weighted statistics
 to facilitate incorporation of bootstrapped weights into estimates.
 These include `w_mean()`, `w_var()`, `w_sd()`, `w_quantile()`, and
 `w_median()` for computing weighted means, variances, standard
@@ -240,10 +240,10 @@ incorporated.
 
 ## When to use the fractional weighted bootstrap
 
-The FWB is uniformly more reliable than the traditional bootstrap when a
+The FWB is typically more reliable than the traditional bootstrap when a
 weighted statistic can be computed (though this doesn’t mean the
 bootstrap is always valid). In most simple cases, both methods will
-yield the same results. In some pathological examples like those above,
+yield similar results. In some pathological examples like those above,
 the FWB dramatically outperforms the traditional bootstrap. This will be
 true when running regression models with sparse categorical variables
 either in the outcome or among the predictors, for example, when
@@ -255,20 +255,20 @@ it. Still, though, the FWB deserves a place in an analyst’s toolbox.
 
 ## Related packages
 
-- `boot`, which provides the traditional bootstrap, including an
+- *boot*, which provides the traditional bootstrap, including an
   interface that accepts frequency weights to compute weighted
   statistics, as was used above
-- `bayesboot`, which also provides functionality for the Bayesian
+- *bayesboot*, which also provides functionality for the Bayesian
   bootstrap but does so in a more explicitly Bayesian fashion and with
-  returned objects that are less consistent with those from `boot`
+  returned objects that are less consistent with those from *boot*
 
 ## Author
 
 - Noah Greifer (noah.greifer@gmail.com)
 
-## Citing `fwb`
+## Citing *fwb*
 
-To cite `fwb`, please use `citation("fwb")`, which generates a package
+To cite *fwb*, please use `citation("fwb")`, which generates a package
 citation.
 
 ## Community guidelines
