@@ -13,7 +13,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">fwb</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.1.9001</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.1.9002</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -58,7 +58,7 @@
 <span>  wtype <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">getOption</a></span><span class="op">(</span><span class="st">"fwb_wtype"</span>, <span class="st">"exp"</span><span class="op">)</span>,</span>
 <span>  strata <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  drop0 <span class="op">=</span> <span class="cn">FALSE</span>,</span>
-<span>  verbose <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  verbose <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  cl <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  <span class="va">...</span></span>
 <span><span class="op">)</span></span>
@@ -109,11 +109,13 @@
 
 
 <dt id="arg-verbose">verbose<a class="anchor" aria-label="anchor" href="#arg-verbose"></a></dt>
-<dd><p><code>logical</code>; whether to display a progress bar.</p></dd>
+<dd><p><code>logical</code>; whether to display a progress bar. The default value, <code>NULL</code>, is <code>FALSE</code> when parallelization is used (see <code>cl</code> below) and <code>TRUE</code> otherwise.</p></dd>
 
 
 <dt id="arg-cl">cl<a class="anchor" aria-label="anchor" href="#arg-cl"></a></dt>
-<dd><p>a cluster object created by <code><a href="https://rdrr.io/r/parallel/makeCluster.html" class="external-link">parallel::makeCluster()</a></code>, an integer to indicate the number of child-processes (integer values are ignored on Windows) for parallel evaluations, or the string <code>"future"</code> to use a <code>future</code> backend. See the <code>cl</code> argument of <code><a href="https://peter.solymos.org/pbapply/reference/pbapply.html" class="external-link">pbapply::pblapply()</a></code> for details. If <code>NULL</code>, no parallelization will take place. See <code><a href="../articles/fwb-rep.html">vignette("fwb-rep")</a></code> for details.</p></dd>
+<dd><p>a cluster object created by <code><a href="https://rdrr.io/r/parallel/makeCluster.html" class="external-link">parallel::makeCluster()</a></code>
+, an integer to indicate the number of child-processes (integer values are ignored on Windows) for parallel evaluations, or the string <code>"future"</code> to use a <code>future</code> backend. See the <code>cl</code> argument of <code><a href="https://peter.solymos.org/pbapply/reference/pbapply.html" class="external-link">pbapply::pblapply()</a></code>
+ for details. If <code>NULL</code>, no parallelization will take place. See <code><a href="../articles/fwb-rep.html">vignette("fwb-rep")</a></code> for details.</p></dd>
 
 
 <dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>
@@ -223,7 +225,8 @@
 <li><p><code><a href="plot.fwb.html">plot.fwb()</a></code> for plotting the bootstrap distributions</p></li>
 <li><p><code><a href="vcovFWB.html">vcovFWB()</a></code> for estimating the covariance matrix of estimates using the FWB</p></li>
 <li><p><code><a href="set_fwb_wtype.html">set_fwb_wtype()</a></code> for an example of using weights other than the default exponential weights</p></li>
-<li><p><code><a href="https://rdrr.io/pkg/boot/man/boot.html" class="external-link">boot::boot()</a></code> for the traditional bootstrap.</p></li>
+<li><p><code><a href="https://rdrr.io/pkg/boot/man/boot.html" class="external-link">boot::boot()</a></code>
+ for the traditional bootstrap.</p></li>
 </ul><p>See <code><a href="../articles/fwb-rep.html">vignette("fwb-rep")</a></code> for information on reproducibility.</p></div>
     </div>
 

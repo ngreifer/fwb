@@ -5,7 +5,9 @@
       fontURL: "https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/output/chtml/fonts/woff-v2"
     }
   };
-</script><script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"><link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet"><script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet"><link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet"><script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Fractional Weighted Bootstrap Covariance Matrix Estimation — vcovFWB"><meta name="description" content="vcovFWB() estimates the covariance matrix of model coefficient estimates using the fractional weighted bootstrap. It serves as a drop-in for [stats::vcov()] or sandwich::vcovBS(). Clustered covariances are can be requested."><meta property="og:description" content="vcovFWB() estimates the covariance matrix of model coefficient estimates using the fractional weighted bootstrap. It serves as a drop-in for [stats::vcov()] or sandwich::vcovBS(). Clustered covariances are can be requested."></head><body>
+</script><script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"><link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet"><script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet"><link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet"><script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Fractional Weighted Bootstrap Covariance Matrix Estimation — vcovFWB"><meta name="description" content="vcovFWB() estimates the covariance matrix of model coefficient estimates using the fractional weighted bootstrap. It serves as a drop-in for stats::vcov() or sandwich::vcovBS()
+. Clustered covariances are can be requested."><meta property="og:description" content="vcovFWB() estimates the covariance matrix of model coefficient estimates using the fractional weighted bootstrap. It serves as a drop-in for stats::vcov() or sandwich::vcovBS()
+. Clustered covariances are can be requested."></head><body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
 
 
@@ -13,7 +15,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">fwb</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.1.9001</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.1.9002</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -44,7 +46,8 @@
     </div>
 
     <div class="ref-description section level2">
-    <p><code>vcovFWB()</code> estimates the covariance matrix of model coefficient estimates using the fractional weighted bootstrap. It serves as a drop-in for <code>[stats::vcov()]</code> or <code><a href="https://sandwich.R-Forge.R-project.org/reference/vcovBS.html" class="external-link">sandwich::vcovBS()</a></code>. Clustered covariances are can be requested.</p>
+    <p><code>vcovFWB()</code> estimates the covariance matrix of model coefficient estimates using the fractional weighted bootstrap. It serves as a drop-in for <code><a href="https://rdrr.io/r/stats/vcov.html" class="external-link">stats::vcov()</a></code> or <code><a href="https://sandwich.R-Forge.R-project.org/reference/vcovBS.html" class="external-link">sandwich::vcovBS()</a></code>
+. Clustered covariances are can be requested.</p>
     </div>
 
     <div class="section level2">
@@ -114,11 +117,13 @@
 
 
 <dt id="arg-verbose">verbose<a class="anchor" aria-label="anchor" href="#arg-verbose"></a></dt>
-<dd><p><code>logical</code>; whether to display a progress bar.</p></dd>
+<dd><p><code>logical</code>; whether to display a progress bar. The default value, <code>NULL</code>, is <code>FALSE</code> when parallelization is used (see <code>cl</code> below) and <code>TRUE</code> otherwise.</p></dd>
 
 
 <dt id="arg-cl">cl<a class="anchor" aria-label="anchor" href="#arg-cl"></a></dt>
-<dd><p>a cluster object created by <code><a href="https://rdrr.io/r/parallel/makeCluster.html" class="external-link">parallel::makeCluster()</a></code>, an integer to indicate the number of child-processes (integer values are ignored on Windows) for parallel evaluations, or the string <code>"future"</code> to use a <code>future</code> backend. See the <code>cl</code> argument of <code><a href="https://peter.solymos.org/pbapply/reference/pbapply.html" class="external-link">pbapply::pblapply()</a></code> for details. If <code>NULL</code>, no parallelization will take place. See <code><a href="../articles/fwb-rep.html">vignette("fwb-rep")</a></code> for details.</p></dd>
+<dd><p>a cluster object created by <code><a href="https://rdrr.io/r/parallel/makeCluster.html" class="external-link">parallel::makeCluster()</a></code>
+, an integer to indicate the number of child-processes (integer values are ignored on Windows) for parallel evaluations, or the string <code>"future"</code> to use a <code>future</code> backend. See the <code>cl</code> argument of <code><a href="https://peter.solymos.org/pbapply/reference/pbapply.html" class="external-link">pbapply::pblapply()</a></code>
+ for details. If <code>NULL</code>, no parallelization will take place. See <code><a href="../articles/fwb-rep.html">vignette("fwb-rep")</a></code> for details.</p></dd>
 
 </dl></div>
     <div class="section level2">
@@ -127,9 +132,12 @@
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
-    <p><code>vcovFWB()</code> functions like other <code><a href="https://rdrr.io/r/stats/vcov.html" class="external-link">vcov()</a></code>-like functions, such as those in the <span class="pkg">sandwich</span> package, in particular, <code><a href="https://sandwich.R-Forge.R-project.org/reference/vcovBS.html" class="external-link">sandwich::vcovBS()</a></code>, which implements the traditional bootstrap (and a few other bootstrap varieties for linear models). Sets of weights are generated as described in the documentation for <code><a href="fwb.html">fwb()</a></code>, and the supplied model is re-fit using those weights. When the fitted model already has weights, these are multiplied by the bootstrap weights.</p>
+    <p><code>vcovFWB()</code> functions like other <code><a href="https://rdrr.io/r/stats/vcov.html" class="external-link">vcov()</a></code>-like functions, such as those in the <span class="pkg">sandwich</span> package, in particular, <code><a href="https://sandwich.R-Forge.R-project.org/reference/vcovBS.html" class="external-link">sandwich::vcovBS()</a></code>
+, which implements the traditional bootstrap (and a few other bootstrap varieties for linear models). Sets of weights are generated as described in the documentation for <code><a href="fwb.html">fwb()</a></code>, and the supplied model is re-fit using those weights. When the fitted model already has weights, these are multiplied by the bootstrap weights.</p>
 <p>For <code>lm</code> objects, the model is re-fit using <code><a href="https://rdrr.io/r/stats/lmfit.html" class="external-link">.lm.fit()</a></code> for speed, and, similarly, <code>glm</code> objects are re-fit using <code><a href="https://rdrr.io/r/stats/glm.html" class="external-link">glm.fit()</a></code> (or whichever fitting method was originally used). For other objects, <code><a href="https://rdrr.io/r/stats/update.html" class="external-link">update()</a></code> is used to populate the weights and re-fit the model (this assumes the fitting function accepts non-integer case weights through a <code>weights</code> argument). If a model accepts weights in some other way, <code><a href="fwb.html">fwb()</a></code> should be used instead; <code>vcovFWB()</code> is inherently limited in its ability to handle all possible models. It is important that the original model was not fit using frequency weights (i.e., weights that allow one row of data to represent multiple full, identical, individual units) unless clustering is used.</p>
-<p>See <code><a href="https://sandwich.R-Forge.R-project.org/reference/vcovBS.html" class="external-link">sandwich::vcovBS()</a></code> and <code><a href="https://sandwich.R-Forge.R-project.org/reference/vcovCL.html" class="external-link">sandwich::vcovCL()</a></code> for more information on clustering covariance matrices, and see <code><a href="fwb.html">fwb()</a></code> for more information on how clusters work with the fractional weighted bootstrap. When clusters are specified, each cluster is given a bootstrap weight, and all members of the cluster are given that weight; estimation then proceeds as normal. By default, when <code>cluster</code> is unspecified, each unit is considered its own cluster.</p>
+<p>See <code><a href="https://sandwich.R-Forge.R-project.org/reference/vcovBS.html" class="external-link">sandwich::vcovBS()</a></code>
+ and <code><a href="https://sandwich.R-Forge.R-project.org/reference/vcovCL.html" class="external-link">sandwich::vcovCL()</a></code>
+ for more information on clustering covariance matrices, and see <code><a href="fwb.html">fwb()</a></code> for more information on how clusters work with the fractional weighted bootstrap. When clusters are specified, each cluster is given a bootstrap weight, and all members of the cluster are given that weight; estimation then proceeds as normal. By default, when <code>cluster</code> is unspecified, each unit is considered its own cluster.</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
@@ -137,7 +145,8 @@
 <ul><li><p><code><a href="fwb.html">fwb()</a></code> for performing the fractional weighted bootstrap on an arbitrary quantity</p></li>
 <li><p><code><a href="fwb.ci.html">fwb.ci()</a></code> for computing nonparametric confidence intervals for <code>fwb</code> objects</p></li>
 <li><p><code><a href="summary.fwb.html">summary.fwb()</a></code> for producing standard errors and confidence intervals for <code>fwb</code> objects</p></li>
-<li><p><code><a href="https://sandwich.R-Forge.R-project.org/reference/vcovBS.html" class="external-link">sandwich::vcovBS()</a></code> for computing covariance matrices using the traditional bootstrap (the fractional weighted bootstrap is also available but with limited options).</p></li>
+<li><p><code><a href="https://sandwich.R-Forge.R-project.org/reference/vcovBS.html" class="external-link">sandwich::vcovBS()</a></code>
+ for computing covariance matrices using the traditional bootstrap (the fractional weighted bootstrap is also available but with limited options).</p></li>
 </ul></div>
     </div>
 

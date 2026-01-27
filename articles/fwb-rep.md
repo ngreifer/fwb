@@ -76,11 +76,11 @@ f.out <- fwb(.)
 ### Case 2: `simple = FALSE`, non-random `statistic`
 
 If `simple = FALSE` and `statistic` does not have a random component,
-see Case 1, regardless of whether or how parallelization is used. In
-this case, no random process occurs within each cluster, so no special
-steps need to be taken beyond setting a seed. Note that `simple = TRUE`
-by default unless `wtype = "multinom"`, so this must be set manually.
-See below for a code example:
+see [Case 1](#case-1), regardless of whether or how parallelization is
+used. In this case, no random process occurs within each cluster, so no
+special steps need to be taken beyond setting a seed. Note that
+`simple = TRUE` by default unless `wtype = "multinom"`, so this must be
+set manually. See below for a code example:
 
 ``` r
 set.seed({N})
@@ -90,13 +90,13 @@ f.out <- fwb(., simple = FALSE)
 
 ### Case 3: `cl` is an integer
 
-When `cl` is an integer and the criteria for Case 2 are not met (i.e.,
-`simple = TRUE` or `statistic` has a random component), one additional
-step is required for ensuring reproducibility. Again, all you need to do
-is use [`set.seed()`](https://rdrr.io/r/base/Random.html), but you must
-call it with `kind = "L'Ecuyer-CMRG"`, which is the only method
-appropriate for use across multiple clusters. See below for a code
-example:
+When `cl` is an integer and the criteria for [Case 2](#case-2) are not
+met (i.e., `simple = TRUE` or `statistic` has a random component), one
+additional step is required for ensuring reproducibility. Again, all you
+need to do is use [`set.seed()`](https://rdrr.io/r/base/Random.html),
+but you must call it with `kind = "L'Ecuyer-CMRG"`, which is the only
+method appropriate for use across multiple clusters. See below for a
+code example:
 
 ``` r
 set.seed({N}, "L'Ecuyer-CMRG")
@@ -106,8 +106,8 @@ f.out <- fwb(., cl = 3)
 
 ### Case 4: `cl` is `"future"`
 
-When using a `future` backend and the criteria for Case are not met, you
-can use the same solution as for Case 3.
+When using a `future` backend and the criteria for [Case 2](#case-2) are
+not met, you can use the same solution as for Case 3.
 [`fwb()`](https://ngreifer.github.io/fwb/reference/fwb.md) performs an
 additional step to make sure the seed is correctly sent to
 [`future.apply::future_lapply()`](https://future.apply.futureverse.org/reference/future_lapply.html).
@@ -201,3 +201,14 @@ so BCa confidence intervals cannot be computed.
 [`fwb.ci()`](https://ngreifer.github.io/fwb/reference/fwb.ci.md))
 automatically checks for this case and throws an error if BCa confidence
 intervals are requested when these conditions are met.
+
+## `verbose`
+
+It may be surprising to know that the `verbose` argument can affect
+reproducibility. This is because of how *pbapply*, the package used to
+generate progress bars when `verbose = TRUE`, handles parallelization.
+To ensure reproducibility when parallelization is used, it is advisable
+to set `verbose = FALSE` and omit a progress bar. As of *fwb* version
+0.6.0, this is the default. This also improves performance. Setting
+`verbose = TRUE` affects reproducibility in Cases [3](#case-3),
+[4](#case-4), and [5](#case-5).

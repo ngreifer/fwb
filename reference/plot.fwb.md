@@ -79,7 +79,7 @@ plot, the expected line is plotted.
 
 [`fwb()`](https://ngreifer.github.io/fwb/reference/fwb.md),
 [`summary.fwb()`](https://ngreifer.github.io/fwb/reference/summary.fwb.md),
-[`boot::plot.boot()`](https://rdrr.io/pkg/boot/man/plot.boot.html),
+[`boot::plot.boot()`](https://rdrr.io/pkg/boot/man/plot.boot.html) ,
 [`hist()`](https://rdrr.io/r/graphics/hist.html),
 [`qqplot()`](https://rdrr.io/r/stats/qqnorm.html)
 

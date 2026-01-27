@@ -172,7 +172,7 @@ the bootstrap estimates, \\t^{(i)}\\ the set of ordered estimates with
   \frac{1}{6}\frac{\sum{L^3}}{(\sum{L^2})^{3/2}}\\. \\L\\ is the
   empirical influence value of each unit, which is computed using the
   regression method described in
-  [`boot::empinf()`](https://rdrr.io/pkg/boot/man/empinf.html). When
+  [`boot::empinf()`](https://rdrr.io/pkg/boot/man/empinf.html) . When
   \\a=0\\, the `"bca"` and `"bc"` intervals coincide. The acceleration
   parameter corrects for bias and skewness in the statistic. It can only
   be used when clusters are absent and the number of bootstrap
@@ -185,7 +185,7 @@ Interpolation on the normal quantile scale is used when a non-integer
 order statistic is required, as in
 [`boot::boot.ci()`](https://rdrr.io/pkg/boot/man/boot.ci.html). Note
 that unlike with
-[`boot::boot.ci()`](https://rdrr.io/pkg/boot/man/boot.ci.html),
+[`boot::boot.ci()`](https://rdrr.io/pkg/boot/man/boot.ci.html) ,
 studentized confidence intervals (`type = "stud"`) are not allowed.
 
 ## Functions

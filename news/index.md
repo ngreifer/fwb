@@ -24,6 +24,15 @@
 - [`vcovFWB()`](https://ngreifer.github.io/fwb/reference/vcovFWB.md) has
   improved support for `coxph` objects from *survival*.
 
+- In [`fwb()`](https://ngreifer.github.io/fwb/reference/fwb.md),
+  `verbose` is now `FALSE` by default when parallelization is used.
+
+- *cli* is now used for errors and warning messages.
+
+- Updated
+  [`vignette("fwb-rep")`](https://ngreifer.github.io/fwb/articles/fwb-rep.md)
+  to discuss reproducibility with the `verbose` argument.
+
 - Added code of conduct to README.
 
 - New tests.

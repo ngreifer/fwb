@@ -13,7 +13,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">fwb</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.1.9001</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.1.9002</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -116,7 +116,8 @@
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
-    <p><code>fwb.ci()</code> functions similarly to <code><a href="https://rdrr.io/pkg/boot/man/boot.ci.html" class="external-link">boot::boot.ci()</a></code> in that it takes in a bootstrapped object and computes confidence intervals. This interface is a bit old-fashioned, but was designed to mimic that of <code>boot.ci()</code>. For a more modern interface, see <code><a href="summary.fwb.html">summary.fwb()</a></code>.</p>
+    <p><code>fwb.ci()</code> functions similarly to <code><a href="https://rdrr.io/pkg/boot/man/boot.ci.html" class="external-link">boot::boot.ci()</a></code>
+ in that it takes in a bootstrapped object and computes confidence intervals. This interface is a bit old-fashioned, but was designed to mimic that of <code>boot.ci()</code>. For a more modern interface, see <code><a href="summary.fwb.html">summary.fwb()</a></code>.</p>
 <p>The bootstrap intervals are defined as follows, with \(\alpha =\) 1 - <code>conf</code>, \(t_0\) the estimate in the original sample, \(\hat{t}\) the average of the bootstrap estimates, \(s_t\) the standard deviation of the bootstrap estimates, \(t^{(i)}\) the set of ordered estimates with \(i\) corresponding to their quantile, and \(z_\frac{\alpha}{2}\) and \(z_{1-\frac{\alpha}{2}}\) the upper and lower critical \(z\) scores.</p>
 <dl><dt><code>"wald"</code></dt>
 <dd><p>$$\left[t_0 + s_t z_\frac{\alpha}{2}, t_0 + s_t z_{1-\frac{\alpha}{2}}\right]$$
@@ -140,10 +141,12 @@ This method is valid when the statistic is normally distributed around the estim
 
 <dt><code>"bca"</code> (bias-corrected and accelerated confidence interval)</dt>
 <dd><p>$$\left[t^{(l)}, t^{(u)}\right]$$</p>
-<p>\(l = \Phi\left(z_0 + \frac{z_0 + z_\frac{\alpha}{2}}{1-a(z_0+z_\frac{\alpha}{2})}\right)\), \(u = \Phi\left(z_0 + \frac{z_0 + z_{1-\frac{\alpha}{2}}}{1-a(z_0+z_{1-\frac{\alpha}{2}})}\right)\), using the same definitions as above, but with the additional acceleration parameter \(a\), where \(a = \frac{1}{6}\frac{\sum{L^3}}{(\sum{L^2})^{3/2}}\). \(L\) is the empirical influence value of each unit, which is computed using the regression method described in <code><a href="https://rdrr.io/pkg/boot/man/empinf.html" class="external-link">boot::empinf()</a></code>. When \(a=0\), the <code>"bca"</code> and <code>"bc"</code> intervals coincide. The acceleration parameter corrects for bias and skewness in the statistic. It can only be used when clusters are absent and the number of bootstrap replications is larger than the sample size. Note that BCa intervals cannot be requested when <code>simple = TRUE</code> and there is randomness in the <code>statistic</code> supplied to <code><a href="fwb.html">fwb()</a></code>.</p></dd>
+<p>\(l = \Phi\left(z_0 + \frac{z_0 + z_\frac{\alpha}{2}}{1-a(z_0+z_\frac{\alpha}{2})}\right)\), \(u = \Phi\left(z_0 + \frac{z_0 + z_{1-\frac{\alpha}{2}}}{1-a(z_0+z_{1-\frac{\alpha}{2}})}\right)\), using the same definitions as above, but with the additional acceleration parameter \(a\), where \(a = \frac{1}{6}\frac{\sum{L^3}}{(\sum{L^2})^{3/2}}\). \(L\) is the empirical influence value of each unit, which is computed using the regression method described in <code><a href="https://rdrr.io/pkg/boot/man/empinf.html" class="external-link">boot::empinf()</a></code>
+. When \(a=0\), the <code>"bca"</code> and <code>"bc"</code> intervals coincide. The acceleration parameter corrects for bias and skewness in the statistic. It can only be used when clusters are absent and the number of bootstrap replications is larger than the sample size. Note that BCa intervals cannot be requested when <code>simple = TRUE</code> and there is randomness in the <code>statistic</code> supplied to <code><a href="fwb.html">fwb()</a></code>.</p></dd>
 
 
-</dl><p>Interpolation on the normal quantile scale is used when a non-integer order statistic is required, as in <code><a href="https://rdrr.io/pkg/boot/man/boot.ci.html" class="external-link">boot::boot.ci()</a></code>. Note that unlike with <code><a href="https://rdrr.io/pkg/boot/man/boot.ci.html" class="external-link">boot::boot.ci()</a></code>, studentized confidence intervals (<code>type = "stud"</code>) are not allowed.</p>
+</dl><p>Interpolation on the normal quantile scale is used when a non-integer order statistic is required, as in <code><a href="https://rdrr.io/pkg/boot/man/boot.ci.html" class="external-link">boot::boot.ci()</a></code>. Note that unlike with <code><a href="https://rdrr.io/pkg/boot/man/boot.ci.html" class="external-link">boot::boot.ci()</a></code>
+, studentized confidence intervals (<code>type = "stud"</code>) are not allowed.</p>
     </div>
     <div class="section level2">
     <h2 id="functions">Functions<a class="anchor" aria-label="anchor" href="#functions"></a></h2>
@@ -156,7 +159,8 @@ This method is valid when the statistic is normally distributed around the estim
 <ul><li><p><code><a href="fwb.html">fwb()</a></code> for performing the fractional weighted bootstrap</p></li>
 <li><p><code><a href="get_ci.html">get_ci()</a></code> for extracting confidence intervals from an <code>fwbci</code> object</p></li>
 <li><p><code><a href="summary.fwb.html">summary.fwb()</a></code> for producing clean output from <code><a href="fwb.html">fwb()</a></code> that includes confidence intervals calculated by <code>fwb.ci()</code></p></li>
-<li><p><code><a href="https://rdrr.io/pkg/boot/man/boot.ci.html" class="external-link">boot::boot.ci()</a></code> for computing confidence intervals from the traditional bootstrap</p></li>
+<li><p><code><a href="https://rdrr.io/pkg/boot/man/boot.ci.html" class="external-link">boot::boot.ci()</a></code>
+ for computing confidence intervals from the traditional bootstrap</p></li>
 <li><p><code><a href="vcovFWB.html">vcovFWB()</a></code> for computing parameter estimate covariance matrices using the fractional weighted bootstrap</p></li>
 </ul></div>
     </div>

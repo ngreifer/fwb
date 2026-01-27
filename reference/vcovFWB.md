@@ -2,9 +2,9 @@
 
 `vcovFWB()` estimates the covariance matrix of model coefficient
 estimates using the fractional weighted bootstrap. It serves as a
-drop-in for `[stats::vcov()]` or
-[`sandwich::vcovBS()`](https://sandwich.R-Forge.R-project.org/reference/vcovBS.html).
-Clustered covariances are can be requested.
+drop-in for [`stats::vcov()`](https://rdrr.io/r/stats/vcov.html) or
+[`sandwich::vcovBS()`](https://sandwich.R-Forge.R-project.org/reference/vcovBS.html)
+. Clustered covariances are can be requested.
 
 ## Usage
 
@@ -104,13 +104,15 @@ vcovFWB(
 
 - verbose:
 
-  `logical`; whether to display a progress bar.
+  `logical`; whether to display a progress bar. The default value,
+  `NULL`, is `FALSE` when parallelization is used (see `cl` below) and
+  `TRUE` otherwise.
 
 - cl:
 
   a cluster object created by
-  [`parallel::makeCluster()`](https://rdrr.io/r/parallel/makeCluster.html),
-  an integer to indicate the number of child-processes (integer values
+  [`parallel::makeCluster()`](https://rdrr.io/r/parallel/makeCluster.html)
+  , an integer to indicate the number of child-processes (integer values
   are ignored on Windows) for parallel evaluations, or the string
   `"future"` to use a `future` backend. See the `cl` argument of
   [`pbapply::pblapply()`](https://peter.solymos.org/pbapply/reference/pbapply.html)
@@ -127,8 +129,8 @@ A matrix containing the covariance matrix estimate.
 `vcovFWB()` functions like other
 [`vcov()`](https://rdrr.io/r/stats/vcov.html)-like functions, such as
 those in the sandwich package, in particular,
-[`sandwich::vcovBS()`](https://sandwich.R-Forge.R-project.org/reference/vcovBS.html),
-which implements the traditional bootstrap (and a few other bootstrap
+[`sandwich::vcovBS()`](https://sandwich.R-Forge.R-project.org/reference/vcovBS.html)
+, which implements the traditional bootstrap (and a few other bootstrap
 varieties for linear models). Sets of weights are generated as described
 in the documentation for
 [`fwb()`](https://ngreifer.github.io/fwb/reference/fwb.md), and the

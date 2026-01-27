@@ -17,7 +17,7 @@ fwb(
   wtype = getOption("fwb_wtype", "exp"),
   strata = NULL,
   drop0 = FALSE,
-  verbose = TRUE,
+  verbose = NULL,
   cl = NULL,
   ...
 )
@@ -89,13 +89,15 @@ print(
 
 - verbose:
 
-  `logical`; whether to display a progress bar.
+  `logical`; whether to display a progress bar. The default value,
+  `NULL`, is `FALSE` when parallelization is used (see `cl` below) and
+  `TRUE` otherwise.
 
 - cl:
 
   a cluster object created by
-  [`parallel::makeCluster()`](https://rdrr.io/r/parallel/makeCluster.html),
-  an integer to indicate the number of child-processes (integer values
+  [`parallel::makeCluster()`](https://rdrr.io/r/parallel/makeCluster.html)
+  , an integer to indicate the number of child-processes (integer values
   are ignored on Windows) for parallel evaluations, or the string
   `"future"` to use a `future` backend. See the `cl` argument of
   [`pbapply::pblapply()`](https://peter.solymos.org/pbapply/reference/pbapply.html)

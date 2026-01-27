@@ -26,7 +26,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">fwb</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.1.9001</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.1.9002</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -116,7 +116,7 @@ involves different requirements for ensuring reproducibility.</p></li>
 </ul>
 <p>This guide will proceed for combinations of these scenarios.</p>
 <div class="section level3">
-<h3 id="case-1-no-parallelization-cl-null">Case 1: No parallelization (<code>cl = NULL</code>)<a class="anchor" aria-label="anchor" href="#case-1-no-parallelization-cl-null"></a>
+<h3 id="case-1">Case 1: No parallelization (<code>cl = NULL</code>)<a class="anchor" aria-label="anchor" href="#case-1"></a>
 </h3>
 <p>When no parallelization is used (i.e., <code>cl</code> is
 unspecified, <code>NULL</code>, or <code>1</code>), all you need to do
@@ -131,14 +131,14 @@ with your favorite integer.</p>
 <span><span class="va">f.out</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/fwb.html">fwb</a></span><span class="op">(</span><span class="va">.</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level3">
-<h3 id="case-2-simple-false-non-random-statistic">Case 2: <code>simple = FALSE</code>, non-random
-<code>statistic</code><a class="anchor" aria-label="anchor" href="#case-2-simple-false-non-random-statistic"></a>
+<h3 id="case-2">Case 2: <code>simple = FALSE</code>, non-random
+<code>statistic</code><a class="anchor" aria-label="anchor" href="#case-2"></a>
 </h3>
 <p>If <code>simple = FALSE</code> and <code>statistic</code> does not
-have a random component, see Case 1, regardless of whether or how
-parallelization is used. In this case, no random process occurs within
-each cluster, so no special steps need to be taken beyond setting a
-seed. Note that <code>simple = TRUE</code> by default unless
+have a random component, see <a href="#case-1">Case 1</a>, regardless of
+whether or how parallelization is used. In this case, no random process
+occurs within each cluster, so no special steps need to be taken beyond
+setting a seed. Note that <code>simple = TRUE</code> by default unless
 <code>wtype = "multinom"</code>, so this must be set manually. See below
 for a code example:</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
@@ -147,13 +147,12 @@ for a code example:</p>
 <span><span class="va">f.out</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/fwb.html">fwb</a></span><span class="op">(</span><span class="va">.</span>, simple <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level3">
-<h3 id="case-3-cl-is-an-integer">Case 3: <code>cl</code> is an integer<a class="anchor" aria-label="anchor" href="#case-3-cl-is-an-integer"></a>
+<h3 id="case-3">Case 3: <code>cl</code> is an integer<a class="anchor" aria-label="anchor" href="#case-3"></a>
 </h3>
-<p>When <code>cl</code> is an integer and the criteria for Case 2 are
-not met (i.e., <code>simple = TRUE</code> or <code>statistic</code> has
-a random component), one additional step is required for ensuring
-reproducibility. Again, all you need to do is use
-<code><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed()</a></code>, but you must call it with
+<p>When <code>cl</code> is an integer and the criteria for <a href="#case-2">Case 2</a> are not met (i.e., <code>simple = TRUE</code>
+or <code>statistic</code> has a random component), one additional step
+is required for ensuring reproducibility. Again, all you need to do is
+use <code><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed()</a></code>, but you must call it with
 <code>kind = "L'Ecuyer-CMRG"</code>, which is the only method
 appropriate for use across multiple clusters. See below for a code
 example:</p>
@@ -163,14 +162,14 @@ example:</p>
 <span><span class="va">f.out</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/fwb.html">fwb</a></span><span class="op">(</span><span class="va">.</span>, cl <span class="op">=</span> <span class="fl">3</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level3">
-<h3 id="case-4-cl-is-future">Case 4: <code>cl</code> is <code>"future"</code><a class="anchor" aria-label="anchor" href="#case-4-cl-is-future"></a>
+<h3 id="case-4">Case 4: <code>cl</code> is <code>"future"</code><a class="anchor" aria-label="anchor" href="#case-4"></a>
 </h3>
-<p>When using a <code>future</code> backend and the criteria for Case
-are not met, you can use the same solution as for Case 3.
-<code><a href="../reference/fwb.html">fwb()</a></code> performs an additional step to make sure the seed is
-correctly sent to <code><a href="https://future.apply.futureverse.org/reference/future_lapply.html" class="external-link">future.apply::future_lapply()</a></code>.
-(Internally, this works by setting <code>future.seed = TRUE</code>,
-which you should not do yourself.) See below for a code example:</p>
+<p>When using a <code>future</code> backend and the criteria for <a href="#case-2">Case 2</a> are not met, you can use the same solution as
+for Case 3. <code><a href="../reference/fwb.html">fwb()</a></code> performs an additional step to make sure
+the seed is correctly sent to
+<code><a href="https://future.apply.futureverse.org/reference/future_lapply.html" class="external-link">future.apply::future_lapply()</a></code>. (Internally, this works by
+setting <code>future.seed = TRUE</code>, which you should not do
+yourself.) See below for a code example:</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://future.futureverse.org" class="external-link">future</a></span><span class="op">)</span></span>
 <span></span>
@@ -180,7 +179,7 @@ which you should not do yourself.) See below for a code example:</p>
 <span><span class="va">f.out</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/fwb.html">fwb</a></span><span class="op">(</span><span class="va">.</span>, cl <span class="op">=</span> <span class="st">"future"</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level3">
-<h3 id="case-5-cl-is-a-cluster-object">Case 5: <code>cl</code> is a <code>cluster</code> object<a class="anchor" aria-label="anchor" href="#case-5-cl-is-a-cluster-object"></a>
+<h3 id="case-5">Case 5: <code>cl</code> is a <code>cluster</code> object<a class="anchor" aria-label="anchor" href="#case-5"></a>
 </h3>
 <p>When <code>cl</code> is a <code>cluster</code> object (i.e., the
 output of a call to <code><a href="https://rdrr.io/r/parallel/makeCluster.html" class="external-link">parallel::makeCluster()</a></code>,
@@ -254,6 +253,19 @@ computed. <code><a href="../reference/fwb.ci.html">fwb.ci()</a></code> (and <cod
 <code><a href="https://rdrr.io/r/stats/confint.html" class="external-link">confint()</a></code>, which call <code><a href="../reference/fwb.ci.html">fwb.ci()</a></code>) automatically
 checks for this case and throws an error if BCa confidence intervals are
 requested when these conditions are met.</p>
+</div>
+<div class="section level2">
+<h2 id="verbose">
+<code>verbose</code><a class="anchor" aria-label="anchor" href="#verbose"></a>
+</h2>
+<p>It may be surprising to know that the <code>verbose</code> argument
+can affect reproducibility. This is because of how <em>pbapply</em>, the
+package used to generate progress bars when <code>verbose = TRUE</code>,
+handles parallelization. To ensure reproducibility when parallelization
+is used, it is advisable to set <code>verbose = FALSE</code> and omit a
+progress bar. As of <em>fwb</em> version 0.6.0, this is the default.
+This also improves performance. Setting <code>verbose = TRUE</code>
+affects reproducibility in Cases <a href="#case-3">3</a>, <a href="#case-4">4</a>, and <a href="#case-5">5</a>.</p>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside>
