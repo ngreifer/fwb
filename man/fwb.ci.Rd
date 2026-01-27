@@ -80,7 +80,7 @@ This involves subtracting the "bias" (\eqn{\hat{t} - t_0}) from the estimate \eq
 }
 }
 
-Interpolation on the normal quantile scale is used when a non-integer order statistic is required, as in \code{boot::boot.ci()}. Note that unlike with \code{boot::boot.ci()}, studentized confidence intervals (\code{type = "stud"}) are not allowed.
+Interpolation on the normal quantile scale is used when a non-integer order statistic is required, as in \code{boot::boot.ci()}. Note that unlike with \pkgfun{boot}{boot.ci}, studentized confidence intervals (\code{type = "stud"}) are not allowed.
 }
 \section{Functions}{
 \itemize{

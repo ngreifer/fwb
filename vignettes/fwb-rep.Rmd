@@ -19,7 +19,7 @@ There are a few arguments to `fwb()` that are relevant for reproducibility. Thes
 
 This guide will proceed for combinations of these scenarios.
 
-### Case 1: No parallelization (`cl = NULL`)
+### Case 1: No parallelization (`cl = NULL`) {#case-1}
 
 When no parallelization is used (i.e., `cl` is unspecified, `NULL`, or `1`), all you need to do is call `set.seed()` before `fwb()` to ensure reproducibility. It doesn't matter what `simple` or `statistic` do. This is probably the most common case. Just run the following to ensure reproducibility, replacing `{N}` with your favorite integer.
 
@@ -29,9 +29,9 @@ set.seed({N})
 f.out <- fwb(.)
 ```
 
-### Case 2: `simple = FALSE`, non-random `statistic`
+### Case 2: `simple = FALSE`, non-random `statistic` {#case-2}
 
-If `simple = FALSE` and `statistic` does not have a random component, see Case 1, regardless of whether or how parallelization is used. In this case, no random process occurs within each cluster, so no special steps need to be taken beyond setting a seed. Note that `simple = TRUE` by default unless `wtype = "multinom"`, so this must be set manually. See below for a code example:
+If `simple = FALSE` and `statistic` does not have a random component, see [Case 1](#case-1), regardless of whether or how parallelization is used. In this case, no random process occurs within each cluster, so no special steps need to be taken beyond setting a seed. Note that `simple = TRUE` by default unless `wtype = "multinom"`, so this must be set manually. See below for a code example:
 
 ```r
 set.seed({N})
@@ -39,9 +39,9 @@ set.seed({N})
 f.out <- fwb(., simple = FALSE)
 ```
 
-### Case 3: `cl` is an integer
+### Case 3: `cl` is an integer {#case-3}
 
-When `cl` is an integer and the criteria for Case 2 are not met (i.e., `simple = TRUE` or `statistic` has a random component), one additional step is required for ensuring reproducibility. Again, all you need to do is use `set.seed()`, but you must call it with `kind = "L'Ecuyer-CMRG"`, which is the only method appropriate for use across multiple clusters. See below for a code example:
+When `cl` is an integer and the criteria for [Case 2](#case-2) are not met (i.e., `simple = TRUE` or `statistic` has a random component), one additional step is required for ensuring reproducibility. Again, all you need to do is use `set.seed()`, but you must call it with `kind = "L'Ecuyer-CMRG"`, which is the only method appropriate for use across multiple clusters. See below for a code example:
 
 ```r
 set.seed({N}, "L'Ecuyer-CMRG")
@@ -49,9 +49,9 @@ set.seed({N}, "L'Ecuyer-CMRG")
 f.out <- fwb(., cl = 3)
 ```
 
-### Case 4: `cl` is `"future"`
+### Case 4: `cl` is `"future"` {#case-4}
 
-When using a `future` backend and the criteria for Case are not met, you can use the same solution as for Case 3. `fwb()` performs an additional step to make sure the seed is correctly sent to `future.apply::future_lapply()`. (Internally, this works by setting `future.seed = TRUE`, which you should not do yourself.) See below for a code example:
+When using a `future` backend and the criteria for [Case 2](#case-2) are not met, you can use the same solution as for Case 3. `fwb()` performs an additional step to make sure the seed is correctly sent to `future.apply::future_lapply()`. (Internally, this works by setting `future.seed = TRUE`, which you should not do yourself.) See below for a code example:
 
 ```r
 library(future)
@@ -62,7 +62,7 @@ set.seed({N}, "L'Ecuyer-CMRG")
 f.out <- fwb(., cl = "future")
 ```
 
-### Case 5: `cl` is a `cluster` object
+### Case 5: `cl` is a `cluster` object {#case-5}
 
 When `cl` is a `cluster` object (i.e., the output of a call to `parallel::makeCluster()`, `parallel::makePSOCKcluster()`, `parallel::makeForkCluster()` or similar functions in *parallelly*), an additional step must be taken to ensure reproducibility. Unfortunately, you can't use `set.seed()`; you have to use `parallel::clusterSetRNGStream()`, to which you supply the `cluster` object and your desired seed. See below for a code example:
 
@@ -93,3 +93,7 @@ Otherwise, when the following condition is met, an additional step is required:
 In this case, you need to call `parallel::clusterSetRNGStream(cl, {N})` with the same seed as as was used prior to `fwb()` immediately before calling `fwb.ci()` or `summary()`.
 
 When `simple = TRUE` and there is any randomness in `statistic`, it is not possible to re-generate the weights that were used in the bootstrap, so BCa confidence intervals cannot be computed. `fwb.ci()` (and `summary()` and `confint()`, which call `fwb.ci()`) automatically checks for this case and throws an error if BCa confidence intervals are requested when these conditions are met.
+
+## `verbose`
+
+It may be surprising to know that the `verbose` argument can affect reproducibility. This is because of how *pbapply*, the package used to generate progress bars when `verbose = TRUE`, handles parallelization. To ensure reproducibility when parallelization is used, it is advisable to set `verbose = FALSE` and omit a progress bar. As of *fwb* version 0.6.0, this is the default. This also improves performance. Setting `verbose = TRUE` affects reproducibility in Cases [3](#case-3), [4](#case-4), and [5](#case-5).

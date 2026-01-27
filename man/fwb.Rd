@@ -14,7 +14,7 @@ fwb(
   wtype = getOption("fwb_wtype", "exp"),
   strata = NULL,
   drop0 = FALSE,
-  verbose = TRUE,
+  verbose = NULL,
   cl = NULL,
   ...
 )
@@ -43,7 +43,7 @@ fwb(
 
 \item{drop0}{\code{logical}; when \code{wtype} is \code{"multinom"} or \code{"poisson"}, whether to drop units that are given weights of 0 from the dataset and weights supplied to \code{statistic} in each iteration. If \code{NA}, weights of 0 will be set to \code{NA} instead. Ignored for other \code{wtype}s because they don't produce 0 weights. Default is \code{FALSE}.}
 
-\item{verbose}{\code{logical}; whether to display a progress bar.}
+\item{verbose}{\code{logical}; whether to display a progress bar. The default value, \code{NULL}, is \code{FALSE} when parallelization is used (see \code{cl} below) and \code{TRUE} otherwise.}
 
 \item{cl}{a cluster object created by \pkgfun{parallel}{makeCluster}, an integer to indicate the number of child-processes (integer values are ignored on Windows) for parallel evaluations, or the string \code{"future"} to use a \code{future} backend. See the \code{cl} argument of \pkgfun{pbapply}{pblapply} for details. If \code{NULL}, no parallelization will take place. See \code{vignette("fwb-rep")} for details.}
 

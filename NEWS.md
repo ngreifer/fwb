@@ -13,6 +13,12 @@
 
 * `vcovFWB()` has improved support for `coxph` objects from *survival*.
 
+* In `fwb()`, `verbose` is now `FALSE` by default when parallelization is used.
+
+* *cli* is now used for errors and warning messages.
+
+* Updated `vignette("fwb-rep")` to discuss reproducibility with the `verbose` argument.
+
 * Added code of conduct to README.
 
 * New tests.

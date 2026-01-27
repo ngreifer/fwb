@@ -44,7 +44,7 @@ vcovFWB(
 
 \item{.coef}{a function used to extract the coefficients from each fitted model. Must return a numeric vector. By default, \code{\link[stats:coef]{stats::coef}} is used, but \code{marginaleffects::get_coef} can be a more reliable choice for some models that have a non-standard \code{coef()} method, like that for \code{nnet::multinom()} models.}
 
-\item{verbose}{\code{logical}; whether to display a progress bar.}
+\item{verbose}{\code{logical}; whether to display a progress bar. The default value, \code{NULL}, is \code{FALSE} when parallelization is used (see \code{cl} below) and \code{TRUE} otherwise.}
 
 \item{cl}{a cluster object created by \pkgfun{parallel}{makeCluster}, an integer to indicate the number of child-processes (integer values are ignored on Windows) for parallel evaluations, or the string \code{"future"} to use a \code{future} backend. See the \code{cl} argument of \pkgfun{pbapply}{pblapply} for details. If \code{NULL}, no parallelization will take place. See \code{vignette("fwb-rep")} for details.}
 }
@@ -52,7 +52,7 @@ vcovFWB(
 A matrix containing the covariance matrix estimate.
 }
 \description{
-\code{vcovFWB()} estimates the covariance matrix of model coefficient estimates using the fractional weighted bootstrap. It serves as a drop-in for \verb{[stats::vcov()]} or \code{sandwich::vcovBS()}. Clustered covariances are can be requested.
+\code{vcovFWB()} estimates the covariance matrix of model coefficient estimates using the fractional weighted bootstrap. It serves as a drop-in for \code{\link[stats:vcov]{stats::vcov()}} or \pkgfun{sandwich}{vcovBS}. Clustered covariances are can be requested.
 }
 \details{
 \code{vcovFWB()} functions like other \code{vcov()}-like functions, such as those in the \pkg{sandwich} package, in particular, \pkgfun{sandwich}{vcovBS}, which implements the traditional bootstrap (and a few other bootstrap varieties for linear models). Sets of weights are generated as described in the documentation for \code{\link[=fwb]{fwb()}}, and the supplied model is re-fit using those weights. When the fitted model already has weights, these are multiplied by the bootstrap weights.
