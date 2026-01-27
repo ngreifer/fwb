@@ -1,6 +1,6 @@
 #' Fractional Weighted Bootstrap Covariance Matrix Estimation
 #'
-#' `vcovFWB()` estimates the covariance matrix of model coefficient estimates using the fractional weighted bootstrap. It serves as a drop-in for `[stats::vcov()]` or `sandwich::vcovBS()`. Clustered covariances are can be requested.
+#' `vcovFWB()` estimates the covariance matrix of model coefficient estimates using the fractional weighted bootstrap. It serves as a drop-in for [stats::vcov()] or \pkgfun{sandwich}{vcovBS}. Clustered covariances are can be requested.
 #'
 #' @inheritParams sandwich::vcovBS
 #' @inheritParams fwb
@@ -115,10 +115,10 @@ vcovFWB <- function(x, cluster = NULL, R = 1000, start = FALSE,
 
   if (!is.numeric(cf) || length(dim(cf)) > 1L) {
     if (identical(.coef, eval(formals()[[".coef"]]))) {
-      .err("the coefficients extracted using `coef()` from the supplied model are not in the form of a numeric vector; see the `.coef` argument at `help(\"vcovFWB\")`")
+      .err("the coefficients extracted using {.fun coef} from the supplied model are not in the form of a numeric vector; see the {.arg .coef} argument for {.fun vcovFWB}")
     }
     else {
-      .err("the function supplied to `.coef` must return a numeric vector")
+      .err("the function supplied to {.arg .coef} must return a numeric vector")
     }
   }
 
@@ -146,12 +146,12 @@ vcovFWB <- function(x, cluster = NULL, R = 1000, start = FALSE,
   }
 
   if (nrow(cluster) != n) {
-    .err("number of observations in `cluster` and `nobs()` do not match")
+    .err("number of observations in {.arg cluster} and {.fun nobs} do not match")
   }
 
   ## catch NAs in cluster -> need to be addressed in the model object by the user
   if (anyNA(cluster)) {
-    .err("cannot handle `NA`s in `cluster`: either refit the model without the `NA` observations in `cluster` or impute the `NA`s")
+    .err("cannot handle {.val {NA}}s in {.arg cluster}: either refit the model without the {.val {NA}} observations in {.arg cluster} or impute the {.val {NA}}s")
   }
 
   ## for multi-way clustering: set up interaction patterns
@@ -170,6 +170,8 @@ vcovFWB <- function(x, cluster = NULL, R = 1000, start = FALSE,
     sgn <- 1
   }
 
+  # nout <- 5
+
   opb <- pbapply::pboptions(type = if (verbose) "timer" else "none")
   on.exit(pbapply::pboptions(opb))
 
@@ -184,15 +186,15 @@ vcovFWB <- function(x, cluster = NULL, R = 1000, start = FALSE,
   }
 
   ## use starting values?
-  start <- if (start && inherits(x, "glm")) .coef(x) else NULL
+  start <- if (start && inherits(x, "glm")) .coef(x)
 
   ## bootstrap for each cluster dimension
   for (i in seq_along(clu)) {
 
-    cli <- factor(cluster[[i]])
+    clu_i <- factor(cluster[[i]])
 
     ## bootstrap fitting function
-    bootfit <- make.bootfit(x, cli, start, drop0 = drop0,
+    bootfit <- make.bootfit(x, clu_i, start, drop0 = drop0,
                             gen_weights, .coef, .env)
 
     ## actually refit
@@ -339,8 +341,7 @@ make.bootfit <- function(fit, cli, start, drop0, gen_weights, .coef, .env) {
       fit.fun <- get0(fit[["method"]], envir = environment(fit[["terms"]]),
                       mode = "function")
       if (is_null(fit.fun)) {
-        .err(sprintf("the `method` used to fit the original model (%s) is unavailable",
-                     add_quotes(fit[["method"]])))
+        .err("the {.arg method} used to fit the original model ({.val {fit[['method']]}}) is unavailable")
       }
     }
     else {
@@ -429,7 +430,7 @@ safe.glm.fit <- function(fit.fun, ...) {
   warning = function(w) {
     if (conditionMessage(w) != "non-integer #successes in a binomial glm!" &&
         !startsWith(conditionMessage(w), "non-integer x =")) {
-      .wrn(w, tidy = FALSE, immediate = FALSE)
+      .wrn(w, tidy = FALSE, immediate = FALSE, cli = FALSE)
     }
     invokeRestart("muffleWarning")
   })

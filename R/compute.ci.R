@@ -60,7 +60,7 @@ compute_ci <- function(type, t, t0, conf = .95, index = 1, hinv = identity, boot
       a <- colSums(L^3, na.rm = TRUE) / (6 * colSums(L^2, na.rm = TRUE)^1.5)
 
       if (!all(is.finite(a))) {
-        .err("estimated adjustment 'a' is NA")
+        .err("estimated adjustment {.var a} is {.val {NA}}")
       }
     }
     else { # type == "bc"
@@ -204,7 +204,7 @@ invert_ci <- function(type, t, t0, null = 0, index = 1L, h = identity, boot.out 
     a <- colSums(L^3, na.rm = TRUE) / (6 * colSums(L^2, na.rm = TRUE)^1.5)
 
     if (!all(is.finite(a))) {
-      .err("estimated adjustment 'a' is NA")
+      .err("estimated adjustment {.var a} is {.val {NA}}")
     }
 
     s <- vapply(index, function(i) {

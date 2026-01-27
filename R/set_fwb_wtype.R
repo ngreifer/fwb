@@ -62,7 +62,7 @@ get_fwb_wtype <- function(fwb) {
   }
 
   if (!inherits(fwb, "fwb")) {
-    .err("the argument to `get_fwb_wtype()` must either be left empty or the output of a call to `fwb()`")
+    .err("the argument to {.fun get_fwb_wtype} must either be left empty or the output of a call to {.fun fwb}")
   }
 
   fwb[["wtype"]]

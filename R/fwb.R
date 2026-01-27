@@ -10,7 +10,7 @@
 #' @param wtype string; the type of weights to use. Allowable options include `"exp"` (the default), `"pois"`, `"multinom"`, `"mammen"`, `"beta"`, and `"power"`. See Details. See [set_fwb_wtype()] to set a global default.
 #' @param strata optional; a vector containing stratum membership for stratified bootstrapping. If supplied, will essentially perform a separate bootstrap within each level of `strata`. This does not affect results when `wtype = "poisson"`.
 #' @param drop0 `logical`; when `wtype` is `"multinom"` or `"poisson"`, whether to drop units that are given weights of 0 from the dataset and weights supplied to `statistic` in each iteration. If `NA`, weights of 0 will be set to `NA` instead. Ignored for other `wtype`s because they don't produce 0 weights. Default is `FALSE`.
-#' @param verbose `logical`; whether to display a progress bar.
+#' @param verbose `logical`; whether to display a progress bar. The default value, `NULL`, is `FALSE` when parallelization is used (see `cl` below) and `TRUE` otherwise.
 #' @param cl a cluster object created by \pkgfun{parallel}{makeCluster}, an integer to indicate the number of child-processes (integer values are ignored on Windows) for parallel evaluations, or the string `"future"` to use a `future` backend. See the `cl` argument of \pkgfun{pbapply}{pblapply} for details. If `NULL`, no parallelization will take place. See `vignette("fwb-rep")` for details.
 #' @param ... other arguments passed to `statistic`.
 #'
@@ -30,7 +30,8 @@
 #'
 #' `fwb` objects have [coef()] and [vcov()] methods, which extract the `t0` component and covariance of the `t` components, respectively.
 #'
-#' @details `fwb()` implements the fractional weighted bootstrap and is meant to function as a drop-in for `boot::boot(., stype = "f")` (i.e., the usual bootstrap but with frequency weights representing the number of times each unit is drawn). In each bootstrap replication, when `wtype = "exp"` (the default), the weights are sampled from independent exponential distributions with rate parameter 1 and then normalized to have a mean of 1, equivalent to drawing the weights from a Dirichlet distribution. Other weights are allowed as determined by the `wtype` argument (see below for details). The function supplied to `statistic` must incorporate the weights to compute a weighted statistic. For example, if the output is a regression coefficient, the weights supplied to the `w` argument of `statistic` should be supplied to the `weights` argument of `lm()`. These weights should be used any time frequency weights would be, since they are meant to function like frequency weights (which, in the case of the traditional bootstrap, would be integers). Unfortunately, there is no way for `fwb()` to know whether you are using the weights correctly, so care should be taken to ensure weights are correctly incorporated into the estimator.
+#' @details
+#' `fwb()` implements the fractional weighted bootstrap and is meant to function as a drop-in for `boot::boot(., stype = "f")` (i.e., the usual bootstrap but with frequency weights representing the number of times each unit is drawn). In each bootstrap replication, when `wtype = "exp"` (the default), the weights are sampled from independent exponential distributions with rate parameter 1 and then normalized to have a mean of 1, equivalent to drawing the weights from a Dirichlet distribution. Other weights are allowed as determined by the `wtype` argument (see below for details). The function supplied to `statistic` must incorporate the weights to compute a weighted statistic. For example, if the output is a regression coefficient, the weights supplied to the `w` argument of `statistic` should be supplied to the `weights` argument of `lm()`. These weights should be used any time frequency weights would be, since they are meant to function like frequency weights (which, in the case of the traditional bootstrap, would be integers). Unfortunately, there is no way for `fwb()` to know whether you are using the weights correctly, so care should be taken to ensure weights are correctly incorporated into the estimator.
 #'
 #' When fitting binomial regression models (e.g., logistic) using [glm()], it may be useful to change the `family` to a "quasi" variety (e.g., [quasibinomial()]) to avoid a spurious warning about "non-integer #successes".
 #'
@@ -116,7 +117,7 @@
 #' @export
 fwb <- function(data, statistic, R = 999, cluster = NULL, simple = NULL,
                 wtype = getOption("fwb_wtype", "exp"), strata = NULL, drop0 = FALSE,
-                verbose = TRUE, cl = NULL, ...) {
+                verbose = NULL, cl = NULL, ...) {
 
   bcall <- match.call()
 
@@ -126,7 +127,7 @@ fwb <- function(data, statistic, R = 999, cluster = NULL, simple = NULL,
 
   n <- nrow(data)
   if (is_null(n) || !chk::vld_count(n) || n < 1L) {
-    .err("`data` must be present")
+    .err("{.arg data} must be present")
   }
 
   #Check statistic
@@ -172,6 +173,10 @@ fwb <- function(data, statistic, R = 999, cluster = NULL, simple = NULL,
   }
 
   #Check verbose
+  if (is_null(verbose)) {
+    nw <- guess_num_workers(cl)
+    verbose <- (nw == 1)
+  }
   chk::chk_flag(verbose)
 
   #Check wtype
@@ -206,7 +211,7 @@ fwb <- function(data, statistic, R = 999, cluster = NULL, simple = NULL,
 
     if (simple && !parallel_seed_set &&
         ((is.numeric(cl) && !isTRUE(all.equal(cl, 1))) || identical(cl, "future"))) {
-      .wrn('`cl` was supplied but the random number generator is not suitable for parallelization. Set an appropriate seed using `set.seed(###, "L\'Ecuyer-CMRG")`, where ### is your favorite integer. See `?set.seed` for details')
+      .wrn('{.arg cl} was supplied but the random number generator is not suitable for parallelization. Set an appropriate seed using {.code set.seed(###, "L\'Ecuyer-CMRG")}, where ### is your favorite integer. See {.fun set.seed} for details')
     }
 
     if (identical(cl, "future")) {
@@ -216,29 +221,33 @@ fwb <- function(data, statistic, R = 999, cluster = NULL, simple = NULL,
 
   #Test fun
   test_w <- .set_class(rep.int(1, n), "fwb_internal_w")
-  t0 <- try(call_statistic(statistic, data = data, ...,
-                           .wi = test_w, drop0 = drop0))
+  # .time <- system.time({
+    t0 <- try(call_statistic(statistic, data = data, ...,
+                             .wi = test_w, drop0 = drop0))
+  # })
 
   if (inherits(t0, "try-error")) {
-    .err("There was an error running the function supplied to `statistic` on unit-weighted data. Error produced:\n\t",
-         conditionMessage(.attr(t0, "condition")),
+    .err(sprintf("There was an error running the function supplied to {.arg statistic} on unit-weighted data. Error produced:\n\t%s",
+                 conditionMessage(.attr(t0, "condition"))),
          tidy = FALSE)
   }
 
   if (!is.numeric(t0) || is_not_null(dim(t0))) {
-    .err("the output of the function supplied to `statistic` must be a numeric vector")
+    .err("the output of the function supplied to {.arg statistic} must be a numeric vector")
   }
 
   if (anyNA(t0)) {
-    .err("some estimates were returned as `NA` in the original sample")
+    .err("some estimates were returned as {.val {NA}} in the original sample")
   }
 
   random_statistic <- NULL
   if (simple) {
-    t0_rep <- try(call_statistic(statistic, data = data, ...,
-                                 .wi = test_w, drop0 = drop0))
-
+    # .time2 <- system.time({
+      t0_rep <- try(call_statistic(statistic, data = data, ...,
+                                   .wi = test_w, drop0 = drop0))
+    # })
     random_statistic <- !identical(t0_rep, t0)
+    # .time <- (.time + .time2) / 2
   }
 
   if (is_null(names(t0))) {
@@ -302,6 +311,21 @@ fwb <- function(data, statistic, R = 999, cluster = NULL, simple = NULL,
                             envir = asNamespace("fwb"))
   }
 
+  # if (!verbose) {
+  #   nout <- 1L
+  # }
+  # else {
+  #   nw <- guess_num_workers(cl)
+  #
+  #   if (nw == 1L) {
+  #     nout <- 100L
+  #   }
+  #   else {
+  #     refresh_rate <- 1
+  #     nout <- min(max(1L, ceiling(R * .time["elapsed"] / (nw * refresh_rate))), 10L)
+  #   }
+  # }
+
   opb <- pbapply::pboptions(type = if (verbose) "timer" else "none")
   on.exit(pbapply::pboptions(opb))
 
@@ -315,7 +339,7 @@ fwb <- function(data, statistic, R = 999, cluster = NULL, simple = NULL,
   }
 
   if (anyNA(t)) {
-    .wrn("some estimates were returned as `NA`, which can cause problems in subsequent analyses")
+    .wrn("some estimates were returned as {.val {NA}}, which can cause problems in subsequent analyses")
   }
 
   colnames(t) <- names(t0)
@@ -408,7 +432,7 @@ check_statistic <- function(statistic) {
                             "...")
 
   if (length(statistic_args) < 2L) {
-    .err("the function supplied to `statistic` must have at least two named arguments, the first corresponding to the dataset and the second corresponding to the weights")
+    .err("the function supplied to {.arg statistic} must have at least two named arguments, the first corresponding to the dataset and the second corresponding to the weights")
   }
 
   forbidden_args <- setdiff(c(rlang::fn_fmls_names(fwb), rlang::fn_fmls_names(call_statistic)),
@@ -417,8 +441,7 @@ check_statistic <- function(statistic) {
   bad_args <- intersect(statistic_args, forbidden_args)
 
   if (is_not_null(bad_args)) {
-    .err(sprintf("the function supplied to `statistic` cannot have arguments named %s",
-                 word_list(bad_args, and.or = "or", quotes = TRUE)))
+    .err("the function supplied to {.arg statistic} cannot have arguments named {.or {.val {bad_args}}}")
   }
 
   invisible(NULL)

@@ -31,7 +31,7 @@ plot.fwb <- function(x, index = 1L, qdist = "norm", nclass = NULL, df, type = c(
 
   t <- t[is.finite(t)]
   if (all_the_same(t)) {
-    .wrn(sprintf("all values of t* are equal to %s", mean(t, na.rm = TRUE)))
+    .wrn("all values of {.field t*} are equal to {.val {mean(t, na.rm = TRUE)}}")
     return(invisible(x))
   }
 
@@ -93,8 +93,7 @@ plot.fwb <- function(x, index = 1L, qdist = "norm", nclass = NULL, df, type = c(
         qlab <- "Quantiles of Standard Normal"
       }
       else {
-        .err(sprintf("%s distribution not supported",
-                     add_quotes(qdist)))
+        .err("{.val {qdist}} distribution not supported")
       }
 
       qqplot(qfun(p), t, xlab = qlab, ylab = colnames(x[["t"]])[index])

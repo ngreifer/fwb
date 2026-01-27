@@ -71,7 +71,7 @@ fwb.array <- function(fwb.out) {
 
   if (isTRUE(.attr(fwb.out, "simple")) &&
       isTRUE(.attr(fwb.out, "random_statistic"))) {
-    .wrn('bootstrap weights cannot be reliably re-generated when there is randomness in `statistic` and `simple = TRUE` in the call to `fbw()`. See `vignette("fwb-rep")` for details')
+    .wrn('bootstrap weights cannot be reliably re-generated when there is randomness in {.arg statistic} and {.code simple = TRUE} in the call to {.fun fbw}. See {.vignette [vignette("fwb-rep")]{fwb::fwb-rep} for details')
   }
 
   FUN <- function(i) {

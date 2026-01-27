@@ -78,11 +78,11 @@ summary.fwb <- function(object, conf = .95, ci.type = "bc", p.value = FALSE,
 
     if (simultaneous) {
       if (!ci.type %in% c("perc", "wald")) {
-      .err('simultaneous inference can only be used when `ci.type` is `"wald"` or `"perc"`')
+      .err('simultaneous inference can only be used when {.arg ci.type} is {.or {.val {c("wald", "perc")}}}')
       }
 
       if (ci.type == "wald" && conf > 0 && conf <= .5) {
-        .err('`conf` must be greater than .5 to use with `simultaneous = TRUE` and `ci.type = "wald"`')
+        .err('{.arg conf} must be greater than .5 to use with {.code simultaneous = TRUE} and {.code ci.type = "wald"}')
       }
     }
   }
@@ -165,11 +165,11 @@ confint.fwb <- function(object, parm, level = .95, ci.type = "bc", simultaneous 
 
   if (simultaneous) {
     if (!ci.type %in% c("perc", "wald")) {
-      .err('simultaneous inference can only be used when `ci.type` is `"wald"` or `"perc"`')
+      .err('simultaneous inference can only be used when {.arg ci.type} is {.or {.val {c("wald", "perc")}}}')
     }
 
     if (ci.type == "wald" && level <= .5) {
-      .err('`level` must be greater than .5 to use with `simultaneous = TRUE` and `ci.type = "wald"`')
+      .err('{.arg level} must be greater than .5 to use with {.code simultaneous = TRUE} and {.code ci.type = "wald"}')
     }
 
     new_level <- simultaneous_ci_level(object, level, index, ci.type)

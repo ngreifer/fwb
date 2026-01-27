@@ -53,7 +53,7 @@
 #' }
 #' }
 #'
-#' Interpolation on the normal quantile scale is used when a non-integer order statistic is required, as in `boot::boot.ci()`. Note that unlike with `boot::boot.ci()`, studentized confidence intervals (`type = "stud"`) are not allowed.
+#' Interpolation on the normal quantile scale is used when a non-integer order statistic is required, as in `boot::boot.ci()`. Note that unlike with \pkgfun{boot}{boot.ci}, studentized confidence intervals (`type = "stud"`) are not allowed.
 #'
 #' @seealso
 #' * [fwb()] for performing the fractional weighted bootstrap
@@ -125,7 +125,7 @@ fwb.ci <- function(fwb.out, conf = .95, type = "bc", index = 1L,
 
     if (isTRUE(.attr(fwb.out, "simple")) &&
         isTRUE(.attr(fwb.out, "random_statistic"))) {
-      msg <- c(msg, 'BCa confidence intervals cannot be computed when there is randomness in `statistic` and `simple = TRUE` in the call to `fbw()`. See `vignette("fwb-rep")` for details')
+      msg <- c(msg, 'BCa confidence intervals cannot be computed when there is randomness in {.arg statistic} and {.code simple = TRUE} in the call to {.fun fbw}. See {.vignette [vignette("fwb-rep")]{fwb::fwb-rep} for details')
     }
 
     if (is_not_null(msg)) {
@@ -145,7 +145,7 @@ fwb.ci <- function(fwb.out, conf = .95, type = "bc", index = 1L,
   t0 <- fwb.out[["t0"]][index]
 
   if (anyNA(t)) {
-    .err("some bootstrap estimates are `NA`; cannot calculate confidence intervals")
+    .err("some bootstrap estimates are {.val {NA}}; cannot calculate confidence intervals")
   }
 
   if (!all(is.finite(t))) {
@@ -153,12 +153,11 @@ fwb.ci <- function(fwb.out, conf = .95, type = "bc", index = 1L,
   }
 
   if (all_the_same(t)) {
-    .err(sprintf("all estimates are equal to %s\n Cannot calculate confidence intervals",
-                 mean(t, na.rm = TRUE)))
+    .err("all estimates are equal to {.val {mean(t)}}; cannot calculate confidence intervals")
   }
 
   if (length(t) != fwb.out[["R"]]) {
-    .err(gettextf("'t' must be of length %d", fwb.out[["R"]]), domain = NA)
+    .err("{.field t} must be of length {fwb.out[['R']]}")
   }
 
   fins <- which(is.finite(t))
@@ -167,7 +166,7 @@ fwb.ci <- function(fwb.out, conf = .95, type = "bc", index = 1L,
               setNames(vector("list", length(type)), type))
 
   if (!identical(t, h(t))) {
-    .err("`h` can only be `identity()`. Other transformations are not supported")
+    .err("{.arg h} can only be {.fun identity}. Other transformations are not supported")
   }
 
   for (i in type) {
