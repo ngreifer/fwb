@@ -95,13 +95,12 @@ fwb.ci <- function(fwb.out, conf = .95, type = "bc", index = 1L,
 
   call <- match.call()
 
-  chk::chk_is(fwb.out, "boot")
-  chk::chk_number(conf)
-  chk::chk_range(conf, c(0, 1), inclusive = FALSE)
+  arg::arg_is(fwb.out, "boot")
+  arg::arg_number(conf)
+  arg::arg_between(conf, c(0, 1), inclusive = FALSE)
 
-  chk::chk_character(type)
-  type <- match_arg(type, c(.allowed_ci.types(), "all"),
-                    several.ok = TRUE)
+  type <- arg::match_arg(type, c(.allowed_ci.types(), "all"),
+                         several.ok = TRUE)
 
   if (any(type == "all")) {
     if (is_null(fwb.out[["cluster"]])) {
@@ -130,10 +129,10 @@ fwb.ci <- function(fwb.out, conf = .95, type = "bc", index = 1L,
 
     if (is_not_null(msg)) {
       if (all(type == "bca")) {
-        .err(msg[1L])
+        arg::err(msg[1L])
       }
 
-      .wrn(msg[1L])
+      arg::wrn(msg[1L])
 
       type <- setdiff(type, "bca")
     }
@@ -145,19 +144,19 @@ fwb.ci <- function(fwb.out, conf = .95, type = "bc", index = 1L,
   t0 <- fwb.out[["t0"]][index]
 
   if (anyNA(t)) {
-    .err("some bootstrap estimates are {.val {NA}}; cannot calculate confidence intervals")
+    arg::err("some bootstrap estimates are {.val {NA}}; cannot calculate confidence intervals")
   }
 
   if (!all(is.finite(t))) {
-    .err("some bootstrap estimates are non-finite; cannot calculate confidence intervals")
+    arg::err("some bootstrap estimates are non-finite; cannot calculate confidence intervals")
   }
 
   if (all_the_same(t)) {
-    .err("all estimates are equal to {.val {mean(t)}}; cannot calculate confidence intervals")
+    arg::err("all estimates are equal to {.val {mean(t)}}; cannot calculate confidence intervals")
   }
 
   if (length(t) != fwb.out[["R"]]) {
-    .err("{.field t} must be of length {fwb.out[['R']]}")
+    arg::err("{.field t} must be of length {fwb.out[['R']]}")
   }
 
   fins <- which(is.finite(t))
@@ -166,7 +165,7 @@ fwb.ci <- function(fwb.out, conf = .95, type = "bc", index = 1L,
               setNames(vector("list", length(type)), type))
 
   if (!identical(t, h(t))) {
-    .err("{.arg h} can only be {.fun identity}. Other transformations are not supported")
+    arg::err("{.arg h} can only be {.fun identity}. Other transformations are not supported")
   }
 
   for (i in type) {
@@ -351,8 +350,8 @@ print.fwbci <- function(x, hinv = NULL, ...) {
 
 #' @export
 get_ci <- function(x, type = "all") {
-  chk::chk_is(x, "bootci")
-  chk::chk_character(type)
+  arg::arg_is(x, "bootci")
+  arg::arg_character(type)
 
   name_trans <- function(x, old, new) {
     if (old %in% names(x)) names(x)[names(x) == old] <- new
@@ -370,7 +369,7 @@ get_ci <- function(x, type = "all") {
     type <- allowed_cis
   }
   else {
-    type <- match_arg(type, allowed_cis)
+    type <- arg::match_arg(type, allowed_cis, several.ok = TRUE)
   }
 
   out <- setNames(lapply(type, function(t) {

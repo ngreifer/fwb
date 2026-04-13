@@ -97,7 +97,7 @@ w_mean <- function(x, w = NULL, na.rm = FALSE) {
     w <- .get_internal_w()
   }
 
-  chk::chk_flag(na.rm)
+  arg::arg_flag(na.rm)
 
   if (is_null(w)) {
     return(mean(x, na.rm = na.rm))
@@ -121,7 +121,7 @@ w_var <- function(x, w = NULL, na.rm = FALSE) {
     w <- .get_internal_w()
   }
 
-  chk::chk_flag(na.rm)
+  arg::arg_flag(na.rm)
 
   if (is_null(w)) {
     return(var(x, na.rm = na.rm))
@@ -225,16 +225,16 @@ w_quantile <- function(x, w = NULL, probs = seq(0, 1, by = 0.25), na.rm = FALSE,
     w <- .get_internal_w()
   }
 
-  chk::chk_numeric(probs)
-  chk::chk_range(probs)
+  arg::arg_numeric(probs)
+  arg::arg_between(probs, c(0, 1))
 
-  chk::chk_flag(na.rm)
-  chk::chk_flag(names)
+  arg::arg_flag(na.rm)
+  arg::arg_flag(names)
 
-  chk::chk_equal(type, 7L)
+  arg::arg_equal(type, 7L)
 
   if (names) {
-    chk::chk_count(digits)
+    arg::arg_count(digits)
   }
 
   if (is_null(w) || sum(w > 0, na.rm = TRUE) <= 1) {
@@ -283,7 +283,7 @@ w_median <- function(x, w = NULL, na.rm = FALSE) {
     w <- .get_internal_w()
   }
 
-  chk::chk_flag(na.rm)
+  arg::arg_flag(na.rm)
 
   if (is_null(w)) {
     return(median(x, na.rm = na.rm))
@@ -299,8 +299,8 @@ w_std <- function(x, w = NULL, na.rm = TRUE, scale = TRUE, center = TRUE) {
     w <- .get_internal_w()
   }
 
-  chk::chk_flag(scale)
-  chk::chk_flag(center)
+  arg::arg_flag(scale)
+  arg::arg_flag(center)
 
   if (is_null(w)) {
     mu <- {

@@ -48,11 +48,11 @@ compute_ci <- function(type, t, t0, conf = .95, index = 1, hinv = identity, boot
 
     if (type == "bca") {
       if (is_null(boot.out)) {
-        .err("BCa confidence intervals cannot be computed")
+        arg::err("BCa confidence intervals cannot be computed")
       }
 
       if (is_not_null(boot.out[["cluster"]])) {
-        .err("the BCa confidence interval cannot be used with clusters")
+        arg::err("the BCa confidence interval cannot be used with clusters")
       }
 
       L <- empinf.reg(boot.out, t = t[, index, drop = FALSE])
@@ -60,7 +60,7 @@ compute_ci <- function(type, t, t0, conf = .95, index = 1, hinv = identity, boot
       a <- colSums(L^3, na.rm = TRUE) / (6 * colSums(L^2, na.rm = TRUE)^1.5)
 
       if (!all(is.finite(a))) {
-        .err("estimated adjustment {.var a} is {.val {NA}}")
+        arg::err("estimated adjustment {.var a} is {.val {NA}}")
       }
     }
     else { # type == "bc"
@@ -83,7 +83,7 @@ compute_ci <- function(type, t, t0, conf = .95, index = 1, hinv = identity, boot
 
 # Normal interpolation; similar to quantile(ti, probs = alpha)
 norm_inter <- function(ti, alpha = c(.025, .975)) {
-  chk::chk_numeric(alpha)
+  arg::arg_numeric(alpha)
 
   ti <- ti[is.finite(ti)]
   R <- length(ti)
@@ -93,7 +93,7 @@ norm_inter <- function(ti, alpha = c(.025, .975)) {
   k <- floor(scaled_idx)
 
   if (any(k < 1) || any(k >= R)) {
-    .wrn("extreme order statistics used as endpoints")
+    arg::wrn("extreme order statistics used as endpoints")
 
     k[k < 1] <- 1
     k[k >= R] <- R - 1
@@ -192,11 +192,11 @@ invert_ci <- function(type, t, t0, null = 0, index = 1L, h = identity, boot.out 
   }
   else if (type == "bca") {
     if (is_null(boot.out)) {
-      .err("BCa p-values cannot be computed")
+      arg::err("BCa p-values cannot be computed")
     }
 
     if (is_not_null(boot.out[["cluster"]])) {
-      .err("BCa p-values cannot be used with clusters")
+      arg::err("BCa p-values cannot be used with clusters")
     }
 
     L <- empinf.reg(boot.out, t = t[, index, drop = FALSE])
@@ -204,7 +204,7 @@ invert_ci <- function(type, t, t0, null = 0, index = 1L, h = identity, boot.out 
     a <- colSums(L^3, na.rm = TRUE) / (6 * colSums(L^2, na.rm = TRUE)^1.5)
 
     if (!all(is.finite(a))) {
-      .err("estimated adjustment {.var a} is {.val {NA}}")
+      arg::err("estimated adjustment {.var a} is {.val {NA}}")
     }
 
     s <- vapply(index, function(i) {
@@ -229,7 +229,7 @@ invert_ci <- function(type, t, t0, null = 0, index = 1L, h = identity, boot.out 
 
 # Normal interpolation inverse; similar to mean(ti <= null)
 norm_inter_invert <- function(ti, null = 0) {
-  chk::chk_number(null)
+  arg::arg_number(null)
 
   ti <- ti[is.finite(ti)]
   R <- length(ti)

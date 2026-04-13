@@ -44,10 +44,7 @@
 
 #' @export
 set_fwb_wtype <- function(wtype = getOption("fwb_wtype", "exp")) {
-  chk::chk_string(wtype)
-
-  wtype <- tolower(wtype)
-  wtype <- match_arg(wtype, .w_types())
+  wtype <- arg::match_arg(wtype, .w_types())
 
   op <- options(fwb_wtype = wtype)
 
@@ -62,7 +59,7 @@ get_fwb_wtype <- function(fwb) {
   }
 
   if (!inherits(fwb, "fwb")) {
-    .err("the argument to {.fun get_fwb_wtype} must either be left empty or the output of a call to {.fun fwb}")
+    arg::err("the argument to {.fun get_fwb_wtype} must either be left empty or the output of a call to {.fun fwb}")
   }
 
   fwb[["wtype"]]

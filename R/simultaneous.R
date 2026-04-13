@@ -1,11 +1,11 @@
 # Simultaneous CIs and p-values
 simultaneous_ci_level <- function(object, level = .95, index = seq_len(ncol(object[["t"]])), ci.type = "perc") {
 
-  chk::chk_not_missing(object, "`object`")
-  chk::chk_is(object, "fwb")
+  arg::arg_supplied(object)
+  arg::arg_is(object, "fwb")
 
-  chk::chk_number(level)
-  chk::chk_range(level, c(0, 1), inclusive = FALSE)
+  arg::arg_number(level)
+  arg::arg_between(level, c(0, 1), inclusive = FALSE)
 
   index <- check_index(index, object[["t"]], several.ok = TRUE)
 
@@ -15,10 +15,10 @@ simultaneous_ci_level <- function(object, level = .95, index = seq_len(ncol(obje
     return(level)
   }
 
-  chk::chk_string(ci.type)
+  arg::arg_string(ci.type)
 
   if (!ci.type %in% c("perc", "wald")) {
-    .err("simultaneous inference can only be used with Wald or percentile intervals")
+    arg::err("simultaneous inference can only be used with Wald or percentile intervals")
   }
 
   if (ci.type == "perc") {
@@ -49,7 +49,7 @@ simultaneous_ci_level <- function(object, level = .95, index = seq_len(ncol(obje
   else {
     rlang::check_installed("mvtnorm")
 
-    chk::chk_range(level, c(.5, 1), inclusive = FALSE)
+    arg::arg_between(level, c(0, 1), inclusive = FALSE)
 
     v <- cov(object[["t"]][, index, drop = FALSE])
 
@@ -69,16 +69,16 @@ simultaneous_ci_level <- function(object, level = .95, index = seq_len(ncol(obje
 }
 
 simultaneous_p_value <- function(object, p.values, index = seq_len(ncol(object[["t"]])), ci.type = "perc") {
-  chk::chk_not_missing(object, "`object`")
-  chk::chk_is(object, "fwb")
+  arg::arg_supplied(object)
+  arg::arg_is(object, "fwb")
 
-  chk::chk_not_missing(p.values, "`p.values`")
-  chk::chk_numeric(p.values)
-  chk::chk_range(p.values, c(0, 1))
+  arg::arg_supplied(p.values)
+  arg::arg_numeric(p.values)
+  arg::arg_between(p.values, c(0, 1))
 
   index <- check_index(index, object[["t"]], several.ok = TRUE)
 
-  chk::chk_string(ci.type)
+  arg::arg_string(ci.type)
 
   k <- length(index)
 
@@ -87,7 +87,7 @@ simultaneous_p_value <- function(object, p.values, index = seq_len(ncol(object[[
   }
 
   if (!ci.type %in% c("perc", "wald")) {
-    .err("simultaneous inference can only be used with Wald or percentile intervals")
+    arg::err("simultaneous inference can only be used with Wald or percentile intervals")
   }
 
   if (ci.type == "perc") {

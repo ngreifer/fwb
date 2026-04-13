@@ -24,27 +24,25 @@ plot.fwb <- function(x, index = 1L, qdist = "norm", nclass = NULL, df, type = c(
 
   index <- check_index(index, x[["t"]])
 
-  chk::chk_string(qdist)
+  arg::arg_string(qdist)
 
   t <- x[["t"]][, index]
   t0 <- x[["t0"]][index]
 
   t <- t[is.finite(t)]
   if (all_the_same(t)) {
-    .wrn("all values of {.field t*} are equal to {.val {mean(t, na.rm = TRUE)}}")
+    arg::wrn("all values of {.field t*} are equal to {.val {mean(t, na.rm = TRUE)}}")
     return(invisible(x))
   }
 
-  chk::chk_character(type)
-  type <- tolower(type)
-  type <- match_arg(type, c("hist", "qq"), several.ok = TRUE)
+  type <- arg::match_arg(type, c("hist", "qq"), several.ok = TRUE)
 
   if (any(type == "hist")) {
     if (is_null(nclass)) {
       nclass <- min(max(ceiling(length(t) / 25), 10), 100)
     }
     else {
-      chk::chk_count(nclass)
+      arg::arg_count(nclass)
     }
   }
 
@@ -54,7 +52,7 @@ plot.fwb <- function(x, index = 1L, qdist = "norm", nclass = NULL, df, type = c(
         df <- estimate_chisq_df(t)
       }
       else {
-        chk::chk_number(df)
+        arg::arg_number(df)
       }
     }
   }
@@ -93,7 +91,7 @@ plot.fwb <- function(x, index = 1L, qdist = "norm", nclass = NULL, df, type = c(
         qlab <- "Quantiles of Standard Normal"
       }
       else {
-        .err("{.val {qdist}} distribution not supported")
+        arg::err("{.val {qdist}} distribution not supported")
       }
 
       qqplot(qfun(p), t, xlab = qlab, ylab = colnames(x[["t"]])[index])

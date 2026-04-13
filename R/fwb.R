@@ -122,28 +122,28 @@ fwb <- function(data, statistic, R = 999, cluster = NULL, simple = NULL,
   bcall <- match.call()
 
   #Check data
-  chk::chk_not_missing(data, "`data`")
-  chk::chk_data(data)
+  arg::arg_supplied(data)
+  arg::arg_data.frame(data)
 
   n <- nrow(data)
-  if (is_null(n) || !chk::vld_count(n) || n < 1L) {
-    .err("{.arg data} must be present")
+  if (is_null(n) || !rlang::is_scalar_integerish(n) || n < 1L) {
+    arg::err("{.arg data} must be present")
   }
 
   #Check statistic
-  chk::chk_not_missing(statistic, "`statistic`")
-  chk::chk_function(statistic)
+  arg::arg_supplied(statistic)
+  arg::arg_function(statistic)
 
   #Check R
-  chk::chk_count(R)
-  chk::chk_gt(R, 0)
+  arg::arg_count(R)
+  arg::arg_gt(R, 0)
 
   #Check cluster
   clus <- substitute(cluster)
   cluster <- eval(clus, data, parent.frame())
 
   if (is_not_null(cluster)) {
-    .chk_atomic_vector(cluster)
+    arg::arg_vector(cluster)
 
     cluster <- factor(cluster)
     nc <- nlevels(cluster)
@@ -156,8 +156,8 @@ fwb <- function(data, statistic, R = 999, cluster = NULL, simple = NULL,
   strata_to_use <- NULL
 
   if (is_not_null(strata)) {
-    .chk_atomic_vector(strata)
-    chk::chk_length(strata, n)
+    arg::arg_vector(strata)
+    arg::arg_length(strata, n)
 
     strata_to_use <- factor(strata)
 
@@ -165,7 +165,7 @@ fwb <- function(data, statistic, R = 999, cluster = NULL, simple = NULL,
       cs <- unique(data.frame(cluster, strata_to_use))
 
       if (nrow(cs) != nlevels(cluster)) {
-        .err("clusters must be completely nested within strata")
+        arg::err("clusters must be completely nested within strata")
       }
 
       strata_to_use <- cs[[2L]]
@@ -177,7 +177,7 @@ fwb <- function(data, statistic, R = 999, cluster = NULL, simple = NULL,
     nw <- guess_num_workers(cl)
     verbose <- (nw == 1)
   }
-  chk::chk_flag(verbose)
+  arg::arg_flag(verbose)
 
   #Check wtype
   gen_weights <- make_gen_weights(wtype)
@@ -185,8 +185,9 @@ fwb <- function(data, statistic, R = 999, cluster = NULL, simple = NULL,
 
   #Check drop0
   if (wtype %in% c("multinom", "poisson")) {
-    chk::chk_scalar(drop0)
-    chk::chk_logical(drop0)
+    arg::arg_or(drop0,
+                arg::arg_is_NA,
+                arg::arg_flag)
   }
   else {
     drop0 <- FALSE
@@ -194,10 +195,10 @@ fwb <- function(data, statistic, R = 999, cluster = NULL, simple = NULL,
 
   #Check simple
   if (is_not_null(simple)) {
-    chk::chk_flag(simple)
+    arg::arg_flag(simple)
 
     # if (simple && wtype == "multinom") {
-    #   .err('`simple` cannot be `TRUE` when `wtype = "multinom"`')
+    #   arg::err('`simple` cannot be `TRUE` when `wtype = "multinom"`')
     # }
   }
   else {
@@ -211,7 +212,7 @@ fwb <- function(data, statistic, R = 999, cluster = NULL, simple = NULL,
 
     if (simple && !parallel_seed_set &&
         ((is.numeric(cl) && !isTRUE(all.equal(cl, 1))) || identical(cl, "future"))) {
-      .wrn('{.arg cl} was supplied but the random number generator is not suitable for parallelization. Set an appropriate seed using {.code set.seed(###, "L\'Ecuyer-CMRG")}, where ### is your favorite integer. See {.fun set.seed} for details')
+      arg::wrn('{.arg cl} was supplied but the random number generator is not suitable for parallelization. Set an appropriate seed using {.code set.seed(###, "L\'Ecuyer-CMRG")}, where ### is your favorite integer. See {.fun set.seed} for details')
     }
 
     if (identical(cl, "future")) {
@@ -222,29 +223,28 @@ fwb <- function(data, statistic, R = 999, cluster = NULL, simple = NULL,
   #Test fun
   test_w <- .set_class(rep.int(1, n), "fwb_internal_w")
   # .time <- system.time({
-    t0 <- try(call_statistic(statistic, data = data, ...,
-                             .wi = test_w, drop0 = drop0))
+  t0 <- try(call_statistic(statistic, data = data, ...,
+                           .wi = test_w, drop0 = drop0))
   # })
 
   if (inherits(t0, "try-error")) {
-    .err(sprintf("There was an error running the function supplied to {.arg statistic} on unit-weighted data. Error produced:\n\t%s",
-                 conditionMessage(.attr(t0, "condition"))),
-         tidy = FALSE)
+    arg::err(sprintf("there was an error running the function supplied to {.arg statistic} on unit-weighted data. Error produced:\n\t%s",
+                     conditionMessage(.attr(t0, "condition"))))
   }
 
   if (!is.numeric(t0) || is_not_null(dim(t0))) {
-    .err("the output of the function supplied to {.arg statistic} must be a numeric vector")
+    arg::err("the output of the function supplied to {.arg statistic} must be a numeric vector")
   }
 
   if (anyNA(t0)) {
-    .err("some estimates were returned as {.val {NA}} in the original sample")
+    arg::err("some estimates were returned as {.val {NA}} in the original sample")
   }
 
   random_statistic <- NULL
   if (simple) {
     # .time2 <- system.time({
-      t0_rep <- try(call_statistic(statistic, data = data, ...,
-                                   .wi = test_w, drop0 = drop0))
+    t0_rep <- try(call_statistic(statistic, data = data, ...,
+                                 .wi = test_w, drop0 = drop0))
     # })
     random_statistic <- !identical(t0_rep, t0)
     # .time <- (.time + .time2) / 2
@@ -339,7 +339,7 @@ fwb <- function(data, statistic, R = 999, cluster = NULL, simple = NULL,
   }
 
   if (anyNA(t)) {
-    .wrn("some estimates were returned as {.val {NA}}, which can cause problems in subsequent analyses")
+    arg::wrn("some estimates were returned as {.val {NA}}, which can cause problems in subsequent analyses")
   }
 
   colnames(t) <- names(t0)
@@ -432,7 +432,7 @@ check_statistic <- function(statistic) {
                             "...")
 
   if (length(statistic_args) < 2L) {
-    .err("the function supplied to {.arg statistic} must have at least two named arguments, the first corresponding to the dataset and the second corresponding to the weights")
+    arg::err("the function supplied to {.arg statistic} must have at least two named arguments, the first corresponding to the dataset and the second corresponding to the weights")
   }
 
   forbidden_args <- setdiff(c(rlang::fn_fmls_names(fwb), rlang::fn_fmls_names(call_statistic)),
@@ -441,16 +441,14 @@ check_statistic <- function(statistic) {
   bad_args <- intersect(statistic_args, forbidden_args)
 
   if (is_not_null(bad_args)) {
-    .err("the function supplied to {.arg statistic} cannot have arguments named {.or {.val {bad_args}}}")
+    arg::err("the function supplied to {.arg statistic} cannot have arguments named {.or {.val {bad_args}}}")
   }
 
   invisible(NULL)
 }
 
 make_gen_weights <- function(wtype) {
-  chk::chk_string(wtype)
-  wtype <- tolower(wtype)
-  wtype <- match_arg(wtype, .w_types())
+  wtype <- arg::match_arg(wtype, .w_types())
 
   fun <- switch(wtype,
                 "exp" = function(n, R, strata = NULL) {

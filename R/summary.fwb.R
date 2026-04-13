@@ -59,30 +59,29 @@
 summary.fwb <- function(object, conf = .95, ci.type = "bc", p.value = FALSE,
                         index = seq_len(ncol(object$t)), null = 0, simultaneous = FALSE, ...) {
 
-  chk::chk_number(conf)
-  chk::chk_range(conf, c(0, 1), inclusive = TRUE)
+  arg::arg_number(conf)
+  arg::arg_between(conf, c(0, 1), inclusive = c(TRUE, FALSE))
 
-  chk::chk_flag(p.value)
+  arg::arg_flag(p.value)
 
   index <- check_index(index, object[["t"]], several.ok = TRUE)
 
   if (p.value || conf > 0) {
-    chk::chk_string(ci.type)
-    ci.type <- match_arg(ci.type, .allowed_ci.types())
+    ci.type <- arg::match_arg(ci.type, .allowed_ci.types())
 
     if (length(index) <= 1L) {
       simultaneous <- FALSE
     }
 
-    chk::chk_flag(simultaneous)
+    arg::arg_flag(simultaneous)
 
     if (simultaneous) {
       if (!ci.type %in% c("perc", "wald")) {
-      .err('simultaneous inference can only be used when {.arg ci.type} is {.or {.val {c("wald", "perc")}}}')
+      arg::err('simultaneous inference can only be used when {.arg ci.type} is {.or {.val {c("wald", "perc")}}}')
       }
 
       if (ci.type == "wald" && conf > 0 && conf <= .5) {
-        .err('{.arg conf} must be greater than .5 to use with {.code simultaneous = TRUE} and {.code ci.type = "wald"}')
+        arg::err('{.arg conf} must be greater than .5 to use with {.code simultaneous = TRUE} and {.code ci.type = "wald"}')
       }
     }
   }
@@ -95,7 +94,7 @@ summary.fwb <- function(object, conf = .95, ci.type = "bc", p.value = FALSE,
   out[, "Std. Error"] <- apply(object[["t"]][, index, drop = FALSE], 2L, sd)
 
   if (conf > 0) {
-    chk::chk_lt(conf, 1)
+    arg::arg_lt(conf, 1)
 
     pct <- fmt.prc(c((1 - conf) / 2, 1 - (1 - conf) / 2))
 
@@ -108,7 +107,7 @@ summary.fwb <- function(object, conf = .95, ci.type = "bc", p.value = FALSE,
   }
 
   if (p.value) {
-    chk::chk_number(null)
+    arg::arg_number(null)
 
     if (ci.type == "wald") {
       z <- (out[, "Estimate"] - null) / out[, "Std. Error"]
@@ -145,9 +144,8 @@ summary.fwb <- function(object, conf = .95, ci.type = "bc", p.value = FALSE,
 #' @rdname summary.fwb
 confint.fwb <- function(object, parm, level = .95, ci.type = "bc", simultaneous = FALSE, ...) {
 
-  chk::chk_number(level)
-  chk::chk_range(level, c(0, 1), inclusive = FALSE)
-  chk::chk_string(ci.type)
+  arg::arg_number(level)
+  arg::arg_between(level, c(0, 1), inclusive = FALSE)
 
   if (missing(parm)) {
     parm <- seq_len(ncol(object$t))
@@ -159,17 +157,17 @@ confint.fwb <- function(object, parm, level = .95, ci.type = "bc", simultaneous 
     simultaneous <- FALSE
   }
 
-  chk::chk_flag(simultaneous)
+  arg::arg_flag(simultaneous)
 
-  ci.type <- match_arg(ci.type, .allowed_ci.types())
+  ci.type <- arg::match_arg(ci.type, .allowed_ci.types())
 
   if (simultaneous) {
     if (!ci.type %in% c("perc", "wald")) {
-      .err('simultaneous inference can only be used when {.arg ci.type} is {.or {.val {c("wald", "perc")}}}')
+      arg::err('simultaneous inference can only be used when {.arg ci.type} is {.or {.val {c("wald", "perc")}}}')
     }
 
     if (ci.type == "wald" && level <= .5) {
-      .err('{.arg level} must be greater than .5 to use with {.code simultaneous = TRUE} and {.code ci.type = "wald"}')
+      arg::err('{.arg level} must be greater than .5 to use with {.code simultaneous = TRUE} and {.code ci.type = "wald"}')
     }
 
     new_level <- simultaneous_ci_level(object, level, index, ci.type)

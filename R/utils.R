@@ -43,52 +43,52 @@ check_index <- function(index, t, several.ok = FALSE) {
   }
 
   if (ncol(t) == 1L) {
-    if (!((is.numeric(index) && chk::vld_whole_number(index) && index == 1) ||
-          (chk::vld_string(index) && !is_null(colnames(t)) && index == colnames(t)[1L]))) {
-      .wrn("only one statistic is available; ignoring {.arg index}")
+    if (!(isTRUE(all.equal(index, 1)) ||
+          (is_not_null(colnames(t)) && isTRUE(all.equal(index, colnames(t)[1L]))))) {
+      arg::wrn("only one statistic is available; ignoring {.arg index}")
     }
 
     return(1L)
   }
 
-  if (!((is.character(index) || is.numeric(index)) && is_null(dim(index)))) {
+  if ((!is.character(index) && !is.numeric(index)) || is_not_null(dim(index))) {
     if (several.ok) {
-      .err("{.arg index} must be a character or numeric vector indicating the names or indices of the desired statistics")
+      arg::err("{.arg index} must be a character or numeric vector indicating the names or indices of the desired statistics")
     }
     else {
-      .err("{.arg index} must be a string or number indicating the name or index of the desired statistic")
+      arg::err("{.arg index} must be a string or number indicating the name or index of the desired statistic")
     }
   }
 
   index <- unique(drop(index))
 
   if (!several.ok && length(index) > 1L) {
-    .err("{.arg index} must have length one")
+    arg::err("{.arg index} must have length one")
   }
 
   if (is.numeric(index)) {
-    if (!chk::vld_whole_numeric(index)) {
+    if (!rlang::is_integerish(index)) {
       if (several.ok) {
-        .err("{.arg index} must be a vector of positive integers")
+        arg::err("{.arg index} must be a vector of positive integers")
       }
       else {
-        .err("{.arg index} must be a positive integer")
+        arg::err("{.arg index} must be a positive integer")
       }
     }
 
     if (any(index > ncol(t))) {
-      .err(sprintf("{.arg index} must be between 1 and %s", ncol(t)))
+      arg::err(sprintf("{.arg index} must be between 1 and %s", ncol(t)))
     }
   }
   else {
     if (is_null(colnames(t))) {
-      .err("the estimates don't have names, so {.arg index} must be numeric")
+      arg::err("the estimates don't have names, so {.arg index} must be numeric")
     }
 
     index <- match(index, colnames(t))
 
     if (anyNA(index)) {
-      .err("all entries in {.arg index} must be the names of available statistics to compute. The following are allowed: {.val {colnames(t)}}")
+      arg::err("all entries in {.arg index} must be the names of available statistics to compute. The following are allowed: {.val {colnames(t)}}")
     }
   }
 
@@ -104,20 +104,20 @@ add_quotes <- function(x, quotes = 2L) {
     quotes <- '"'
   }
 
-  if (chk::vld_string(quotes)) {
+  if (rlang::is_string(quotes)) {
     return(paste0(quotes, x, str_rev(quotes)))
   }
 
-  if (!chk::vld_count(quotes) || quotes > 2L) {
+  if (!rlang::is_scalar_integerish(quotes) || quotes > 2 || quotes < 0) {
     stop("`quotes` must be boolean, 1, 2, or a string.")
   }
 
-  if (quotes == 0L) {
+  if (quotes == 0) {
     return(x)
   }
 
   x <- {
-    if (quotes == 1L) sprintf("'%s'", x)
+    if (quotes == 1) sprintf("'%s'", x)
     else sprintf('"%s"', x)
   }
 
@@ -128,58 +128,9 @@ str_rev <- function(x) {
   vapply(lapply(strsplit(x, NULL), rev), paste, character(1L), collapse = "")
 }
 
-#More informative and cleaner version of base::match.arg(). Uses chk and cli.
-match_arg <- function(arg, choices, several.ok = FALSE, context = NULL) {
-  #Replaces match.arg() but gives cleaner error message and processing
-  #of arg.
-  if (missing(arg)) {
-    .err("no argument was supplied to {.fun match_arg} (this is a bug)")
-  }
-
-  arg.name <- deparse1(substitute(arg), width.cutoff = 500L)
-
-  if (missing(choices)) {
-    sysP <- sys.parent()
-    formal.args <- formals(sys.function(sysP))
-    choices <- eval(formal.args[[as.character(substitute(arg))]],
-                    envir = sys.frame(sysP))
-  }
-
-  if (is_null(arg)) {
-    return(choices[1L])
-  }
-
-  if (several.ok) {
-    chk::chk_character(arg, x_name = add_quotes(arg.name, "`"))
-  }
-  else {
-    chk::chk_string(arg, x_name = add_quotes(arg.name, "`"))
-
-    if (identical(arg, choices)) {
-      return(arg[1L])
-    }
-  }
-
-  i <- pmatch(arg, choices, nomatch = 0L, duplicates.ok = TRUE)
-
-  if (all(i == 0L)) {
-    one_of <- {
-      if (length(choices) <= 1L) NULL
-      else if (several.ok) "at least one of"
-      else "one of"
-    }
-
-    .err("{context} the argument to {.arg {arg.name}} should be {one_of} {.or {.val {choices}}}")
-  }
-
-  i <- i[i > 0L]
-
-  choices[i]
-}
-
 .tail <- function(x, n = 1L) {
-  chk::chk_count(n)
-  chk::chk_gt(n, 0)
+  arg::arg_count(n)
+  arg::arg_gt(n, 0)
 
   l <- length(x)
   x[seq(max(1L, l - n + 1L), l)]
@@ -204,79 +155,6 @@ is_not_null <- function(x) {!is_null(x)}
   class(x) <- c(class(x), .class)
 
   x
-}
-
-pkg_caller_call <- function() {
-  pn <- utils::packageName()
-  package.funs <- c(getNamespaceExports(pn),
-                    .getNamespaceInfo(asNamespace(pn), "S3methods")[, 3L])
-
-  for (i in seq_len(sys.nframe())) {
-    e <- sys.call(i)
-
-    n <- rlang::call_name(e)
-
-    if (is_not_null(n) && n %in% package.funs) {
-      return(e)
-    }
-  }
-
-  NULL
-}
-
-.err <- function(m, n = NULL, tidy = TRUE, cli = TRUE) {
-  if (cli) {
-    m <- eval.parent(substitute(cli::format_inline(.m), list(.m = m)))
-  }
-
-  chk::message_chk(m, n = n, tidy = tidy) |>
-    cli::ansi_strwrap() |>
-    paste(collapse = "\n") |>
-    rlang::abort(call = pkg_caller_call())
-}
-.wrn <- function(m, n = NULL, tidy = TRUE, immediate = TRUE, cli = TRUE) {
-  if (cli) {
-    m <- eval.parent(substitute(cli::format_inline(.m), list(.m = m)))
-  }
-
-  m <- chk::message_chk(m, n = n, tidy = tidy)
-
-  if (immediate && isTRUE(all.equal(0, getOption("warn")))) {
-    rlang::with_options({
-      m |>
-        cli::ansi_strwrap() |>
-        paste(collapse = "\n") |>
-        rlang::warn()
-    }, warn = 1)
-  }
-  else {
-    m |>
-      cli::ansi_strwrap() |>
-      paste(collapse = "\n") |>
-      rlang::warn()
-  }
-}
-.msg <- function(m, n = NULL, tidy = TRUE, cli = TRUE) {
-  if (cli) {
-    m <- eval.parent(substitute(cli::format_inline(.m), list(.m = m)))
-  }
-
-  chk::message_chk(m, n = n, tidy = tidy) |>
-    cli::ansi_strwrap() |>
-    paste(collapse = "\n") |>
-    rlang::inform(tidy = FALSE)
-}
-
-.chk_atomic_vector <- function(x, x_name = NULL) {
-  if (is.atomic(x) && !is.matrix(x) && !is.array(x)) {
-    return(invisible(x))
-  }
-
-  if (is_null(x_name)) {
-    x_name <- chk::deparse_backtick_chk(substitute(x))
-  }
-
-  chk::abort_chk(x_name, " must be an atomic vector", x = x)
 }
 
 with_seed_preserved <- function(expr, new_seed = NULL) {

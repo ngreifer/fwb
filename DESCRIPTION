@@ -1,7 +1,7 @@
 Package: fwb
 Type: Package
 Title: Fractional Weighted Bootstrap
-Version: 0.5.1.9002
+Version: 0.5.1.9003
 Authors@R: c(
     person("Noah", "Greifer", role=c("aut", "cre"), 
            email = "noah.greifer@gmail.com",
@@ -11,8 +11,7 @@ Description: An implementation of the fractional weighted bootstrap to be used a
 Depends:
     R (>= 4.0.0)
 Imports:
-    chk (>= 0.10.0),
-    cli (>= 3.6.5),
+    arg (>= 0.1.0),
     rlang (>= 1.1.6),
     pbapply (>= 1.7-2),
     generics,

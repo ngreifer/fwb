@@ -48,15 +48,15 @@
 
 #' @export
 fwb.array <- function(fwb.out) {
-  chk::chk_not_missing(fwb.out, "`fwb.out`")
-  chk::chk_is(fwb.out, "boot")
+  arg::arg_supplied(fwb.out)
+  arg::arg_is(fwb.out, "boot")
 
   if (identical(.attr(fwb.out, "boot_type"), "boot")) {
     rlang::check_installed("boot")
     return(boot::boot.array(fwb.out))
   }
 
-  chk::chk_is(fwb.out, "fwb")
+  arg::arg_is(fwb.out, "fwb")
 
   gen_weights <- make_gen_weights(fwb.out[["wtype"]])
 
@@ -71,7 +71,7 @@ fwb.array <- function(fwb.out) {
 
   if (isTRUE(.attr(fwb.out, "simple")) &&
       isTRUE(.attr(fwb.out, "random_statistic"))) {
-    .wrn('bootstrap weights cannot be reliably re-generated when there is randomness in {.arg statistic} and {.code simple = TRUE} in the call to {.fun fbw}. See {.vignette [vignette("fwb-rep")]{fwb::fwb-rep} for details')
+    arg::wrn('bootstrap weights cannot be reliably re-generated when there is randomness in {.arg statistic} and {.code simple = TRUE} in the call to {.fun fbw}. See {.vignette [vignette("fwb-rep")]{fwb::fwb-rep} for details')
   }
 
   FUN <- function(i) {

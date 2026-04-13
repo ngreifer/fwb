@@ -91,20 +91,21 @@ vcovFWB <- function(x, cluster = NULL, R = 1000, start = FALSE,
                     verbose = FALSE, cl = NULL) {
 
   #Check arguments
-  chk::chk_count(R)
-  chk::chk_flag(start)
-  chk::chk_flag(fix)
-  chk::chk_string(use)
-  chk::chk_flag(verbose)
-  chk::chk_function(.coef)
+  arg::arg_count(R)
+  arg::arg_flag(start)
+  arg::arg_flag(fix)
+  arg::arg_string(use)
+  arg::arg_flag(verbose)
+  arg::arg_function(.coef)
 
   gen_weights <- make_gen_weights(wtype)
   wtype <- .attr(gen_weights, "wtype")
 
   #Check drop0
   if (wtype %in% c("multinom", "poisson")) {
-    chk::chk_scalar(drop0)
-    chk::chk_logical(drop0)
+    arg::arg_or(drop0,
+                arg::arg_is_NA,
+                arg::arg_flag)
   }
   else {
     drop0 <- FALSE
@@ -115,10 +116,10 @@ vcovFWB <- function(x, cluster = NULL, R = 1000, start = FALSE,
 
   if (!is.numeric(cf) || length(dim(cf)) > 1L) {
     if (identical(.coef, eval(formals()[[".coef"]]))) {
-      .err("the coefficients extracted using {.fun coef} from the supplied model are not in the form of a numeric vector; see the {.arg .coef} argument for {.fun vcovFWB}")
+      arg::err("the coefficients extracted using {.fun coef} from the supplied model are not in the form of a numeric vector; see the {.arg .coef} argument for {.fun vcovFWB}")
     }
     else {
-      .err("the function supplied to {.arg .coef} must return a numeric vector")
+      arg::err("the function supplied to {.arg .coef} must return a numeric vector")
     }
   }
 
@@ -146,12 +147,12 @@ vcovFWB <- function(x, cluster = NULL, R = 1000, start = FALSE,
   }
 
   if (nrow(cluster) != n) {
-    .err("number of observations in {.arg cluster} and {.fun nobs} do not match")
+    arg::err("number of observations in {.arg cluster} and {.fun nobs} do not match")
   }
 
   ## catch NAs in cluster -> need to be addressed in the model object by the user
   if (anyNA(cluster)) {
-    .err("cannot handle {.val {NA}}s in {.arg cluster}: either refit the model without the {.val {NA}} observations in {.arg cluster} or impute the {.val {NA}}s")
+    arg::err("cannot handle {.val {NA}}s in {.arg cluster}: either refit the model without the {.val {NA}} observations in {.arg cluster} or impute the {.val {NA}}s")
   }
 
   ## for multi-way clustering: set up interaction patterns
@@ -205,7 +206,7 @@ vcovFWB <- function(x, cluster = NULL, R = 1000, start = FALSE,
   }
 
   if (all_the_same(c(0, rval))) {
-    .wrn("all variances and covariances are 0, indicating that the model failed to incorporate the bootstrapped weights")
+    arg::wrn("all variances and covariances are 0, indicating that the model failed to incorporate the bootstrapped weights")
     fix <- FALSE
   }
 
@@ -341,11 +342,11 @@ make.bootfit <- function(fit, cli, start, drop0, gen_weights, .coef, .env) {
       fit.fun <- get0(fit[["method"]], envir = environment(fit[["terms"]]),
                       mode = "function")
       if (is_null(fit.fun)) {
-        .err("the {.arg method} used to fit the original model ({.val {fit[['method']]}}) is unavailable")
+        arg::err("the {.arg method} used to fit the original model ({.val {fit[['method']]}}) is unavailable")
       }
     }
     else {
-      .err("unrecognized fitting method; the model cannot be re-fit")
+      arg::err("unrecognized fitting method; the model cannot be re-fit")
     }
 
     bootfit <- function(j, ...) {
@@ -430,7 +431,7 @@ safe.glm.fit <- function(fit.fun, ...) {
   warning = function(w) {
     if (conditionMessage(w) != "non-integer #successes in a binomial glm!" &&
         !startsWith(conditionMessage(w), "non-integer x =")) {
-      .wrn(w, tidy = FALSE, immediate = FALSE, cli = FALSE)
+      arg::wrn(w, immediate = FALSE)
     }
     invokeRestart("muffleWarning")
   })
