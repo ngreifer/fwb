@@ -27,7 +27,8 @@
 - In [`fwb()`](https://ngreifer.github.io/fwb/reference/fwb.md),
   `verbose` is now `FALSE` by default when parallelization is used.
 
-- *cli* is now used for errors and warning messages.
+- [*arg*](https://ngreifer.github.io/arg/) is now used for errors and
+  warning messages.
 
 - Updated
   [`vignette("fwb-rep")`](https://ngreifer.github.io/fwb/articles/fwb-rep.md)
