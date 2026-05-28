@@ -2,10 +2,10 @@
 
 *fwb* implements the fractional weighted bootstrap (FWB), also known as
 the Bayesian bootstrap, following the treatment by Xu et al. (2020). The
-FWB involves generating sets of weights from a uniform Dirichlet
-distribution to be used in estimating statistics of interest, which
-yields a posterior distribution that can be interpreted in the same way
-the traditional (resampling-based) bootstrap distribution can be. The
+FWB involves generating sets of weights from a continuous distribution
+to be used in estimating statistics of interest, which yields a
+posterior distribution that can be interpreted in the same way the
+traditional (resampling-based) bootstrap distribution can be. The
 primary function is
 [`fwb()`](https://ngreifer.github.io/fwb/reference/fwb.md), which is
 essentially a drop-in for
@@ -138,9 +138,9 @@ library("lmtest")
 # The traditional bootstrap fails
 coeftest(fit, vcov = sandwich::vcovBS)[1:3, ]
 #>              Estimate   Std. Error       z value Pr(>|z|)
-#> (Intercept) -6.904101 2.191250e+14 -3.150760e-14        1
-#> spontaneous  3.230286 2.109943e+14  1.530982e-14        1
-#> induced      2.190303 1.382598e+14  1.584193e-14        1
+#> (Intercept) -6.904101 3.967764e+14 -1.740048e-14        1
+#> spontaneous  3.230286 1.915285e+14  1.686583e-14        1
+#> induced      2.190303 1.289215e+14  1.698943e-14        1
 
 # The fractional weighted bootstrap succeeds
 coeftest(fit, vcov = vcovFWB)[1:3, ]
@@ -192,10 +192,10 @@ boot_est
 #> 
 #> 
 #> Bootstrap Statistics :
-#>      original       bias     std. error
-#> t1* -6.904101 1.012278e+20 2.447447e+21
-#> t2*  3.230286 2.020323e+13 2.080529e+14
-#> t3*  2.190303 1.533283e+13 1.656799e+14
+#>      original        bias     std. error
+#> t1* -6.904101 -2.878435e+19 9.411095e+20
+#> t2*  3.230286  3.386823e+13 3.219334e+14
+#> t3*  2.190303  2.385851e+13 2.316350e+14
 
 fwb_est <- fwb(infert, fit_fun, R = 999, verbose = FALSE)
 fwb_est
