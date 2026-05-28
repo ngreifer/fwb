@@ -59,7 +59,7 @@ vcovFWB(
 - wtype:
 
   string; the type of weights to use. Allowable options include `"exp"`
-  (the default), `"pois"`, `"multinom"`, `"mammen"`, `"beta"`, and
+  (the default), `"poisson"`, `"multinom"`, `"mammen"`, `"beta"`, and
   `"power"`. See
   [`fwb()`](https://ngreifer.github.io/fwb/reference/fwb.md) for
   details. See

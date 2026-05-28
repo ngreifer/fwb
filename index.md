@@ -30,6 +30,7 @@ Check out the *fwb* [website](https://ngreifer.github.io/fwb/)!
 You can install the current stable version of *fwb* from CRAN with:
 
 ``` r
+
 install.packages("fwb")
 ```
 
@@ -37,6 +38,7 @@ You can install the development version of *fwb* from
 [GitHub](https://github.com/ngreifer/fwb) with:
 
 ``` r
+
 # install.packages("pak")
 pak::pak("ngreifer/fwb")
 ```
@@ -50,6 +52,7 @@ special kind of seed needs to be set; see
 for details.)
 
 ``` r
+
 library("fwb")
 set.seed(123456, "L'Ecuyer-CMRG")
 ```
@@ -66,6 +69,7 @@ retained when using the FWB, which makes it particularly effective for
 this analysis.
 
 ``` r
+
 data("bearingcage", package = "fwb")
 library(survival)
 
@@ -123,6 +127,7 @@ Because all units are retained when using the FWB, the model always
 converges and the estimates are reasonable.
 
 ``` r
+
 data("infert")
 
 fit <- glm(case ~ spontaneous + induced + factor(stratum),
@@ -150,6 +155,7 @@ strata. (Note in this case the traditional bootstrap does fine, but the
 FWB is still more accurate.)
 
 ``` r
+
 # Including stratum membership as a clustering variable
 coeftest(fit, vcov = vcovFWB, cluster = ~stratum)[1:3, ]
 #>              Estimate Std. Error   z value     Pr(>|z|)
@@ -168,6 +174,7 @@ traditional bootstrap can also be requested using
 seed is set.)
 
 ``` r
+
 fit_fun <- function(data, w) {
   fit <- glm(case ~ spontaneous + induced + factor(stratum),
            data = data, weights = w, family = quasibinomial())
@@ -209,12 +216,14 @@ traditional bootstrap. Let’s plot histograms of the estimates to see
 where the failure is:
 
 ``` r
+
 plot(boot_est, index = 2)
 ```
 
 ![](reference/figures/README-unnamed-chunk-9-1.png)
 
 ``` r
+
 plot(fwb_est, index = 2)
 ```
 

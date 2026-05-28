@@ -68,6 +68,7 @@ is probably the most common case. Just run the following to ensure
 reproducibility, replacing `{N}` with your favorite integer.
 
 ``` r
+
 set.seed({N})
 
 f.out <- fwb(.)
@@ -83,6 +84,7 @@ special steps need to be taken beyond setting a seed. Note that
 set manually. See below for a code example:
 
 ``` r
+
 set.seed({N})
 
 f.out <- fwb(., simple = FALSE)
@@ -99,6 +101,7 @@ method appropriate for use across multiple clusters. See below for a
 code example:
 
 ``` r
+
 set.seed({N}, "L'Ecuyer-CMRG")
 
 f.out <- fwb(., cl = 3)
@@ -115,6 +118,7 @@ additional step to make sure the seed is correctly sent to
 should not do yourself.) See below for a code example:
 
 ``` r
+
 library(future)
 
 plan(multisession, workers = 3)
@@ -137,6 +141,7 @@ to which you supply the `cluster` object and your desired seed. See
 below for a code example:
 
 ``` r
+
 library(parallel)
 
 cl <- makeCluster(3)

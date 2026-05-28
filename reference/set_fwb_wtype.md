@@ -17,8 +17,8 @@ get_fwb_wtype(fwb)
 - wtype:
 
   string; the type of weights to use. Allowable options include `"exp"`
-  (the default), `"pois"`, `"multinom"`, and `"mammen"`. Abbreviations
-  allowed. See
+  (the default), `"poisson"`, `"multinom"`, and `"mammen"`.
+  Abbreviations allowed. See
   [`fwb()`](https://ngreifer.github.io/fwb/reference/fwb.md) for what
   these mean.
 

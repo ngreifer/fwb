@@ -67,7 +67,7 @@ print(
 - wtype:
 
   string; the type of weights to use. Allowable options include `"exp"`
-  (the default), `"pois"`, `"multinom"`, `"mammen"`, `"beta"`, and
+  (the default), `"poisson"`, `"multinom"`, `"mammen"`, `"beta"`, and
   `"power"`. See Details. See
   [`set_fwb_wtype()`](https://ngreifer.github.io/fwb/reference/set_fwb_wtype.md)
   to set a global default.
@@ -261,11 +261,11 @@ The allowable weight types are described below.
 
 - `"poisson"`:
 
-  Draws integer weights from a Poisson distribution with 1 degree of
-  freedom using [`rpois()`](https://rdrr.io/r/stats/Poisson.html). This
-  is an alternative to the multinomial weights that yields similar
-  estimates (especially as the sample size grows) but can be faster.
-  Note `strata` is ignored when using `"poisson"`.
+  Draws integer weights from a Poisson distribution with \\\lambda = 1\\
+  using [`rpois()`](https://rdrr.io/r/stats/Poisson.html). This is an
+  alternative to the multinomial weights that yields similar estimates
+  (especially as the sample size grows) but can be faster. Note `strata`
+  is ignored when using `"poisson"`.
 
 - `"mammen"`:
 
@@ -275,9 +275,9 @@ The allowable weight types are described below.
   accurate (in contrast to the usual exponential weights, which are only
   first-order accurate). The weights \\w\\ are drawn such that
   \\P(w=(3+\sqrt{5})/2)=(\sqrt{5}-1)/2\sqrt{5}\\ and
-  \\P(w=(3-\sqrt{5})/2)=(\sqrt{5}+1)/2\sqrt{5}\\. The weights are scaled
-  to have a mean of 1 within each stratum (or in the full sample if
-  `strata` is not supplied).
+  \\P(w=(3-\sqrt{5})/2)=(\sqrt{5}+1)/2\sqrt{5}\\ as described by Owen
+  (2025). The weights are scaled to have a mean of 1 within each stratum
+  (or in the full sample if `strata` is not supplied).
 
 - `"beta"`:
 
@@ -300,11 +300,14 @@ The allowable weight types are described below.
 `"exp"` is the default due to it being the formulation described in Xu
 et al. (2020) and in the most formulations of the Bayesian bootstrap; it
 should be used if one wants to remain in line with these guidelines or
-to maintain a Bayesian flavor to the analysis, whereas `"mammen"`,
-`"beta"`, and `"power"` might be preferred for their frequentist
-operating characteristics, though more research is needed on their
-general performance. `"multinom"` and `"poisson"` should only be used
-for comparison purposes or as an alternative interface to boot.
+to maintain a Bayesian flavor to the analysis, whereas other
+distributions might be preferred for their frequentist operating
+characteristics, though more research is needed on their general
+performance. Owen (2025) recommends `"beta"` and `"power"`, as these
+provided close to nominal confidence interval coverage without
+excessively large intervals in the context of estimating the mean in a
+small sample. `"multinom"` and `"poisson"` should primarily be used for
+comparison purposes or as an alternative interface to boot.
 
 ## Methods (by generic)
 
