@@ -31,7 +31,7 @@ confint(object, parm, level = 0.95, ci.type = "bc", simultaneous = FALSE, ...)
 
 - object:
 
-  an `fwb` object; the output of a call to
+  an `<fwb>` object; the output of a call to
   [`fwb()`](https://ngreifer.github.io/fwb/reference/fwb.md).
 
 - conf, level:
@@ -84,8 +84,8 @@ confint(object, parm, level = 0.95, ci.type = "bc", simultaneous = FALSE, ...)
 
 ## Value
 
-For [`summary()`](https://rdrr.io/r/base/summary.html), a `summary.fwb`
-object, which is a matrix with the following columns:
+For [`summary()`](https://rdrr.io/r/base/summary.html), a
+`<summary.fwb>` object, which is a matrix with the following columns:
 
 - `Estimate`: the statistic estimated in the original sample
 
@@ -128,7 +128,7 @@ the simultaneous bands. Simultaneous inference is only allowed when
 When `ci.type = "wald"`, the mvtnorm package must be installed.
 
 `tidy()` and [`print()`](https://rdrr.io/r/base/print.html) methods are
-available for `summary.fwb` objects.
+available for `<summary.fwb>` objects.
 
 ## References
 

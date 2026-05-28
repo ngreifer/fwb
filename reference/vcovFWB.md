@@ -116,9 +116,8 @@ vcovFWB(
   are ignored on Windows) for parallel evaluations, or the string
   `"future"` to use a `future` backend. See the `cl` argument of
   [`pbapply::pblapply()`](https://peter.solymos.org/pbapply/reference/pbapply.html)
-  for details. If `NULL`, no parallelization will take place. See
-  [`vignette("fwb-rep")`](https://ngreifer.github.io/fwb/articles/fwb-rep.md)
-  for details.
+  for details. If `NULL`, no parallelization will take place. See the
+  section "Parallel Processing" in Details.
 
 ## Value
 
@@ -164,6 +163,20 @@ When clusters are specified, each cluster is given a bootstrap weight,
 and all members of the cluster are given that weight; estimation then
 proceeds as normal. By default, when `cluster` is unspecified, each unit
 is considered its own cluster.
+
+### Parallel Processing
+
+To speed up evaluation, parallel processing can be enabled. One way to
+do so is to supply an argument to `cl`. This can be either an
+integer(not available on Windows), a cluster object created by
+[`parallel::makeCluster()`](https://rdrr.io/r/parallel/makeCluster.html)
+, or the string `"future"`. Another general way is to use functionality
+in the [futurize](https://CRAN.R-project.org/package=futurize) package,
+which is compatible with fwb. See
+[`vignette("futurize-81-fwb", package = "futurize")`](https://futurize.futureverse.org/articles/futurize-81-fwb.html)
+for details. See also
+[`vignette("fwb-rep")`](https://ngreifer.github.io/fwb/articles/fwb-rep.md)
+for information on replicability with (and without) parallel processing.
 
 ## See also
 

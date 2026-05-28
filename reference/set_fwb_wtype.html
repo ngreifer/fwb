@@ -13,7 +13,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">fwb</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.1.9003</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -59,20 +59,20 @@
 
 
 <dl><dt id="arg-wtype">wtype<a class="anchor" aria-label="anchor" href="#arg-wtype"></a></dt>
-<dd><p>string; the type of weights to use. Allowable options include <code>"exp"</code> (the default), <code>"poisson"</code>, <code>"multinom"</code>, and <code>"mammen"</code>. Abbreviations allowed. See <code><a href="fwb.html">fwb()</a></code> for what these mean.</p></dd>
+<dd><p>string; the type of weights to use. Allowable options include <code>"exp"</code> (the default), <code>"poisson"</code>, <code>"multinom"</code>, <code>"mammen"</code>, <code>"beta"</code>, and <code>"power"</code>. Abbreviations allowed. See <code><a href="fwb.html">fwb()</a></code> for what these mean.</p></dd>
 
 
 <dt id="arg-fwb">fwb<a class="anchor" aria-label="anchor" href="#arg-fwb"></a></dt>
-<dd><p>optional; an <code>fwb</code> object, the output of a call to <code><a href="fwb.html">fwb()</a></code>. If left empty, will extract the weights type from <code><a href="https://rdrr.io/r/base/options.html" class="external-link">options()</a></code>.</p></dd>
+<dd><p>optional; an <code>&lt;fwb&gt;</code> object, the output of a call to <code><a href="fwb.html">fwb()</a></code>. If left empty, will extract the weights type from <code><a href="https://rdrr.io/r/base/options.html" class="external-link">options()</a></code>.</p></dd>
 
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p><code>set_fwb_wtype()</code> returns a call to <code><a href="https://rdrr.io/r/base/options.html" class="external-link">options()</a></code> with the options set to those prior to <code>set_fwb_wtype()</code> being called. This makes it so that calling <code>options(op)</code>, where <code>op</code> is the output of <code>set_fwb_wtype()</code>, resets the <code>fwb_wtype</code> to its original value. <code>get_fwb_wtype()</code> returns a string containing the <code>fwb_wtype</code> value set globally (if no argument is supplied) or used in the supplied <code>fwb</code> object.</p>
+    <p><code>set_fwb_wtype()</code> returns a call to <code><a href="https://rdrr.io/r/base/options.html" class="external-link">options()</a></code> with the options set to those prior to <code>set_fwb_wtype()</code> being called. This makes it so that calling <code>options(op)</code>, where <code>op</code> is the output of <code>set_fwb_wtype()</code>, resets the <code>fwb_wtype</code> to its original value. <code>get_fwb_wtype()</code> returns a string containing the <code>fwb_wtype</code> value set globally (if no argument is supplied) or used in the supplied <code>&lt;fwb&gt;</code> object.</p>
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
-    <p><code>set_fwb_wtype(x)</code> is equivalent to calling <code>options(fwb_wtype = x)</code>. <code>get_fwb_wtype()</code> is equivalent to calling <code>getOption("fwb_wtype")</code> when no argument is supplied and to extracting the <code>wtype</code> component of an <code>fwb</code> object when supplied.</p>
+    <p><code>set_fwb_wtype(x)</code> is equivalent to calling <code>options(fwb_wtype = x)</code>. <code>get_fwb_wtype()</code> is equivalent to calling <code>getOption("fwb_wtype")</code> when no argument is supplied and to extracting the <code>wtype</code> component of an <code>&lt;fwb&gt;</code> object when supplied.</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
@@ -87,8 +87,8 @@
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">123</span>, <span class="st">"L'Ecuyer-CMRG"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"bearingcage"</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co">#Set fwb type to "mammen"</span></span></span>
-<span class="r-in"><span><span class="va">op</span> <span class="op">&lt;-</span> <span class="fu">set_fwb_wtype</span><span class="op">(</span><span class="st">"mammen"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="co">#Set fwb type to "beta"</span></span></span>
+<span class="r-in"><span><span class="va">op</span> <span class="op">&lt;-</span> <span class="fu">set_fwb_wtype</span><span class="op">(</span><span class="st">"beta"</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="va">weibull_est</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">data</span>, <span class="va">w</span><span class="op">)</span> <span class="op">{</span></span></span>
 <span class="r-in"><span>  <span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu">survival</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/survival/man/survreg.html" class="external-link">survreg</a></span><span class="op">(</span><span class="fu">survival</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/survival/man/Surv.html" class="external-link">Surv</a></span><span class="op">(</span><span class="va">hours</span>, <span class="va">failure</span><span class="op">)</span> <span class="op">~</span> <span class="fl">1</span>,</span></span>
@@ -107,15 +107,15 @@
 <span class="r-out co"><span class="r-pr">#&gt;</span> fwb(data = bearingcage, statistic = weibull_est, R = 199, verbose = FALSE)</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Bootstrap Statistics :</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>          original         bias  std. error</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> eta  11792.178173 6565.9734530 17660.38925</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> beta     2.035319    0.3049851     0.93453</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>          original         bias   std. error</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> eta  11792.178173 1.158849e+04 33691.048135</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> beta     2.035319 2.312647e-01     1.000479</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co">#Get the fwb type used in the bootstrap</span></span></span>
 <span class="r-in"><span><span class="fu">get_fwb_wtype</span><span class="op">(</span><span class="va">boot_est</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "mammen"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "beta"</span>
 <span class="r-in"><span><span class="fu">get_fwb_wtype</span><span class="op">(</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "mammen"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "beta"</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co">#Restore original options</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">options</a></span><span class="op">(</span><span class="va">op</span><span class="op">)</span></span></span>

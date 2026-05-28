@@ -13,7 +13,7 @@ fwb.array(fwb.out)
 
 - fwb.out:
 
-  an `fwb` object; the output of a call to
+  an `<fwb>` object; the output of a call to
   [`fwb()`](https://ngreifer.github.io/fwb/reference/fwb.md).
 
 ## Value

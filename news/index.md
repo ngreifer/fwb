@@ -1,9 +1,9 @@
 # Changelog
 
-## `fwb` (development version)
+## *fwb* 0.6.0
 
 - `wtype` can now be set to `"beta"` to sample weights from a
-  \\\text{Beta}(1/2,3/2)\\ distribution and `"power"` to sample from a
+  \\\text{Beta}(1/2,3/2)\\ distribution or `"power"` to sample from a
   \\\text{Beta}(\sqrt{2} - 1, 1)\\ distribution as described by [Owen
   (2025)](https://doi.org/10.48550/arXiv.2508.10083).
 
@@ -38,7 +38,9 @@
 
 - New tests.
 
-## `fwb` 0.5.1
+- Documentation updates.
+
+## *fwb* 0.5.1
 
 CRAN release: 2025-09-19
 
@@ -47,7 +49,7 @@ CRAN release: 2025-09-19
   [@vincentarelbundock](https://github.com/vincentarelbundock).
   ([\#6](https://github.com/ngreifer/fwb/issues/6))
 
-## `fwb` 0.5.0
+## *fwb* 0.5.0
 
 CRAN release: 2025-07-08
 
@@ -78,7 +80,7 @@ CRAN release: 2025-07-08
 
 - Added new function
   [`fwb.array()`](https://ngreifer.github.io/fwb/reference/fwb.array.md)
-  to extract the bootstrap weights from an `fwb` object.
+  to extract the bootstrap weights from an `<fwb>` object.
 
 - Confidence intervals can be suppressed in
   [`summary()`](https://rdrr.io/r/base/summary.html) by setting
@@ -100,7 +102,7 @@ CRAN release: 2025-07-08
 
 - Added a new `tidy()` method for `summary.fwb` objects.
 
-## `fwb` 0.4.0
+## *fwb* 0.4.0
 
 CRAN release: 2025-06-11
 
@@ -136,19 +138,19 @@ CRAN release: 2025-06-11
   is a little prettier. Thanks to Katya Zelevinsky.
 
 - Added [`coef()`](https://rdrr.io/r/stats/coef.html) and
-  [`vcov()`](https://rdrr.io/r/stats/vcov.html) methods for `fwb`
+  [`vcov()`](https://rdrr.io/r/stats/vcov.html) methods for `<fwb>`
   objects.
 
 - Documentation and vignette updates.
 
 - Added new tests.
 
-## `fwb` 0.3.0
+## *fwb* 0.3.0
 
 CRAN release: 2025-03-03
 
 - Added a new [`confint()`](https://rdrr.io/r/stats/confint.html) method
-  for `fwb` objects.
+  for `<fwb>` objects.
 
 - Added a new `strata` argument to
   [`fwb()`](https://ngreifer.github.io/fwb/reference/fwb.md) to perform
@@ -204,7 +206,7 @@ CRAN release: 2025-03-03
 
 - Documentation updates.
 
-## `fwb` 0.2.0
+## *fwb* 0.2.0
 
 CRAN release: 2023-12-07
 
@@ -228,13 +230,13 @@ CRAN release: 2023-12-07
   [`fwb()`](https://ngreifer.github.io/fwb/reference/fwb.md) and
   vcovFWB()\`.
 
-## `fwb` 0.1.2
+## *fwb* 0.1.2
 
 CRAN release: 2023-10-02
 
 - Small updates and bug fixes.
 
-## `fwb` 0.1.1
+## *fwb* 0.1.1
 
 CRAN release: 2022-10-26
 
@@ -243,7 +245,7 @@ CRAN release: 2022-10-26
 
 - Some error messages may be clearer.
 
-## `fwb` 0.1.0
+## *fwb* 0.1.0
 
 CRAN release: 2022-09-19
 

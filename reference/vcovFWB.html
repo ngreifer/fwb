@@ -15,7 +15,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">fwb</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.1.9003</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -123,7 +123,7 @@
 <dt id="arg-cl">cl<a class="anchor" aria-label="anchor" href="#arg-cl"></a></dt>
 <dd><p>a cluster object created by <code><a href="https://rdrr.io/r/parallel/makeCluster.html" class="external-link">parallel::makeCluster()</a></code>
 , an integer to indicate the number of child-processes (integer values are ignored on Windows) for parallel evaluations, or the string <code>"future"</code> to use a <code>future</code> backend. See the <code>cl</code> argument of <code><a href="https://peter.solymos.org/pbapply/reference/pbapply.html" class="external-link">pbapply::pblapply()</a></code>
- for details. If <code>NULL</code>, no parallelization will take place. See <code><a href="../articles/fwb-rep.html">vignette("fwb-rep")</a></code> for details.</p></dd>
+ for details. If <code>NULL</code>, no parallelization will take place. See the section "Parallel Processing" in Details.</p></dd>
 
 </dl></div>
     <div class="section level2">
@@ -137,7 +137,14 @@
 <p>For <code>lm</code> objects, the model is re-fit using <code><a href="https://rdrr.io/r/stats/lmfit.html" class="external-link">.lm.fit()</a></code> for speed, and, similarly, <code>glm</code> objects are re-fit using <code><a href="https://rdrr.io/r/stats/glm.html" class="external-link">glm.fit()</a></code> (or whichever fitting method was originally used). For other objects, <code><a href="https://rdrr.io/r/stats/update.html" class="external-link">update()</a></code> is used to populate the weights and re-fit the model (this assumes the fitting function accepts non-integer case weights through a <code>weights</code> argument). If a model accepts weights in some other way, <code><a href="fwb.html">fwb()</a></code> should be used instead; <code>vcovFWB()</code> is inherently limited in its ability to handle all possible models. It is important that the original model was not fit using frequency weights (i.e., weights that allow one row of data to represent multiple full, identical, individual units) unless clustering is used.</p>
 <p>See <code><a href="https://sandwich.R-Forge.R-project.org/reference/vcovBS.html" class="external-link">sandwich::vcovBS()</a></code>
  and <code><a href="https://sandwich.R-Forge.R-project.org/reference/vcovCL.html" class="external-link">sandwich::vcovCL()</a></code>
- for more information on clustering covariance matrices, and see <code><a href="fwb.html">fwb()</a></code> for more information on how clusters work with the fractional weighted bootstrap. When clusters are specified, each cluster is given a bootstrap weight, and all members of the cluster are given that weight; estimation then proceeds as normal. By default, when <code>cluster</code> is unspecified, each unit is considered its own cluster.</p>
+ for more information on clustering covariance matrices, and see <code><a href="fwb.html">fwb()</a></code> for more information on how clusters work with the fractional weighted bootstrap. When clusters are specified, each cluster is given a bootstrap weight, and all members of the cluster are given that weight; estimation then proceeds as normal. By default, when <code>cluster</code> is unspecified, each unit is considered its own cluster.</p><div class="section">
+<h3 id="parallel-processing">Parallel Processing<a class="anchor" aria-label="anchor" href="#parallel-processing"></a></h3>
+
+
+<p>To speed up evaluation, parallel processing can be enabled. One way to do so is to supply an argument to <code>cl</code>. This can be either an integer(not available on Windows), a cluster object created by <code><a href="https://rdrr.io/r/parallel/makeCluster.html" class="external-link">parallel::makeCluster()</a></code>
+, or the string <code>"future"</code>. Another general way is to use functionality in the <a href="https://CRAN.R-project.org/package=futurize" class="external-link"><span class="pkg">futurize</span></a> package, which is compatible with <span class="pkg">fwb</span>. See <code><a href="https://futurize.futureverse.org/articles/futurize-81-fwb.html" class="external-link">vignette("futurize-81-fwb", package = "futurize")</a></code> for details. See also <code><a href="../articles/fwb-rep.html">vignette("fwb-rep")</a></code> for information on replicability with (and without) parallel processing.</p>
+</div>
+
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>

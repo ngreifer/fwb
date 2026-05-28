@@ -17,14 +17,14 @@ get_fwb_wtype(fwb)
 - wtype:
 
   string; the type of weights to use. Allowable options include `"exp"`
-  (the default), `"poisson"`, `"multinom"`, and `"mammen"`.
-  Abbreviations allowed. See
+  (the default), `"poisson"`, `"multinom"`, `"mammen"`, `"beta"`, and
+  `"power"`. Abbreviations allowed. See
   [`fwb()`](https://ngreifer.github.io/fwb/reference/fwb.md) for what
   these mean.
 
 - fwb:
 
-  optional; an `fwb` object, the output of a call to
+  optional; an `<fwb>` object, the output of a call to
   [`fwb()`](https://ngreifer.github.io/fwb/reference/fwb.md). If left
   empty, will extract the weights type from
   [`options()`](https://rdrr.io/r/base/options.html).
@@ -37,14 +37,14 @@ to those prior to `set_fwb_wtype()` being called. This makes it so that
 calling `options(op)`, where `op` is the output of `set_fwb_wtype()`,
 resets the `fwb_wtype` to its original value. `get_fwb_wtype()` returns
 a string containing the `fwb_wtype` value set globally (if no argument
-is supplied) or used in the supplied `fwb` object.
+is supplied) or used in the supplied `<fwb>` object.
 
 ## Details
 
 `set_fwb_wtype(x)` is equivalent to calling `options(fwb_wtype = x)`.
 `get_fwb_wtype()` is equivalent to calling `getOption("fwb_wtype")` when
 no argument is supplied and to extracting the `wtype` component of an
-`fwb` object when supplied.
+`<fwb>` object when supplied.
 
 ## See also
 
@@ -63,8 +63,8 @@ traditional bootstrap.
 set.seed(123, "L'Ecuyer-CMRG")
 data("bearingcage")
 
-#Set fwb type to "mammen"
-op <- set_fwb_wtype("mammen")
+#Set fwb type to "beta"
+op <- set_fwb_wtype("beta")
 
 weibull_est <- function(data, w) {
   fit <- survival::survreg(survival::Surv(hours, failure) ~ 1,
@@ -83,15 +83,15 @@ boot_est
 #> fwb(data = bearingcage, statistic = weibull_est, R = 199, verbose = FALSE)
 #> 
 #> Bootstrap Statistics :
-#>          original         bias  std. error
-#> eta  11792.178173 6565.9734530 17660.38925
-#> beta     2.035319    0.3049851     0.93453
+#>          original         bias   std. error
+#> eta  11792.178173 1.158849e+04 33691.048135
+#> beta     2.035319 2.312647e-01     1.000479
 
 #Get the fwb type used in the bootstrap
 get_fwb_wtype(boot_est)
-#> [1] "mammen"
+#> [1] "beta"
 get_fwb_wtype()
-#> [1] "mammen"
+#> [1] "beta"
 
 #Restore original options
 options(op)

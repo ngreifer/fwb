@@ -1,7 +1,7 @@
 # Plots of the Output of a Fractional Weighted Bootstrap
 
-`plot.fwb()` takes an `fwb` object and produces plots for the bootstrap
-replicates of the statistic of interest.
+`plot.fwb()` takes an `<fwb>` object and produces plots for the
+bootstrap replicates of the statistic of interest.
 
 ## Usage
 
@@ -22,7 +22,7 @@ plot(
 
 - x:
 
-  an `fwb` object; the output of a call to
+  an `<fwb>` object; the output of a call to
   [`fwb()`](https://ngreifer.github.io/fwb/reference/fwb.md).
 
 - index:
@@ -86,5 +86,5 @@ plot, the expected line is plotted.
 ## Examples
 
 ``` r
-# See examples at help("fwb")
+# See examples at `help("fwb")`
 ```

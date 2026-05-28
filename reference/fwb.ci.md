@@ -27,7 +27,7 @@ print(x, hinv = NULL, ...)
 
 - fwb.out:
 
-  an `fwb` object; the output of a call to
+  an `<fwb>` object; the output of a call to
   [`fwb()`](https://ngreifer.github.io/fwb/reference/fwb.md).
 
 - conf:
@@ -78,8 +78,8 @@ print(x, hinv = NULL, ...)
 
 ## Value
 
-An `fwbci` object, which inherits from `bootci` and has the following
-components:
+An `<fwbci>` object, which inherits from `<bootci>` and has the
+following components:
 
 - R:
 
