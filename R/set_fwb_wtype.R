@@ -2,7 +2,7 @@
 #'
 #' Set the default for the type of weights used in the weighted bootstrap computed by [fwb()] and [vcovFWB()].
 #'
-#' @param wtype string; the type of weights to use. Allowable options include `"exp"` (the default), `"pois"`, `"multinom"`, and `"mammen"`. Abbreviations allowed. See [fwb()] for what these mean.
+#' @param wtype string; the type of weights to use. Allowable options include `"exp"` (the default), `"poisson"`, `"multinom"`, and `"mammen"`. Abbreviations allowed. See [fwb()] for what these mean.
 #' @param fwb optional; an `fwb` object, the output of a call to [fwb()]. If left empty, will extract the weights type from `options()`.
 #'
 #' @return `set_fwb_wtype()` returns a call to [options()] with the options set to those prior to `set_fwb_wtype()` being called. This makes it so that calling `options(op)`, where `op` is the output of `set_fwb_wtype()`, resets the `fwb_wtype` to its original value. `get_fwb_wtype()` returns a string containing the `fwb_wtype` value set globally (if no argument is supplied) or used in the supplied `fwb` object.

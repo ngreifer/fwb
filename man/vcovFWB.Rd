@@ -32,7 +32,7 @@ vcovFWB(
 
 \item{start}{\code{logical}; should \code{.coef(x)} be passed as \code{start} to the \code{update(x, weights = ...)} call? In case the model \code{x} is computed by some numeric iteration, this may speed up the bootstrapping. Default is \code{FALSE}.}
 
-\item{wtype}{string; the type of weights to use. Allowable options include \code{"exp"} (the default), \code{"pois"}, \code{"multinom"}, \code{"mammen"}, \code{"beta"}, and \code{"power"}. See \code{\link[=fwb]{fwb()}} for details. See \code{\link[=set_fwb_wtype]{set_fwb_wtype()}} to set a global default.}
+\item{wtype}{string; the type of weights to use. Allowable options include \code{"exp"} (the default), \code{"poisson"}, \code{"multinom"}, \code{"mammen"}, \code{"beta"}, and \code{"power"}. See \code{\link[=fwb]{fwb()}} for details. See \code{\link[=set_fwb_wtype]{set_fwb_wtype()}} to set a global default.}
 
 \item{drop0}{\code{logical}; when \code{wtype} is \code{"multinom"} or \code{"poisson"}, whether to drop units that are given weights of 0 from the model call in each iteration. If \code{TRUE}, the model will be called with an additional \code{subset} argument, filtering out units with weights of 0 (note this will overwrite any argument to \code{subset} in the original call). If \code{NA}, weights of 0 will be set to \code{NA} instead. Ignored for other \code{wtype}s because they don't produce 0 weights. Default is \code{FALSE}.}
 
@@ -40,7 +40,7 @@ vcovFWB(
 
 \item{fix}{\code{logical}; if \code{TRUE}, the covariance matrix is fixed to be positive semi-definite in case it is not.}
 
-\item{use}{\code{character}; specification passed to \code{\link[stats:cor]{stats::cov()}} for handling missing coefficients/parameters.}
+\item{use}{\code{character}; specification passed to \code{\link[stats:cov]{stats::cov()}} for handling missing coefficients/parameters.}
 
 \item{.coef}{a function used to extract the coefficients from each fitted model. Must return a numeric vector. By default, \code{\link[stats:coef]{stats::coef}} is used, but \code{marginaleffects::get_coef} can be a more reliable choice for some models that have a non-standard \code{coef()} method, like that for \code{nnet::multinom()} models.}
 

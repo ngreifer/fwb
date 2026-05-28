@@ -76,8 +76,10 @@ summary.fwb <- function(object, conf = .95, ci.type = "bc", p.value = FALSE,
     arg::arg_flag(simultaneous)
 
     if (simultaneous) {
-      if (!ci.type %in% c("perc", "wald")) {
-      arg::err('simultaneous inference can only be used when {.arg ci.type} is {.or {.val {c("wald", "perc")}}}')
+      simul_citype_ok <- c("wald", "perc")
+
+      if (!ci.type %in% simul_citype_ok) {
+        arg::err("simultaneous inference can only be used when {.arg ci.type} is {.or {.val {simul_citype_ok}}}")
       }
 
       if (ci.type == "wald" && conf > 0 && conf <= .5) {
@@ -94,8 +96,6 @@ summary.fwb <- function(object, conf = .95, ci.type = "bc", p.value = FALSE,
   out[, "Std. Error"] <- apply(object[["t"]][, index, drop = FALSE], 2L, sd)
 
   if (conf > 0) {
-    arg::arg_lt(conf, 1)
-
     pct <- fmt.prc(c((1 - conf) / 2, 1 - (1 - conf) / 2))
 
     ci <- confint.fwb(object, parm = index, level = conf, ci.type = ci.type,
@@ -162,8 +162,10 @@ confint.fwb <- function(object, parm, level = .95, ci.type = "bc", simultaneous 
   ci.type <- arg::match_arg(ci.type, .allowed_ci.types())
 
   if (simultaneous) {
-    if (!ci.type %in% c("perc", "wald")) {
-      arg::err('simultaneous inference can only be used when {.arg ci.type} is {.or {.val {c("wald", "perc")}}}')
+    simul_citype_ok <- c("wald", "perc")
+
+    if (!ci.type %in% simul_citype_ok) {
+      arg::err("simultaneous inference can only be used when {.arg ci.type} is {.or {.val {simul_citype_ok}}}")
     }
 
     if (ci.type == "wald" && level <= .5) {

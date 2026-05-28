@@ -10,7 +10,7 @@ set_fwb_wtype(wtype = getOption("fwb_wtype", "exp"))
 get_fwb_wtype(fwb)
 }
 \arguments{
-\item{wtype}{string; the type of weights to use. Allowable options include \code{"exp"} (the default), \code{"pois"}, \code{"multinom"}, and \code{"mammen"}. Abbreviations allowed. See \code{\link[=fwb]{fwb()}} for what these mean.}
+\item{wtype}{string; the type of weights to use. Allowable options include \code{"exp"} (the default), \code{"poisson"}, \code{"multinom"}, and \code{"mammen"}. Abbreviations allowed. See \code{\link[=fwb]{fwb()}} for what these mean.}
 
 \item{fwb}{optional; an \code{fwb} object, the output of a call to \code{\link[=fwb]{fwb()}}. If left empty, will extract the weights type from \code{options()}.}
 }

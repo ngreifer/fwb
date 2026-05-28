@@ -10,3 +10,5 @@
 ^\.DS_Store$
 ^LICENSE\.md$
 ^\.lintr
+^\.positai$
+^\.claude$

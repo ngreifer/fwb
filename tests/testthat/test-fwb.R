@@ -1,5 +1,5 @@
 test_that("fwb() works", {
-  eps <- if (capabilities("long.double")) 1e-8 else 1e-1
+  eps <- if (capabilities("long.double")) 1e-8 else 1e-3
 
   test_data <- readRDS(test_path("fixtures", "test_data.rds"))
 
@@ -75,7 +75,7 @@ test_that("fwb() works", {
 
 test_that("parallel works", {
   skip_on_cran()
-  eps <- if (capabilities("long.double")) 1e-8 else 1e-1
+  eps <- if (capabilities("long.double")) 1e-8 else 1e-3
 
   test_data <- readRDS(test_path("fixtures", "test_data.rds"))
 
@@ -137,7 +137,7 @@ test_that("parallel works", {
 
 test_that("wtype = 'multinom' replcates boot::boot()", {
   skip_on_cran()
-  eps <- if (capabilities("long.double")) 1e-8 else 1e-1
+  eps <- if (capabilities("long.double")) 1e-8 else 1e-3
 
   test_data <- readRDS(test_path("fixtures", "test_data.rds"))
 
@@ -197,7 +197,7 @@ test_that("wtype = 'multinom' replcates boot::boot()", {
 
 test_that("drop0 works as expected", {
   skip_on_cran()
-  eps <- if (capabilities("long.double")) 1e-8 else 1e-1
+  eps <- if (capabilities("long.double")) 1e-8 else 1e-3
 
   test_data <- readRDS(test_path("fixtures", "test_data.rds"))
 

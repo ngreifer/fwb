@@ -7,7 +7,7 @@
 #' @param x a fitted model object, such as the output of a call to `lm()` or `glm()`. The model object must result from a function that can be updated using [update()] and has a `weights` argument to input non-integer case weights.
 #' @param R the number of bootstrap replications. Default is 1000 (more is better but slower).
 #' @param start `logical`; should `.coef(x)` be passed as `start` to the `update(x, weights = ...)` call? In case the model `x` is computed by some numeric iteration, this may speed up the bootstrapping. Default is `FALSE`.
-#' @param wtype string; the type of weights to use. Allowable options include `"exp"` (the default), `"pois"`, `"multinom"`, `"mammen"`, `"beta"`, and `"power"`. See [fwb()] for details. See [set_fwb_wtype()] to set a global default.
+#' @param wtype string; the type of weights to use. Allowable options include `"exp"` (the default), `"poisson"`, `"multinom"`, `"mammen"`, `"beta"`, and `"power"`. See [fwb()] for details. See [set_fwb_wtype()] to set a global default.
 #' @param drop0 `logical`; when `wtype` is `"multinom"` or `"poisson"`, whether to drop units that are given weights of 0 from the model call in each iteration. If `TRUE`, the model will be called with an additional `subset` argument, filtering out units with weights of 0 (note this will overwrite any argument to `subset` in the original call). If `NA`, weights of 0 will be set to `NA` instead. Ignored for other `wtype`s because they don't produce 0 weights. Default is `FALSE`.
 #' @param ... ignored.
 #' @param fix `logical`; if `TRUE`, the covariance matrix is fixed to be positive semi-definite in case it is not.
@@ -228,14 +228,11 @@ nobs0 <- function(x, ...) {
     rval <- x[["n"]]
   }
   else {
-    rval <- try(stats::nobs(x, ...), silent = TRUE)
+    rval <- rlang::try_fetch(stats::nobs(x, ...),
+                             error = function(e) NULL)
   }
 
-  if (is_null(rval) || inherits(rval, "try-error")) {
-    rval <- NROW(residuals(x, ...))
-  }
-
-  rval
+  rval %or% NROW(residuals(x, ...))
 }
 
 make.bootfit <- function(fit, cli, start, drop0, gen_weights, .coef, .env) {
@@ -287,13 +284,8 @@ make.bootfit <- function(fit, cli, start, drop0, gen_weights, .coef, .env) {
           up <- eval(up, envir = .env)
         })
 
-        mm <- try(model.matrix(up), silent = TRUE)
-
-        if (inherits(mm, "try-error")) {
-          return(NULL)
-        }
-
-        mm
+        rlang::try_fetch(model.matrix(up),
+                         error = function(e) NULL)
       }
 
       with_seed_preserved({
@@ -431,7 +423,7 @@ safe.glm.fit <- function(fit.fun, ...) {
   warning = function(w) {
     if (conditionMessage(w) != "non-integer #successes in a binomial glm!" &&
         !startsWith(conditionMessage(w), "non-integer x =")) {
-      arg::wrn(w, immediate = FALSE)
+      arg::wrn("{w}", immediate = FALSE)
     }
     invokeRestart("muffleWarning")
   })

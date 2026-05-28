@@ -88,7 +88,8 @@ check_index <- function(index, t, several.ok = FALSE) {
     index <- match(index, colnames(t))
 
     if (anyNA(index)) {
-      arg::err("all entries in {.arg index} must be the names of available statistics to compute. The following are allowed: {.val {colnames(t)}}")
+      arg::err(c("All entries in {.arg index} must be the names of available statistics to compute.",
+                 " " = "The following are allowed: {.val {colnames(t)}}"))
     }
   }
 
@@ -140,7 +141,7 @@ str_rev <- function(x) {
   attr(x, which, exact = exact)
 }
 
-is_null <- function(x) {length(x) == 0L}
+is_null <- function(x) {identical(length(x), 0L)}
 is_not_null <- function(x) {!is_null(x)}
 `%or%` <- function(x, y) {
   # like `%||%` but works for non-NULL length 0 objects

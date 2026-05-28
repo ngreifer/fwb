@@ -37,7 +37,7 @@ fwb(
 
 \item{simple}{\code{logical}; if \code{TRUE}, weights will be generated on-the-fly in each bootstrap replication; if \code{FALSE}, all weights will be generated at once and then supplied to \code{statistic}. The default (\code{NULL}) sets to \code{FALSE} if \code{wtype = "multinom"} and to \code{TRUE} otherwise.}
 
-\item{wtype}{string; the type of weights to use. Allowable options include \code{"exp"} (the default), \code{"pois"}, \code{"multinom"}, \code{"mammen"}, \code{"beta"}, and \code{"power"}. See Details. See \code{\link[=set_fwb_wtype]{set_fwb_wtype()}} to set a global default.}
+\item{wtype}{string; the type of weights to use. Allowable options include \code{"exp"} (the default), \code{"poisson"}, \code{"multinom"}, \code{"mammen"}, \code{"beta"}, and \code{"power"}. See Details. See \code{\link[=set_fwb_wtype]{set_fwb_wtype()}} to set a global default.}
 
 \item{strata}{optional; a vector containing stratum membership for stratified bootstrapping. If supplied, will essentially perform a separate bootstrap within each level of \code{strata}. This does not affect results when \code{wtype = "poisson"}.}
 
@@ -98,10 +98,10 @@ Draws weights from an exponential distribution with rate parameter 1 using \code
 Draws integer weights using \code{\link[=sample]{sample()}}, which samples unit indices with replacement and uses the tabulation of the indices as frequency weights. This is equivalent to drawing weights from a multinomial distribution. Using \code{wtype = "multinom"} is the same as using \code{boot::boot(., stype = "f")} instead of \code{fwb()} (i.e., the resulting estimates will be identical). When \code{strata} is supplied, unit indices are drawn with replacement within each stratum so that the sum of the weights in each stratum is equal to the stratum size.
 }
 \item{\code{"poisson"}}{
-Draws integer weights from a Poisson distribution with 1 degree of freedom using \code{\link[=rpois]{rpois()}}. This is an alternative to the multinomial weights that yields similar estimates (especially as the sample size grows) but can be faster. Note \code{strata} is ignored when using \code{"poisson"}.
+Draws integer weights from a Poisson distribution with \eqn{\lambda = 1} using \code{\link[=rpois]{rpois()}}. This is an alternative to the multinomial weights that yields similar estimates (especially as the sample size grows) but can be faster. Note \code{strata} is ignored when using \code{"poisson"}.
 }
 \item{\code{"mammen"}}{
-Draws weights from a modification of the distribution described by Mammen (1983) for use in the wild bootstrap. These positive weights have a mean, variance, and skewness of 1, making them second-order accurate (in contrast to the usual exponential weights, which are only first-order accurate). The weights \eqn{w} are drawn such that \eqn{P(w=(3+\sqrt{5})/2)=(\sqrt{5}-1)/2\sqrt{5}} and \eqn{P(w=(3-\sqrt{5})/2)=(\sqrt{5}+1)/2\sqrt{5}}. The weights are scaled to have a mean of 1 within each stratum (or in the full sample if \code{strata} is not supplied).
+Draws weights from a modification of the distribution described by Mammen (1983) for use in the wild bootstrap. These positive weights have a mean, variance, and skewness of 1, making them second-order accurate (in contrast to the usual exponential weights, which are only first-order accurate). The weights \eqn{w} are drawn such that \eqn{P(w=(3+\sqrt{5})/2)=(\sqrt{5}-1)/2\sqrt{5}} and \eqn{P(w=(3-\sqrt{5})/2)=(\sqrt{5}+1)/2\sqrt{5}} as described by Owen (2025). The weights are scaled to have a mean of 1 within each stratum (or in the full sample if \code{strata} is not supplied).
 }
 \item{\code{"beta"}}{
 Draws weights from a \eqn{\text{Beta}(1/2, 3/2)} distribution using \code{\link[=rbeta]{rbeta()}} as described by Owen (2025). These positive weights have a mean, variance, and skewness of 1 when scaled by a factor of 4, making them second-order accurate. The weights are scaled to have a mean of 1 within each stratum (or in the full sample if \code{strata} is not supplied).
@@ -111,7 +111,7 @@ Draws weights from a \eqn{\text{Beta}(\sqrt{2} - 1, 1)} distribution using \code
 }
 }
 
-\code{"exp"} is the default due to it being the formulation described in Xu et al. (2020) and in the most formulations of the Bayesian bootstrap; it should be used if one wants to remain in line with these guidelines or to maintain a Bayesian flavor to the analysis, whereas \code{"mammen"}, \code{"beta"}, and \code{"power"} might be preferred for their frequentist operating characteristics, though more research is needed on their general performance. \code{"multinom"} and \code{"poisson"} should only be used for comparison purposes or as an alternative interface to \pkg{boot}.
+\code{"exp"} is the default due to it being the formulation described in Xu et al. (2020) and in the most formulations of the Bayesian bootstrap; it should be used if one wants to remain in line with these guidelines or to maintain a Bayesian flavor to the analysis, whereas other distributions might be preferred for their frequentist operating characteristics, though more research is needed on their general performance. Owen (2025) recommends \code{"beta"} and \code{"power"}, as these provided close to nominal confidence interval coverage without excessively large intervals in the context of estimating the mean in a small sample. \code{"multinom"} and \code{"poisson"} should primarily be used for comparison purposes or as an alternative interface to \pkg{boot}.
 }
 }
 \section{Methods (by generic)}{

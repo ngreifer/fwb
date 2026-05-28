@@ -24,8 +24,6 @@ plot.fwb <- function(x, index = 1L, qdist = "norm", nclass = NULL, df, type = c(
 
   index <- check_index(index, x[["t"]])
 
-  arg::arg_string(qdist)
-
   t <- x[["t"]][, index]
   t0 <- x[["t0"]][index]
 
@@ -47,6 +45,8 @@ plot.fwb <- function(x, index = 1L, qdist = "norm", nclass = NULL, df, type = c(
   }
 
   if (any(type == "qq")) {
+    qdist <- arg::match_arg(qdist, c("norm", "chisq"))
+
     if (qdist == "chisq") {
       if (missing(df)) {
         df <- estimate_chisq_df(t)
@@ -89,9 +89,6 @@ plot.fwb <- function(x, index = 1L, qdist = "norm", nclass = NULL, df, type = c(
       else if (qdist == "norm") {
         qfun <- function(p_) qnorm(p_)
         qlab <- "Quantiles of Standard Normal"
-      }
-      else {
-        arg::err("{.val {qdist}} distribution not supported")
       }
 
       qqplot(qfun(p), t, xlab = qlab, ylab = colnames(x[["t"]])[index])
