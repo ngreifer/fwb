@@ -7,7 +7,7 @@
 fwb.array(fwb.out)
 }
 \arguments{
-\item{fwb.out}{an \code{fwb} object; the output of a call to \code{\link[=fwb]{fwb()}}.}
+\item{fwb.out}{an \verb{<fwb>} object; the output of a call to \code{\link[=fwb]{fwb()}}.}
 }
 \value{
 A matrix with \code{R} rows and \code{n} columns, where \code{R} is the number of bootstrap replications and \code{n} is the number of observations in \code{boot.out$data}.

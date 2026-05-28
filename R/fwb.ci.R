@@ -2,7 +2,7 @@
 #'
 #' @description `fwb.ci()` generates several types of equi-tailed two-sided nonparametric confidence intervals. These include the normal approximation, the basic bootstrap interval, the percentile bootstrap interval, the bias-corrected percentile bootstrap interval, and the bias-correct and accelerated (BCa) bootstrap interval.
 #'
-#' @param fwb.out an `fwb` object; the output of a call to [fwb()].
+#' @param fwb.out an `<fwb>` object; the output of a call to [fwb()].
 #' @param conf the desired confidence level. Default is .95 for 95% confidence intervals.
 #' @param type the type of confidence interval desired. Allowable options include `"wald"` (Wald interval), `"norm"` (normal approximation), `"basic"` (basic interval), `"perc"` (percentile interval), `"bc"` (bias-correct percentile interval), and `"bca"` (BCa interval). More than one is allowed. Can also be `"all"` to request all of them. BCa intervals require that the number of bootstrap replications is larger than the sample size.
 #' @param index the index of the position of the quantity of interest in `fwb.out$t0` if more than one was specified in `fwb()`. Only one value is allowed at a time. By default the first statistic is used.
@@ -11,7 +11,7 @@
 #' @param ... ignored
 #'
 #' @returns
-#' An `fwbci` object, which inherits from `bootci` and has the following components:
+#' An `<fwbci>` object, which inherits from `<bootci>` and has the following components:
 #' \item{R}{the number of bootstrap replications in the original call to `fwb()`.}
 #' \item{t0}{the observed value of the statistic on the same scale as the intervals (i.e., after applying `h` and then `hinv`.}
 #' \item{call}{the call to `fwb.ci()`.}

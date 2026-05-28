@@ -1,9 +1,9 @@
-`fwb` News and Updates
+*fwb* News and Updates
 ======
 
-# `fwb` (development version)
+# *fwb* 0.6.0
 
-* `wtype` can now be set to `"beta"` to sample weights from a $\text{Beta}(1/2,3/2)$ distribution and `"power"` to sample from a $\text{Beta}(\sqrt{2} - 1, 1)$ distribution as described by [Owen (2025)](https://doi.org/10.48550/arXiv.2508.10083).
+* `wtype` can now be set to `"beta"` to sample weights from a $\text{Beta}(1/2,3/2)$ distribution or `"power"` to sample from a $\text{Beta}(\sqrt{2} - 1, 1)$ distribution as described by [Owen (2025)](https://doi.org/10.48550/arXiv.2508.10083).
 
 * `drop0` can now be set to `NA` in `fwb()`; this sets all weights of 0 to `NA` instead of removing those observations from the dataset.
 
@@ -23,11 +23,13 @@
 
 * New tests.
 
-# `fwb` 0.5.1
+* Documentation updates.
+
+# *fwb* 0.5.1
 
 * Fixed a bug where computing confidence intervals would yield an error about unused arguments for R versions prior to 4.5.0. Thanks to @vincentarelbundock. (#6)
 
-# `fwb` 0.5.0
+# *fwb* 0.5.0
 
 * Added a new confidence interval type for `confint()`, `fwb.ci()`, and `summary()`: `"wald"`, for Wald-type confidence intervals that don't correct for any bias.
 
@@ -37,7 +39,7 @@
 
 * Simultaneous inference via the sup-t confidence band and its inversion are now supported by `summary()` and `confint()` by setting `simultaneous = TRUE`. This is only supported for percentile and Wald confidence intervals (and the latter requires the `mvtnorm` package to be installed).
 
-* Added new function `fwb.array()` to extract the bootstrap weights from an `fwb` object.
+* Added new function `fwb.array()` to extract the bootstrap weights from an `<fwb>` object.
 
 * Confidence intervals can be suppressed in `summary()` by setting `conf = 0`.
 
@@ -47,7 +49,7 @@
 
 * Added a new `tidy()` method for `summary.fwb` objects.
 
-# `fwb` 0.4.0
+# *fwb* 0.4.0
 
 * Added a suite of new functions for computing weighted statistic and transformations that automatically incorporate the bootstrap weights. These include `w_mean()`, `w_var()`, `w_sd()`, `w_quantile()`, and `w_median()` for computing weighted means, variances, standard deviations, quantiles, and medians; `w_cov()` and `w_cor()` for computing weighted covariance and correlation matrices, and `w_std()`, `w_scale()`, and `w_center()` for transforming variables by standardizing, scaling, and centering using weighted statistics. These work when called inside the function supplied to the `statistic` argument of `fwb()` or inside the model that is supplied to `vcovFWB()`.
 
@@ -55,15 +57,15 @@
 
 * Fixed a bug in `print.fwbci()` due to incorrect ordering of the intervals which led them to be printed with incorrect labels. These have been corrected and printing is a little prettier. Thanks to Katya Zelevinsky.
 
-* Added `coef()` and `vcov()` methods for `fwb` objects.
+* Added `coef()` and `vcov()` methods for `<fwb>` objects.
 
 * Documentation and vignette updates.
 
 * Added new tests.
 
-# `fwb` 0.3.0
+# *fwb* 0.3.0
 
-* Added a new `confint()` method for `fwb` objects.
+* Added a new `confint()` method for `<fwb>` objects.
 
 * Added a new `strata` argument to `fwb()` to perform stratified bootstrapping within levels of a stratification variable.
 
@@ -85,22 +87,22 @@
 
 * Documentation updates.
 
-# `fwb` 0.2.0
+# *fwb* 0.2.0
 
 * `fwb()` and `vcovFWB()` now take an additional argument, `wtype`, which specifies how the weights are drawn. The default, `"exp"` is still to draw weights from an $\text{Exp}(1)$ distribution but other options, namely `"multinom"` for multinomial integer weights (which reproduce `boot::boot()` results exactly), `"poisson"` for Poisson integer weights, and `"mammen"` for second-order accurate Mammen weights as recommended by Lihua Lei [here](https://x.com/lihua_lei_stat/status/1641538993090351106). (#4)
 
 * New functions `set_fwb_wtype()` and `get_fwb_wtype()` allow one to set global defaults for the `wtype` argument of `fwb()` and vcovFWB()`.
 
-# `fwb` 0.1.2
+# *fwb* 0.1.2
 
 * Small updates and bug fixes.
 
-# `fwb` 0.1.1
+# *fwb* 0.1.1
 
 * Fixed bugs related to the `index` argument of various functions, including bugs when the estimated quantity is not given a name.
 
 * Some error messages may be clearer.
 
-# `fwb` 0.1.0
+# *fwb* 0.1.0
 
 * First version!

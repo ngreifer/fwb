@@ -2,12 +2,14 @@
 #'
 #' Set the default for the type of weights used in the weighted bootstrap computed by [fwb()] and [vcovFWB()].
 #'
-#' @param wtype string; the type of weights to use. Allowable options include `"exp"` (the default), `"poisson"`, `"multinom"`, and `"mammen"`. Abbreviations allowed. See [fwb()] for what these mean.
-#' @param fwb optional; an `fwb` object, the output of a call to [fwb()]. If left empty, will extract the weights type from `options()`.
+#' @param wtype string; the type of weights to use. Allowable options include `"exp"` (the default), `"poisson"`, `"multinom"`, `"mammen"`, `"beta"`, and `"power"`. Abbreviations allowed. See [fwb()] for what these mean.
+#' @param fwb optional; an `<fwb>` object, the output of a call to [fwb()]. If left empty, will extract the weights type from `options()`.
 #'
-#' @return `set_fwb_wtype()` returns a call to [options()] with the options set to those prior to `set_fwb_wtype()` being called. This makes it so that calling `options(op)`, where `op` is the output of `set_fwb_wtype()`, resets the `fwb_wtype` to its original value. `get_fwb_wtype()` returns a string containing the `fwb_wtype` value set globally (if no argument is supplied) or used in the supplied `fwb` object.
+#' @return
+#' `set_fwb_wtype()` returns a call to [options()] with the options set to those prior to `set_fwb_wtype()` being called. This makes it so that calling `options(op)`, where `op` is the output of `set_fwb_wtype()`, resets the `fwb_wtype` to its original value. `get_fwb_wtype()` returns a string containing the `fwb_wtype` value set globally (if no argument is supplied) or used in the supplied `<fwb>` object.
 #'
-#' @details `set_fwb_wtype(x)` is equivalent to calling `options(fwb_wtype = x)`. `get_fwb_wtype()` is equivalent to calling `getOption("fwb_wtype")` when no argument is supplied and to extracting the `wtype` component of an `fwb` object when supplied.
+#' @details
+#' `set_fwb_wtype(x)` is equivalent to calling `options(fwb_wtype = x)`. `get_fwb_wtype()` is equivalent to calling `getOption("fwb_wtype")` when no argument is supplied and to extracting the `wtype` component of an `<fwb>` object when supplied.
 #'
 #' @seealso [fwb()] for a definition of each types of weights; [vcovFWB()]; [options()]; \pkgfun{boot}{boot} for the traditional bootstrap.
 #'
@@ -17,8 +19,8 @@
 #' set.seed(123, "L'Ecuyer-CMRG")
 #' data("bearingcage")
 #'
-#' #Set fwb type to "mammen"
-#' op <- set_fwb_wtype("mammen")
+#' #Set fwb type to "beta"
+#' op <- set_fwb_wtype("beta")
 #'
 #' weibull_est <- function(data, w) {
 #'   fit <- survival::survreg(survival::Surv(hours, failure) ~ 1,
@@ -40,7 +42,6 @@
 #' options(op)
 #'
 #' get_fwb_wtype()
-#'
 
 #' @export
 set_fwb_wtype <- function(wtype = getOption("fwb_wtype", "exp")) {
@@ -54,12 +55,10 @@ set_fwb_wtype <- function(wtype = getOption("fwb_wtype", "exp")) {
 #' @export
 #' @rdname set_fwb_wtype
 get_fwb_wtype <- function(fwb) {
+  arg::when_supplied(fwb, arg::arg_is("fwb"))
+
   if (missing(fwb)) {
     return(getOption("fwb_wtype", "exp"))
-  }
-
-  if (!inherits(fwb, "fwb")) {
-    arg::err("the argument to {.fun get_fwb_wtype} must either be left empty or the output of a call to {.fun fwb}")
   }
 
   fwb[["wtype"]]

@@ -8,7 +8,8 @@
 #' @param probs,names,type,digits see [quantile()]. Only `type = 7` is allowed.
 #' @param scale,center logical; whether to scale or center the variable.
 #'
-#' @return `w_mean()`, `w_var()`, `w_sd()`, and `w_median()` return a numeric scalar. `w_cov()` and `w_cor()` return numeric matrices. `w_quantile()` returns a numeric vector of length equal to `probs`. `w_std()`, `w_scale()`, and `w_center()` return numeric vectors of length equal to the length of `x`.
+#' @return
+#' `w_mean()`, `w_var()`, `w_sd()`, and `w_median()` return a numeric scalar. `w_cov()` and `w_cor()` return numeric matrices. `w_quantile()` returns a numeric vector of length equal to `probs`. `w_std()`, `w_scale()`, and `w_center()` return numeric vectors of length equal to the length of `x`.
 #'
 #' @details
 #' These function automatically incorporate bootstrap weights when used inside [fwb()] or [vcovFWB()]. This works because `fwb()` and `vcovFWB()` temporarily set an option with the environment of the function that calls the estimation function with the sampled weights, and the `w_*()` functions access the bootstrap weights from that environment, if any. So, using, e.g., `w_mean()` inside the function supplied to the `statistic` argument of `fwb()`, computes the weighted mean using the bootstrap weights. Using these functions outside `fwb()` works just like other functions that compute weighted statistics: when `w` is supplied, the statistics are weighted, and otherwise they are unweighted.
@@ -97,6 +98,7 @@ w_mean <- function(x, w = NULL, na.rm = FALSE) {
     w <- .get_internal_w()
   }
 
+  arg::arg_supplied(x)
   arg::arg_flag(na.rm)
 
   if (is_null(w)) {
@@ -121,6 +123,7 @@ w_var <- function(x, w = NULL, na.rm = FALSE) {
     w <- .get_internal_w()
   }
 
+  arg::arg_supplied(x)
   arg::arg_flag(na.rm)
 
   if (is_null(w)) {
@@ -143,6 +146,8 @@ w_var <- function(x, w = NULL, na.rm = FALSE) {
 #' @export
 #' @rdname w_mean
 w_sd <- function(x, w = NULL, na.rm = FALSE) {
+  arg::arg_supplied(x)
+
   sqrt(w_var(x = x, w = w, na.rm = na.rm))
 }
 
@@ -152,6 +157,8 @@ w_cov <- function(x, w = NULL, na.rm = FALSE) {
   if (is_null(w)) {
     w <- .get_internal_w()
   }
+
+  arg::arg_supplied(x)
 
   x <- as.matrix(x)
 
@@ -207,6 +214,8 @@ w_cor <- function(x, w = NULL) {
     w <- .get_internal_w()
   }
 
+  arg::arg_supplied(x)
+
   x <- as.matrix(x)
 
   if (is_null(w)) {
@@ -224,6 +233,9 @@ w_quantile <- function(x, w = NULL, probs = seq(0, 1, by = 0.25), na.rm = FALSE,
   if (is_null(w)) {
     w <- .get_internal_w()
   }
+
+  arg::arg_supplied(x)
+  arg::arg_atomic(x)
 
   arg::arg_numeric(probs)
   arg::arg_between(probs, c(0, 1))
@@ -283,6 +295,7 @@ w_median <- function(x, w = NULL, na.rm = FALSE) {
     w <- .get_internal_w()
   }
 
+  arg::arg_supplied(x)
   arg::arg_flag(na.rm)
 
   if (is_null(w)) {
@@ -298,6 +311,8 @@ w_std <- function(x, w = NULL, na.rm = TRUE, scale = TRUE, center = TRUE) {
   if (is_null(w)) {
     w <- .get_internal_w()
   }
+
+  arg::arg_supplied(x)
 
   arg::arg_flag(scale)
   arg::arg_flag(center)

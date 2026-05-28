@@ -15,7 +15,7 @@
 )
 }
 \arguments{
-\item{x}{an \code{fwb} object; the output of a call to \code{\link[=fwb]{fwb()}}.}
+\item{x}{an \verb{<fwb>} object; the output of a call to \code{\link[=fwb]{fwb()}}.}
 
 \item{index}{the index of the position of the quantity of interest in \code{x$t0} if more than one was specified in \code{fwb()}. Only one value is allowed at a time. By default the first statistic is used.}
 
@@ -33,13 +33,13 @@
 \code{x} is returned invisibly.
 }
 \description{
-\code{plot.fwb()} takes an \code{fwb} object and produces plots for the bootstrap replicates of the statistic of interest.
+\code{plot.fwb()} takes an \verb{<fwb>} object and produces plots for the bootstrap replicates of the statistic of interest.
 }
 \details{
 This function can produces two side-by-side plots: a histogram of the bootstrap replicates and a Q-Q plot of the bootstrap replicates against theoretical quantiles of a supplied distribution (normal or chi-squared). For the histogram, a vertical dotted line indicates the position of the estimate computed in the original sample. For the Q-Q plot, the expected line is plotted.
 }
 \examples{
-# See examples at help("fwb")
+# See examples at `help("fwb")`
 }
 \seealso{
 \code{\link[=fwb]{fwb()}}, \code{\link[=summary.fwb]{summary.fwb()}}, \pkgfun{boot}{plot.boot}, \code{\link[=hist]{hist()}}, \code{\link[=qqplot]{qqplot()}}

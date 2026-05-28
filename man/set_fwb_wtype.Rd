@@ -10,18 +10,18 @@ set_fwb_wtype(wtype = getOption("fwb_wtype", "exp"))
 get_fwb_wtype(fwb)
 }
 \arguments{
-\item{wtype}{string; the type of weights to use. Allowable options include \code{"exp"} (the default), \code{"poisson"}, \code{"multinom"}, and \code{"mammen"}. Abbreviations allowed. See \code{\link[=fwb]{fwb()}} for what these mean.}
+\item{wtype}{string; the type of weights to use. Allowable options include \code{"exp"} (the default), \code{"poisson"}, \code{"multinom"}, \code{"mammen"}, \code{"beta"}, and \code{"power"}. Abbreviations allowed. See \code{\link[=fwb]{fwb()}} for what these mean.}
 
-\item{fwb}{optional; an \code{fwb} object, the output of a call to \code{\link[=fwb]{fwb()}}. If left empty, will extract the weights type from \code{options()}.}
+\item{fwb}{optional; an \verb{<fwb>} object, the output of a call to \code{\link[=fwb]{fwb()}}. If left empty, will extract the weights type from \code{options()}.}
 }
 \value{
-\code{set_fwb_wtype()} returns a call to \code{\link[=options]{options()}} with the options set to those prior to \code{set_fwb_wtype()} being called. This makes it so that calling \code{options(op)}, where \code{op} is the output of \code{set_fwb_wtype()}, resets the \code{fwb_wtype} to its original value. \code{get_fwb_wtype()} returns a string containing the \code{fwb_wtype} value set globally (if no argument is supplied) or used in the supplied \code{fwb} object.
+\code{set_fwb_wtype()} returns a call to \code{\link[=options]{options()}} with the options set to those prior to \code{set_fwb_wtype()} being called. This makes it so that calling \code{options(op)}, where \code{op} is the output of \code{set_fwb_wtype()}, resets the \code{fwb_wtype} to its original value. \code{get_fwb_wtype()} returns a string containing the \code{fwb_wtype} value set globally (if no argument is supplied) or used in the supplied \verb{<fwb>} object.
 }
 \description{
 Set the default for the type of weights used in the weighted bootstrap computed by \code{\link[=fwb]{fwb()}} and \code{\link[=vcovFWB]{vcovFWB()}}.
 }
 \details{
-\code{set_fwb_wtype(x)} is equivalent to calling \code{options(fwb_wtype = x)}. \code{get_fwb_wtype()} is equivalent to calling \code{getOption("fwb_wtype")} when no argument is supplied and to extracting the \code{wtype} component of an \code{fwb} object when supplied.
+\code{set_fwb_wtype(x)} is equivalent to calling \code{options(fwb_wtype = x)}. \code{get_fwb_wtype()} is equivalent to calling \code{getOption("fwb_wtype")} when no argument is supplied and to extracting the \code{wtype} component of an \verb{<fwb>} object when supplied.
 }
 \examples{
 \dontshow{if (rlang::is_installed("survival")) withAutoprint(\{ # examplesIf}
@@ -30,8 +30,8 @@ Set the default for the type of weights used in the weighted bootstrap computed 
 set.seed(123, "L'Ecuyer-CMRG")
 data("bearingcage")
 
-#Set fwb type to "mammen"
-op <- set_fwb_wtype("mammen")
+#Set fwb type to "beta"
+op <- set_fwb_wtype("beta")
 
 weibull_est <- function(data, w) {
   fit <- survival::survreg(survival::Surv(hours, failure) ~ 1,

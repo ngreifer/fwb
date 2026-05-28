@@ -46,7 +46,7 @@ vcovFWB(
 
 \item{verbose}{\code{logical}; whether to display a progress bar. The default value, \code{NULL}, is \code{FALSE} when parallelization is used (see \code{cl} below) and \code{TRUE} otherwise.}
 
-\item{cl}{a cluster object created by \pkgfun{parallel}{makeCluster}, an integer to indicate the number of child-processes (integer values are ignored on Windows) for parallel evaluations, or the string \code{"future"} to use a \code{future} backend. See the \code{cl} argument of \pkgfun{pbapply}{pblapply} for details. If \code{NULL}, no parallelization will take place. See \code{vignette("fwb-rep")} for details.}
+\item{cl}{a cluster object created by \pkgfun{parallel}{makeCluster}, an integer to indicate the number of child-processes (integer values are ignored on Windows) for parallel evaluations, or the string \code{"future"} to use a \code{future} backend. See the \code{cl} argument of \pkgfun{pbapply}{pblapply} for details. If \code{NULL}, no parallelization will take place. See the section "Parallel Processing" in Details.}
 }
 \value{
 A matrix containing the covariance matrix estimate.
@@ -60,6 +60,10 @@ A matrix containing the covariance matrix estimate.
 For \code{lm} objects, the model is re-fit using \code{\link[=.lm.fit]{.lm.fit()}} for speed, and, similarly, \code{glm} objects are re-fit using \code{\link[=glm.fit]{glm.fit()}} (or whichever fitting method was originally used). For other objects, \code{\link[=update]{update()}} is used to populate the weights and re-fit the model (this assumes the fitting function accepts non-integer case weights through a \code{weights} argument). If a model accepts weights in some other way, \code{\link[=fwb]{fwb()}} should be used instead; \code{vcovFWB()} is inherently limited in its ability to handle all possible models. It is important that the original model was not fit using frequency weights (i.e., weights that allow one row of data to represent multiple full, identical, individual units) unless clustering is used.
 
 See \pkgfun{sandwich}{vcovBS} and \pkgfun{sandwich}{vcovCL} for more information on clustering covariance matrices, and see \code{\link[=fwb]{fwb()}} for more information on how clusters work with the fractional weighted bootstrap. When clusters are specified, each cluster is given a bootstrap weight, and all members of the cluster are given that weight; estimation then proceeds as normal. By default, when \code{cluster} is unspecified, each unit is considered its own cluster.
+\subsection{Parallel Processing}{
+
+To speed up evaluation, parallel processing can be enabled. One way to do so is to supply an argument to \code{cl}. This can be either an integer(not available on Windows), a cluster object created by \pkgfun{parallel}{makeCluster}, or the string \code{"future"}. Another general way is to use functionality in the \CRANpkg{futurize} package, which is compatible with \pkg{fwb}. See \code{vignette("futurize-81-fwb", package = "futurize")} for details. See also \code{vignette("fwb-rep")} for information on replicability with (and without) parallel processing.
+}
 }
 \examples{
 \dontshow{if (rlang::is_installed("lmtest")) withAutoprint(\{ # examplesIf}

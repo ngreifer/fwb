@@ -23,6 +23,10 @@
 #'
 #' See \pkgfun{sandwich}{vcovBS} and \pkgfun{sandwich}{vcovCL} for more information on clustering covariance matrices, and see [fwb()] for more information on how clusters work with the fractional weighted bootstrap. When clusters are specified, each cluster is given a bootstrap weight, and all members of the cluster are given that weight; estimation then proceeds as normal. By default, when `cluster` is unspecified, each unit is considered its own cluster.
 #'
+#' ## Parallel Processing
+#'
+#' To speed up evaluation, parallel processing can be enabled. One way to do so is to supply an argument to `cl`. This can be either an integer(not available on Windows), a cluster object created by \pkgfun{parallel}{makeCluster}, or the string `"future"`. Another general way is to use functionality in the \CRANpkg{futurize} package, which is compatible with \pkg{fwb}. See `vignette("futurize-81-fwb", package = "futurize")` for details. See also `vignette("fwb-rep")` for information on replicability with (and without) parallel processing.
+#'
 #' @seealso
 #' * [fwb()] for performing the fractional weighted bootstrap on an arbitrary quantity
 #' * [fwb.ci()] for computing nonparametric confidence intervals for `fwb` objects

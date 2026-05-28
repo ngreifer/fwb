@@ -19,7 +19,7 @@
 \method{confint}{fwb}(object, parm, level = 0.95, ci.type = "bc", simultaneous = FALSE, ...)
 }
 \arguments{
-\item{object}{an \code{fwb} object; the output of a call to \code{\link[=fwb]{fwb()}}.}
+\item{object}{an \verb{<fwb>} object; the output of a call to \code{\link[=fwb]{fwb()}}.}
 
 \item{conf, level}{the desired confidence level. Default is .95 for 95\% confidence intervals. Set to 0 to prevent calculation of confidence intervals.}
 
@@ -36,7 +36,7 @@
 \item{...}{ignored.}
 }
 \value{
-For \code{summary()}, a \code{summary.fwb} object, which is a matrix with the following columns:
+For \code{summary()}, a \verb{<summary.fwb>} object, which is a matrix with the following columns:
 \itemize{
 \item \code{Estimate}: the statistic estimated in the original sample
 \item \verb{Std. Error}: the standard deviation of the bootstrap estimates
@@ -55,7 +55,7 @@ P-values are computed by inverting the confidence interval for each parameter, i
 
 Simultaneous confidence intervals are computed using the "sup-t" confidence band, which involves modifying the confidence level so that the intersection of all the adjusted confidence intervals contain the whole parameter vector with the specified coverage. This will always be less conservative than Bonferroni or Holm adjustment. See Olea and Plagborg-Møller (2019) for details on implementation for Wald and percentile intervals. Simultaneous p-values are computed by inverting the simultaneous bands. Simultaneous inference is only allowed when \code{ci.type} is \code{"wald"} or \code{"perc"} and \code{index} has length greater than 1. When \code{ci.type = "wald"}, the \pkg{mvtnorm} package must be installed.
 
-\code{tidy()} and \code{print()} methods are available for \code{summary.fwb} objects.
+\code{tidy()} and \code{print()} methods are available for \verb{<summary.fwb>} objects.
 }
 \examples{
 set.seed(123, "L'Ecuyer-CMRG")

@@ -18,7 +18,7 @@ fwb.ci(
 \method{print}{fwbci}(x, hinv = NULL, ...)
 }
 \arguments{
-\item{fwb.out}{an \code{fwb} object; the output of a call to \code{\link[=fwb]{fwb()}}.}
+\item{fwb.out}{an \verb{<fwb>} object; the output of a call to \code{\link[=fwb]{fwb()}}.}
 
 \item{conf}{the desired confidence level. Default is .95 for 95\% confidence intervals.}
 
@@ -35,7 +35,7 @@ fwb.ci(
 \item{x}{an \code{fwbci} object; the output of a call to \code{fwb.ci()}.}
 }
 \value{
-An \code{fwbci} object, which inherits from \code{bootci} and has the following components:
+An \verb{<fwbci>} object, which inherits from \verb{<bootci>} and has the following components:
 \item{R}{the number of bootstrap replications in the original call to \code{fwb()}.}
 \item{t0}{the observed value of the statistic on the same scale as the intervals (i.e., after applying \code{h} and then \code{hinv}.}
 \item{call}{the call to \code{fwb.ci()}.}

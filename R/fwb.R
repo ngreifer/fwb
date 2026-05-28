@@ -11,11 +11,11 @@
 #' @param strata optional; a vector containing stratum membership for stratified bootstrapping. If supplied, will essentially perform a separate bootstrap within each level of `strata`. This does not affect results when `wtype = "poisson"`.
 #' @param drop0 `logical`; when `wtype` is `"multinom"` or `"poisson"`, whether to drop units that are given weights of 0 from the dataset and weights supplied to `statistic` in each iteration. If `NA`, weights of 0 will be set to `NA` instead. Ignored for other `wtype`s because they don't produce 0 weights. Default is `FALSE`.
 #' @param verbose `logical`; whether to display a progress bar. The default value, `NULL`, is `FALSE` when parallelization is used (see `cl` below) and `TRUE` otherwise.
-#' @param cl a cluster object created by \pkgfun{parallel}{makeCluster}, an integer to indicate the number of child-processes (integer values are ignored on Windows) for parallel evaluations, or the string `"future"` to use a `future` backend. See the `cl` argument of \pkgfun{pbapply}{pblapply} for details. If `NULL`, no parallelization will take place. See `vignette("fwb-rep")` for details.
+#' @param cl a cluster object created by \pkgfun{parallel}{makeCluster}, an integer to indicate the number of child-processes (integer values are ignored on Windows) for parallel evaluations, or the string `"future"` to use a `future` backend. See the `cl` argument of \pkgfun{pbapply}{pblapply} for details. If `NULL`, no parallelization will take place. See the section "Parallel Processing" in Details.
 #' @param ... other arguments passed to `statistic`.
 #'
 #' @returns
-#' An `fwb` object, which also inherits from `boot`, with the following components:
+#' An `<fwb>` object, which also inherits from `<boot>`, with the following components:
 #'
 #' \item{t0}{The observed value of `statistic` applied to `data` with uniform weights.}
 #' \item{t}{A matrix with `R` rows, each of which is a bootstrap replicate of the result of calling `statistic`.}
@@ -28,7 +28,7 @@
 #' \item{strata}{The vector passed to `strata`, if any.}
 #' \item{wtype}{The type of weights used as determined by the `wtype` argument.}
 #'
-#' `fwb` objects have [coef()] and [vcov()] methods, which extract the `t0` component and covariance of the `t` components, respectively.
+#' `<fwb>` objects have [coef()] and [vcov()] methods, which extract the `t0` component and covariance of the `t` components, respectively.
 #'
 #' @details
 #' `fwb()` implements the fractional weighted bootstrap and is meant to function as a drop-in for `boot::boot(., stype = "f")` (i.e., the usual bootstrap but with frequency weights representing the number of times each unit is drawn). In each bootstrap replication, when `wtype = "exp"` (the default), the weights are sampled from independent exponential distributions with rate parameter 1 and then normalized to have a mean of 1, equivalent to drawing the weights from a Dirichlet distribution. Other weights are allowed as determined by the `wtype` argument (see below for details). The function supplied to `statistic` must incorporate the weights to compute a weighted statistic. For example, if the output is a regression coefficient, the weights supplied to the `w` argument of `statistic` should be supplied to the `weights` argument of `lm()`. These weights should be used any time frequency weights would be, since they are meant to function like frequency weights (which, in the case of the traditional bootstrap, would be integers). Unfortunately, there is no way for `fwb()` to know whether you are using the weights correctly, so care should be taken to ensure weights are correctly incorporated into the estimator.
@@ -69,6 +69,10 @@
 #' }
 #'
 #' `"exp"` is the default due to it being the formulation described in Xu et al. (2020) and in the most formulations of the Bayesian bootstrap; it should be used if one wants to remain in line with these guidelines or to maintain a Bayesian flavor to the analysis, whereas other distributions might be preferred for their frequentist operating characteristics, though more research is needed on their general performance. Owen (2025) recommends `"beta"` and `"power"`, as these provided close to nominal confidence interval coverage without excessively large intervals in the context of estimating the mean in a small sample. `"multinom"` and `"poisson"` should primarily be used for comparison purposes or as an alternative interface to \pkg{boot}.
+#'
+#' ## Parallel Processing
+#'
+#' To speed up evaluation, parallel processing can be enabled. One way to do so is to supply an argument to `cl`. This can be either an integer(not available on Windows), a cluster object created by \pkgfun{parallel}{makeCluster}, or the string `"future"`. Another general way is to use functionality in the \CRANpkg{futurize} package, which is compatible with \pkg{fwb}. See `vignette("futurize-81-fwb", package = "futurize")` for details. See also `vignette("fwb-rep")` for information on replicability with (and without) parallel processing.
 #'
 #' @seealso
 #' * [fwb.ci()] for calculating confidence intervals

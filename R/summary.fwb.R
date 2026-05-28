@@ -2,7 +2,7 @@
 #'
 #' `summary()` creates a regression summary-like table that displays the bootstrap estimates, their empirical standard errors, their confidence intervals, and, optionally, p-values for tests against a null value. `confint()` produces just the confidence intervals, and is called internally by `summary()`.
 #'
-#' @param object an `fwb` object; the output of a call to [fwb()].
+#' @param object an `<fwb>` object; the output of a call to [fwb()].
 #' @param conf,level the desired confidence level. Default is .95 for 95% confidence intervals. Set to 0 to prevent calculation of confidence intervals.
 #' @param ci.type the type of confidence interval desired. Allowable options include `"wald"` (Wald interval), `"norm"` (normal approximation), `"basic"` (basic interval), `"perc"` (percentile interval), `"bc"` (bias-corrected percentile interval), and `"bca"` (bias-corrected and accelerated \[BCa\] interval). Only one is allowed. BCa intervals require the number of bootstrap replications to be larger than the sample size. See [fwb.ci()] for details. The default is `"bc"`. Ignored if both `conf = 0` and `p.values = FALSE`.
 #' @param index,parm the index or indices of the position of the quantity of interest if more than one was specified in `fwb()`. Default is to display all quantities.
@@ -12,7 +12,7 @@
 #' @param ... ignored.
 #'
 #' @return
-#' For `summary()`, a `summary.fwb` object, which is a matrix with the following columns:
+#' For `summary()`, a `<summary.fwb>` object, which is a matrix with the following columns:
 #' * `Estimate`: the statistic estimated in the original sample
 #' * `Std. Error`: the standard deviation of the bootstrap estimates
 #' * `CI {L}%` and `CI {U}%`: the upper and lower confidence interval bounds computed using the argument to `ci.type` (only when `conf` is not 0).
@@ -26,7 +26,7 @@
 #'
 #' Simultaneous confidence intervals are computed using the "sup-t" confidence band, which involves modifying the confidence level so that the intersection of all the adjusted confidence intervals contain the whole parameter vector with the specified coverage. This will always be less conservative than Bonferroni or Holm adjustment. See Olea and Plagborg-Møller (2019) for details on implementation for Wald and percentile intervals. Simultaneous p-values are computed by inverting the simultaneous bands. Simultaneous inference is only allowed when `ci.type` is `"wald"` or `"perc"` and `index` has length greater than 1. When `ci.type = "wald"`, the \pkg{mvtnorm} package must be installed.
 #'
-#' `tidy()` and `print()` methods are available for `summary.fwb` objects.
+#' `tidy()` and `print()` methods are available for `<summary.fwb>` objects.
 #'
 #' @seealso [fwb()] for performing the fractional weighted bootstrap; [fwb.ci()] for computing multiple confidence intervals for a single bootstrapped quantity
 #'

@@ -45,7 +45,7 @@ fwb(
 
 \item{verbose}{\code{logical}; whether to display a progress bar. The default value, \code{NULL}, is \code{FALSE} when parallelization is used (see \code{cl} below) and \code{TRUE} otherwise.}
 
-\item{cl}{a cluster object created by \pkgfun{parallel}{makeCluster}, an integer to indicate the number of child-processes (integer values are ignored on Windows) for parallel evaluations, or the string \code{"future"} to use a \code{future} backend. See the \code{cl} argument of \pkgfun{pbapply}{pblapply} for details. If \code{NULL}, no parallelization will take place. See \code{vignette("fwb-rep")} for details.}
+\item{cl}{a cluster object created by \pkgfun{parallel}{makeCluster}, an integer to indicate the number of child-processes (integer values are ignored on Windows) for parallel evaluations, or the string \code{"future"} to use a \code{future} backend. See the \code{cl} argument of \pkgfun{pbapply}{pblapply} for details. If \code{NULL}, no parallelization will take place. See the section "Parallel Processing" in Details.}
 
 \item{...}{other arguments passed to \code{statistic}.}
 
@@ -56,7 +56,7 @@ fwb(
 \item{index}{the index or indices of the position of the quantity of interest in \code{x$t0} if more than one was specified in \code{fwb()}. Default is to print all quantities.}
 }
 \value{
-An \code{fwb} object, which also inherits from \code{boot}, with the following components:
+An \verb{<fwb>} object, which also inherits from \verb{<boot>}, with the following components:
 
 \item{t0}{The observed value of \code{statistic} applied to \code{data} with uniform weights.}
 \item{t}{A matrix with \code{R} rows, each of which is a bootstrap replicate of the result of calling \code{statistic}.}
@@ -69,7 +69,7 @@ An \code{fwb} object, which also inherits from \code{boot}, with the following c
 \item{strata}{The vector passed to \code{strata}, if any.}
 \item{wtype}{The type of weights used as determined by the \code{wtype} argument.}
 
-\code{fwb} objects have \code{\link[=coef]{coef()}} and \code{\link[=vcov]{vcov()}} methods, which extract the \code{t0} component and covariance of the \code{t} components, respectively.
+\verb{<fwb>} objects have \code{\link[=coef]{coef()}} and \code{\link[=vcov]{vcov()}} methods, which extract the \code{t0} component and covariance of the \code{t} components, respectively.
 }
 \description{
 \code{fwb()} implements the fractional (random) weighted bootstrap, also known as the Bayesian bootstrap. Rather than resampling units to include in bootstrap samples, weights are drawn to be applied to a weighted estimator.
@@ -112,6 +112,11 @@ Draws weights from a \eqn{\text{Beta}(\sqrt{2} - 1, 1)} distribution using \code
 }
 
 \code{"exp"} is the default due to it being the formulation described in Xu et al. (2020) and in the most formulations of the Bayesian bootstrap; it should be used if one wants to remain in line with these guidelines or to maintain a Bayesian flavor to the analysis, whereas other distributions might be preferred for their frequentist operating characteristics, though more research is needed on their general performance. Owen (2025) recommends \code{"beta"} and \code{"power"}, as these provided close to nominal confidence interval coverage without excessively large intervals in the context of estimating the mean in a small sample. \code{"multinom"} and \code{"poisson"} should primarily be used for comparison purposes or as an alternative interface to \pkg{boot}.
+}
+
+\subsection{Parallel Processing}{
+
+To speed up evaluation, parallel processing can be enabled. One way to do so is to supply an argument to \code{cl}. This can be either an integer(not available on Windows), a cluster object created by \pkgfun{parallel}{makeCluster}, or the string \code{"future"}. Another general way is to use functionality in the \CRANpkg{futurize} package, which is compatible with \pkg{fwb}. See \code{vignette("futurize-81-fwb", package = "futurize")} for details. See also \code{vignette("fwb-rep")} for information on replicability with (and without) parallel processing.
 }
 }
 \section{Methods (by generic)}{
