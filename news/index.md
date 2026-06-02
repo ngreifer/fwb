@@ -2,6 +2,8 @@
 
 ## *fwb* 0.6.0
 
+CRAN release: 2026-05-29
+
 - `wtype` can now be set to `"beta"` to sample weights from a
   \\\text{Beta}(1/2,3/2)\\ distribution or `"power"` to sample from a
   \\\text{Beta}(\sqrt{2} - 1, 1)\\ distribution as described by [Owen

@@ -44,7 +44,7 @@
 
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.6.0" id="fwb-060">
-<em>fwb</em> 0.6.0<a class="anchor" aria-label="anchor" href="#fwb-060"></a></h2>
+<em>fwb</em> 0.6.0<a class="anchor" aria-label="anchor" href="#fwb-060"></a></h2><p class="text-muted">CRAN release: 2026-05-29</p>
 <ul><li><p><code>wtype</code> can now be set to <code>"beta"</code> to sample weights from a <span class="math inline">\(\text{Beta}(1/2,3/2)\)</span> distribution or <code>"power"</code> to sample from a <span class="math inline">\(\text{Beta}(\sqrt{2} - 1, 1)\)</span> distribution as described by <a href="https://doi.org/10.48550/arXiv.2508.10083" class="external-link">Owen (2025)</a>.</p></li>
 <li><p><code>drop0</code> can now be set to <code>NA</code> in <code><a href="../reference/fwb.html">fwb()</a></code>; this sets all weights of 0 to <code>NA</code> instead of removing those observations from the dataset.</p></li>
 <li><p><code><a href="../reference/vcovFWB.html">vcovFWB()</a></code> now accepts <code>drop0</code> to control how to treat units with weights of 0.</p></li>
