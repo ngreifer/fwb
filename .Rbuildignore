@@ -12,3 +12,4 @@
 ^\.lintr
 ^\.positai$
 ^\.claude$
+^CLAUDE\.md$
