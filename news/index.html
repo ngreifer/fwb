@@ -13,7 +13,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">fwb</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.0.9000</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -42,6 +42,12 @@
       <small>Source: <a href="https://github.com/ngreifer/fwb/blob/master/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="development version" id="fwb-development-version">
+<em>fwb</em> (development version)<a class="anchor" aria-label="anchor" href="#fwb-development-version"></a></h2>
+<ul><li><p>Added a new confidence interval type for <code><a href="https://rdrr.io/r/stats/confint.html" class="external-link">confint()</a></code>, <code><a href="../reference/fwb.ci.html">fwb.ci()</a></code>, and <code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code>: <code>"cheap"</code>, for the “cheap” confidence interval described by <a href="https://arxiv.org/abs/2202.00090" class="external-link">Lam (2022)</a>. This interval maintains nominal coverage even with few bootstrap replications (as low as one!).</p></li>
+<li><p>Fixed an incorrect error when using <code><a href="../reference/summary.fwb.html">confint.fwb()</a></code> with incorrectly specified <code>parm</code>.</p></li>
+</ul></div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.6.0" id="fwb-060">
 <em>fwb</em> 0.6.0<a class="anchor" aria-label="anchor" href="#fwb-060"></a></h2><p class="text-muted">CRAN release: 2026-05-29</p>
@@ -131,7 +137,7 @@
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.1.</p>
 </div>
 
     </footer></div>

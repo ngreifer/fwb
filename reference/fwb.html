@@ -13,7 +13,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">fwb</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.0.9000</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -109,7 +109,7 @@
 
 
 <dt id="arg-verbose">verbose<a class="anchor" aria-label="anchor" href="#arg-verbose"></a></dt>
-<dd><p><code>logical</code>; whether to display a progress bar. The default value, <code>NULL</code>, is <code>FALSE</code> when parallelization is used (see <code>cl</code> below) and <code>TRUE</code> otherwise.</p></dd>
+<dd><p><code>logical</code>; whether to display a progress bar. The default value, <code>NULL</code>, is <code>FALSE</code> when parallelization is used (see <code>cl</code> below) and <code>TRUE</code> otherwise. Alternatively, the <a href="https://CRAN.R-project.org/package=progressify" class="external-link"><span class="pkg">progressify</span></a> package can be used to incorporate a <span class="pkg">progressr</span> progress bar.</p></dd>
 
 
 <dt id="arg-cl">cl<a class="anchor" aria-label="anchor" href="#arg-cl"></a></dt>
@@ -208,7 +208,7 @@
 <h3 id="parallel-processing">Parallel Processing<a class="anchor" aria-label="anchor" href="#parallel-processing"></a></h3>
 
 
-<p>To speed up evaluation, parallel processing can be enabled. One way to do so is to supply an argument to <code>cl</code>. This can be either an integer(not available on Windows), a cluster object created by <code><a href="https://rdrr.io/r/parallel/makeCluster.html" class="external-link">parallel::makeCluster()</a></code>
+<p>To speed up evaluation, parallel processing can be enabled. One way to do so is to supply an argument to <code>cl</code>. This can be either an integer (not available on Windows), a cluster object created by <code><a href="https://rdrr.io/r/parallel/makeCluster.html" class="external-link">parallel::makeCluster()</a></code>
 , or the string <code>"future"</code>. Another general way is to use functionality in the <a href="https://CRAN.R-project.org/package=futurize" class="external-link"><span class="pkg">futurize</span></a> package, which is compatible with <span class="pkg">fwb</span>. See <code><a href="https://futurize.futureverse.org/articles/futurize-81-fwb.html" class="external-link">vignette("futurize-81-fwb", package = "futurize")</a></code> for details. See also <code><a href="../articles/fwb-rep.html">vignette("fwb-rep")</a></code> for information on replicability with (and without) parallel processing.</p>
 </div>
 
@@ -287,7 +287,7 @@
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.1.</p>
 </div>
 
     </footer></div>

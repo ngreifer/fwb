@@ -28,7 +28,7 @@
 
     <a class="navbar-brand me-2" href="index.html">fwb</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.0.9000</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -64,7 +64,7 @@
 </h1></div>
 <!-- badges: start -->
 
-<p><em>fwb</em> implements the fractional weighted bootstrap (FWB), also known as the Bayesian bootstrap, following the treatment by Xu et al. (2020). The FWB involves generating sets of weights from a continuous distribution to be used in estimating statistics of interest, which yields a posterior distribution that can be interpreted in the same way the traditional (resampling-based) bootstrap distribution can be. The primary function is <code><a href="reference/fwb.html">fwb()</a></code>, which is essentially a drop-in for <code><a href="https://rdrr.io/pkg/boot/man/boot.html" class="external-link">boot::boot()</a></code> in that it takes in a dataset and a function and applies that function to the dataset and a randomly generated set of case weights. Also included are <code><a href="reference/fwb.ci.html">fwb.ci()</a></code>, a drop-in for <code><a href="https://rdrr.io/pkg/boot/man/boot.ci.html" class="external-link">boot::boot.ci()</a></code> for computing various kinds of confidence intervals (e.g., percentile, normal, bias-corrected percentile, etc.), and <code><a href="reference/vcovFWB.html">vcovFWB()</a></code>, a drop-in for <code><a href="https://sandwich.R-Forge.R-project.org/reference/vcovBS.html" class="external-link">sandwich::vcovBS()</a></code> for computing a coefficient covariance matrix from a regression model using the FWB.</p>
+<p><em>fwb</em> implements the fractional weighted bootstrap (FWB), also known as the Bayesian bootstrap, following the treatment by Xu et al. (2020). The FWB involves generating sets of weights from a continuous distribution to be used in estimating statistics of interest, which yields a posterior distribution that can be interpreted in the same way the traditional (resampling-based) bootstrap distribution can be. The primary function is <code><a href="reference/fwb.html">fwb()</a></code>, which is essentially a drop-in for <code><a href="https://rdrr.io/pkg/boot/man/boot.html" class="external-link">boot::boot()</a></code> in that it takes in a dataset and a function and applies that function to the dataset and a randomly generated set of case weights. Also included are <code><a href="reference/fwb.ci.html">fwb.ci()</a></code>, a drop-in for <code><a href="https://rdrr.io/pkg/boot/man/boot.ci.html" class="external-link">boot::boot.ci()</a></code> for computing various kinds of confidence intervals (e.g., percentile, normal, bias-corrected percentile, etc.), and <code><a href="reference/vcovFWB.html">vcovFWB()</a></code>, a drop-in for <code><a href="https://zeileis.codeberg.page/sandwich/reference/vcovBS.html" class="external-link">sandwich::vcovBS()</a></code> for computing a coefficient covariance matrix from a regression model using the FWB.</p>
 <p>Check out the <em>fwb</em> <a href="https://ngreifer.github.io/fwb/">website</a>!</p>
 <div class="section level2">
 <h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
@@ -141,7 +141,7 @@
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="st">"lmtest"</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># The traditional bootstrap fails</span></span>
-<span><span class="fu"><a href="https://rdrr.io/pkg/lmtest/man/coeftest.html" class="external-link">coeftest</a></span><span class="op">(</span><span class="va">fit</span>, vcov <span class="op">=</span> <span class="fu">sandwich</span><span class="fu">::</span><span class="va"><a href="https://sandwich.R-Forge.R-project.org/reference/vcovBS.html" class="external-link">vcovBS</a></span><span class="op">)</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">3</span>, <span class="op">]</span></span>
+<span><span class="fu"><a href="https://rdrr.io/pkg/lmtest/man/coeftest.html" class="external-link">coeftest</a></span><span class="op">(</span><span class="va">fit</span>, vcov <span class="op">=</span> <span class="fu">sandwich</span><span class="fu">::</span><span class="va"><a href="https://zeileis.codeberg.page/sandwich/reference/vcovBS.html" class="external-link">vcovBS</a></span><span class="op">)</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">3</span>, <span class="op">]</span></span>
 <span><span class="co">#&gt;              Estimate   Std. Error       z value Pr(&gt;|z|)</span></span>
 <span><span class="co">#&gt; (Intercept) -6.904101 3.967764e+14 -1.740048e-14        1</span></span>
 <span><span class="co">#&gt; spontaneous  3.230286 1.915285e+14  1.686583e-14        1</span></span>
@@ -303,7 +303,7 @@
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.1.</p>
 </div>
 
     </footer>

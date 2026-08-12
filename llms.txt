@@ -19,7 +19,7 @@ computing various kinds of confidence intervals (e.g., percentile,
 normal, bias-corrected percentile, etc.), and
 [`vcovFWB()`](https://ngreifer.github.io/fwb/reference/vcovFWB.md), a
 drop-in for
-[`sandwich::vcovBS()`](https://sandwich.R-Forge.R-project.org/reference/vcovBS.html)
+[`sandwich::vcovBS()`](https://zeileis.codeberg.page/sandwich/reference/vcovBS.html)
 for computing a coefficient covariance matrix from a regression model
 using the FWB.
 

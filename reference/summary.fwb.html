@@ -13,7 +13,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">fwb</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.0.9000</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -78,7 +78,7 @@
 
 
 <dt id="arg-ci-type">ci.type<a class="anchor" aria-label="anchor" href="#arg-ci-type"></a></dt>
-<dd><p>the type of confidence interval desired. Allowable options include <code>"wald"</code> (Wald interval), <code>"norm"</code> (normal approximation), <code>"basic"</code> (basic interval), <code>"perc"</code> (percentile interval), <code>"bc"</code> (bias-corrected percentile interval), and <code>"bca"</code> (bias-corrected and accelerated [BCa] interval). Only one is allowed. BCa intervals require the number of bootstrap replications to be larger than the sample size. See <code><a href="fwb.ci.html">fwb.ci()</a></code> for details. The default is <code>"bc"</code>. Ignored if both <code>conf = 0</code> and <code>p.values = FALSE</code>.</p></dd>
+<dd><p>the type of confidence interval desired. Allowable options include <code>"wald"</code> (Wald interval), <code>"norm"</code> (normal approximation), <code>"cheap"</code> (basic interval), <code>"cheap"</code> (basic interval), <code>"perc"</code> (percentile interval), <code>"bc"</code> (bias-corrected percentile interval), and <code>"bca"</code> (bias-corrected and accelerated [BCa] interval). Only one is allowed. BCa intervals require the number of bootstrap replications to be larger than the sample size. See <code><a href="fwb.ci.html">fwb.ci()</a></code> for details. The default is <code>"bc"</code>. Ignored if both <code>conf = 0</code> and <code>p.values = FALSE</code>.</p></dd>
 
 
 <dt id="arg-p-value">p.value<a class="anchor" aria-label="anchor" href="#arg-p-value"></a></dt>
@@ -107,7 +107,7 @@
 <li><p><code>Std. Error</code>: the standard deviation of the bootstrap estimates</p></li>
 <li><p><code>CI {L}%</code> and <code>CI {U}%</code>: the upper and lower confidence interval bounds computed using the argument to <code>ci.type</code> (only when <code>conf</code> is not 0).</p></li>
 <li><p><code>z value</code>: when <code>p.value = TRUE</code> and <code>ci.type = "wald"</code>, the z-statistic for the test of the estimate against against <code>null</code>.</p></li>
-<li><p><code>Pr(&gt;|z|)</code>: when <code>p.value = TRUE</code>, the p-value for the test of the estimate against against <code>null</code>.</p></li>
+<li><p><code>Pr(&gt;|z|)</code>: when <code>p.value = TRUE</code>, the p-value for the test of the estimate against against <code>null</code>. When <code>ci.type = "cheap"</code>, this is listed as <code>Pr(&gt;|t|)</code> because the p-value comes from a Student's t-distribution with \(R\) degrees of freedom (where \(R\) is the number of bootstrap replications).</p></li>
 </ul><p>For <code><a href="https://rdrr.io/r/stats/confint.html" class="external-link">confint()</a></code>, a matrix with a row for each statistic and a column for the upper and lower confidence interval limits.</p>
     </div>
     <div class="section level2">
@@ -166,7 +166,7 @@
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.1.</p>
 </div>
 
     </footer></div>

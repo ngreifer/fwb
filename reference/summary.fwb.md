@@ -42,12 +42,12 @@ confint(object, parm, level = 0.95, ci.type = "bc", simultaneous = FALSE, ...)
 - ci.type:
 
   the type of confidence interval desired. Allowable options include
-  `"wald"` (Wald interval), `"norm"` (normal approximation), `"basic"`
-  (basic interval), `"perc"` (percentile interval), `"bc"`
-  (bias-corrected percentile interval), and `"bca"` (bias-corrected and
-  accelerated \[BCa\] interval). Only one is allowed. BCa intervals
-  require the number of bootstrap replications to be larger than the
-  sample size. See
+  `"wald"` (Wald interval), `"norm"` (normal approximation), `"cheap"`
+  (basic interval), `"cheap"` (basic interval), `"perc"` (percentile
+  interval), `"bc"` (bias-corrected percentile interval), and `"bca"`
+  (bias-corrected and accelerated \[BCa\] interval). Only one is
+  allowed. BCa intervals require the number of bootstrap replications to
+  be larger than the sample size. See
   [`fwb.ci()`](https://ngreifer.github.io/fwb/reference/fwb.ci.md) for
   details. The default is `"bc"`. Ignored if both `conf = 0` and
   `p.values = FALSE`.
@@ -99,7 +99,10 @@ For [`summary()`](https://rdrr.io/r/base/summary.html), a
   z-statistic for the test of the estimate against against `null`.
 
 - `Pr(>|z|)`: when `p.value = TRUE`, the p-value for the test of the
-  estimate against against `null`.
+  estimate against against `null`. When `ci.type = "cheap"`, this is
+  listed as `Pr(>|t|)` because the p-value comes from a Student's
+  t-distribution with \\R\\ degrees of freedom (where \\R\\ is the
+  number of bootstrap replications).
 
 For [`confint()`](https://rdrr.io/r/stats/confint.html), a matrix with a
 row for each statistic and a column for the upper and lower confidence

@@ -3,7 +3,7 @@
 `vcovFWB()` estimates the covariance matrix of model coefficient
 estimates using the fractional weighted bootstrap. It serves as a
 drop-in for [`stats::vcov()`](https://rdrr.io/r/stats/vcov.html) or
-[`sandwich::vcovBS()`](https://sandwich.R-Forge.R-project.org/reference/vcovBS.html)
+[`sandwich::vcovBS()`](https://zeileis.codeberg.page/sandwich/reference/vcovBS.html)
 . Clustered covariances are can be requested.
 
 ## Usage
@@ -106,7 +106,9 @@ vcovFWB(
 
   `logical`; whether to display a progress bar. The default value,
   `NULL`, is `FALSE` when parallelization is used (see `cl` below) and
-  `TRUE` otherwise.
+  `TRUE` otherwise. Alternatively, the
+  [progressify](https://CRAN.R-project.org/package=progressify) package
+  can be used to incorporate a progressr progress bar.
 
 - cl:
 
@@ -128,7 +130,7 @@ A matrix containing the covariance matrix estimate.
 `vcovFWB()` functions like other
 [`vcov()`](https://rdrr.io/r/stats/vcov.html)-like functions, such as
 those in the sandwich package, in particular,
-[`sandwich::vcovBS()`](https://sandwich.R-Forge.R-project.org/reference/vcovBS.html)
+[`sandwich::vcovBS()`](https://zeileis.codeberg.page/sandwich/reference/vcovBS.html)
 , which implements the traditional bootstrap (and a few other bootstrap
 varieties for linear models). Sets of weights are generated as described
 in the documentation for
@@ -153,9 +155,9 @@ represent multiple full, identical, individual units) unless clustering
 is used.
 
 See
-[`sandwich::vcovBS()`](https://sandwich.R-Forge.R-project.org/reference/vcovBS.html)
+[`sandwich::vcovBS()`](https://zeileis.codeberg.page/sandwich/reference/vcovBS.html)
 and
-[`sandwich::vcovCL()`](https://sandwich.R-Forge.R-project.org/reference/vcovCL.html)
+[`sandwich::vcovCL()`](https://zeileis.codeberg.page/sandwich/reference/vcovCL.html)
 for more information on clustering covariance matrices, and see
 [`fwb()`](https://ngreifer.github.io/fwb/reference/fwb.md) for more
 information on how clusters work with the fractional weighted bootstrap.
@@ -190,7 +192,7 @@ for information on replicability with (and without) parallel processing.
   for producing standard errors and confidence intervals for `fwb`
   objects
 
-- [`sandwich::vcovBS()`](https://sandwich.R-Forge.R-project.org/reference/vcovBS.html)
+- [`sandwich::vcovBS()`](https://zeileis.codeberg.page/sandwich/reference/vcovBS.html)
   for computing covariance matrices using the traditional bootstrap (the
   fractional weighted bootstrap is also available but with limited
   options).

@@ -1,5 +1,20 @@
 # Changelog
 
+## *fwb* (development version)
+
+- Added a new confidence interval type for
+  [`confint()`](https://rdrr.io/r/stats/confint.html),
+  [`fwb.ci()`](https://ngreifer.github.io/fwb/reference/fwb.ci.md), and
+  [`summary()`](https://rdrr.io/r/base/summary.html): `"cheap"`, for the
+  “cheap” confidence interval described by [Lam
+  (2022)](https://arxiv.org/abs/2202.00090). This interval maintains
+  nominal coverage even with few bootstrap replications (as low as
+  one!).
+
+- Fixed an incorrect error when using
+  [`confint.fwb()`](https://ngreifer.github.io/fwb/reference/summary.fwb.md)
+  with incorrectly specified `parm`.
+
 ## *fwb* 0.6.0
 
 CRAN release: 2026-05-29

@@ -91,7 +91,9 @@ print(
 
   `logical`; whether to display a progress bar. The default value,
   `NULL`, is `FALSE` when parallelization is used (see `cl` below) and
-  `TRUE` otherwise.
+  `TRUE` otherwise. Alternatively, the
+  [progressify](https://CRAN.R-project.org/package=progressify) package
+  can be used to incorporate a progressr progress bar.
 
 - cl:
 
@@ -311,8 +313,8 @@ comparison purposes or as an alternative interface to boot.
 ### Parallel Processing
 
 To speed up evaluation, parallel processing can be enabled. One way to
-do so is to supply an argument to `cl`. This can be either an
-integer(not available on Windows), a cluster object created by
+do so is to supply an argument to `cl`. This can be either an integer
+(not available on Windows), a cluster object created by
 [`parallel::makeCluster()`](https://rdrr.io/r/parallel/makeCluster.html)
 , or the string `"future"`. Another general way is to use functionality
 in the [futurize](https://CRAN.R-project.org/package=futurize) package,

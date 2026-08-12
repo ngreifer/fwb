@@ -38,12 +38,12 @@ print(x, hinv = NULL, ...)
 - type:
 
   the type of confidence interval desired. Allowable options include
-  `"wald"` (Wald interval), `"norm"` (normal approximation), `"basic"`
-  (basic interval), `"perc"` (percentile interval), `"bc"` (bias-correct
-  percentile interval), and `"bca"` (BCa interval). More than one is
-  allowed. Can also be `"all"` to request all of them. BCa intervals
-  require that the number of bootstrap replications is larger than the
-  sample size.
+  `"wald"` (Wald interval), `"norm"` (normal approximation), `"cheap"`
+  (cheap interval), `"basic"` (basic interval), `"perc"` (percentile
+  interval), `"bc"` (bias-correct percentile interval), and `"bca"` (BCa
+  interval). More than one is allowed. Can also be `"all"` to request
+  all of them. BCa intervals require that the number of bootstrap
+  replications is larger than the sample size.
 
 - index:
 
@@ -96,11 +96,11 @@ following components:
   the call to `fwb.ci()`.
 
 There will be additional components named after each confidence interval
-type requested. For `"wald"` and `"norm"`, this is a matrix with one row
-containing the confidence level and the two confidence interval limits.
-For the others, this is a matrix with one row containing the confidence
-level, the indices of the two order statistics used in the calculations,
-and the confidence interval limits.
+type requested. For `"wald"`, `"norm"`, and `"cheap"`, this is a matrix
+with one row containing the confidence level and the two confidence
+interval limits. For the others, this is a matrix with one row
+containing the confidence level, the indices of the two order statistics
+used in the calculations, and the confidence interval limits.
 
 ## Details
 
@@ -132,6 +132,19 @@ the bootstrap estimates, \\t^{(i)}\\ the set of ordered estimates with
   This involves subtracting the "bias" (\\\hat{t} - t_0\\) from the
   estimate \\t_0\\ and using a standard Wald-type confidence interval.
   This method is valid when the statistic is normally distributed.
+
+- `"cheap"`:
+
+  \$\$\left\[ t_0 + s_t^\* q\_{R, \frac{\alpha}{2}}, t_0 + s_t^\* q\_{R,
+  {1-\frac{\alpha}{2}}} \right\]\$\$
+
+  Here, \\s_t^\* = \sqrt{\frac{1}{R}\sum\_{r=1}^R{\left( t_r - t_0
+  \right)^2}}\\, where \\t_r\\ is the estimate for bootstrap iteration
+  \\r\\, and \\q\_{R, \frac{\alpha}{2}}\\ and \\q\_{R,
+  {1-\frac{\alpha}{2}}}\\ are the upper and lower critical \\t\\ scores
+  from a Student's t-distribution with \\R\\ degrees of freedom. This
+  method is designed to be valid even with a low number of bootstrap
+  replications (including as low as one). See Lam (2022) for details.
 
 - `"basic"`:
 
@@ -191,6 +204,16 @@ studentized confidence intervals (`type = "stud"`) are not allowed.
 ## Functions
 
 - `print(fwbci)`: Print a bootstrap confidence interval
+
+## References
+
+Lam, H. (2022). A Cheap Bootstrap Method for Fast Inference. arXiv.
+[doi:10.48550/arXiv.2202.00090](https://doi.org/10.48550/arXiv.2202.00090)
+
+Xu, L., Gotwalt, C., Hong, Y., King, C. B., & Meeker, W. Q. (2020).
+Applications of the Fractional-Random-Weight Bootstrap. *The American
+Statistician*, 74(4), 345–358.
+[doi:10.1080/00031305.2020.1731599](https://doi.org/10.1080/00031305.2020.1731599)
 
 ## See also
 

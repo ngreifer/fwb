@@ -13,7 +13,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">fwb</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.0.9000</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -76,7 +76,7 @@
 
 
 <dt id="arg-type">type<a class="anchor" aria-label="anchor" href="#arg-type"></a></dt>
-<dd><p>the type of confidence interval desired. Allowable options include <code>"wald"</code> (Wald interval), <code>"norm"</code> (normal approximation), <code>"basic"</code> (basic interval), <code>"perc"</code> (percentile interval), <code>"bc"</code> (bias-correct percentile interval), and <code>"bca"</code> (BCa interval). More than one is allowed. Can also be <code>"all"</code> to request all of them. BCa intervals require that the number of bootstrap replications is larger than the sample size.</p></dd>
+<dd><p>the type of confidence interval desired. Allowable options include <code>"wald"</code> (Wald interval), <code>"norm"</code> (normal approximation), <code>"cheap"</code> (cheap interval), <code>"basic"</code> (basic interval), <code>"perc"</code> (percentile interval), <code>"bc"</code> (bias-correct percentile interval), and <code>"bca"</code> (BCa interval). More than one is allowed. Can also be <code>"all"</code> to request all of them. BCa intervals require that the number of bootstrap replications is larger than the sample size.</p></dd>
 
 
 <dt id="arg-index">index<a class="anchor" aria-label="anchor" href="#arg-index"></a></dt>
@@ -112,7 +112,7 @@
 <dd><p>the call to <code>fwb.ci()</code>.</p></dd>
 
 
-</dl><p>There will be additional components named after each confidence interval type requested. For <code>"wald"</code> and <code>"norm"</code>, this is a matrix with one row containing the confidence level and the two confidence interval limits. For the others, this is a matrix with one row containing the confidence level, the indices of the two order statistics used in the calculations, and the confidence interval limits.</p>
+</dl><p>There will be additional components named after each confidence interval type requested. For <code>"wald"</code>, <code>"norm"</code>, and <code>"cheap"</code>, this is a matrix with one row containing the confidence level and the two confidence interval limits. For the others, this is a matrix with one row containing the confidence level, the indices of the two order statistics used in the calculations, and the confidence interval limits.</p>
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
@@ -126,6 +126,10 @@ This method is valid when the statistic is normally distributed around the estim
 <dt><code>"norm"</code> (normal approximation)</dt>
 <dd><p>$$\left[2t_0 - \hat{t} + s_t z_\frac{\alpha}{2}, 2t_0 - \hat{t} + s_t z_{1-\frac{\alpha}{2}}\right]$$</p>
 <p>This involves subtracting the "bias" (\(\hat{t} - t_0\)) from the estimate \(t_0\) and using a standard Wald-type confidence interval. This method is valid when the statistic is normally distributed.</p></dd>
+
+<dt><code>"cheap"</code></dt>
+<dd><p>$$\left[ t_0 + s_t^* q_{R, \frac{\alpha}{2}}, t_0 + s_t^* q_{R, {1-\frac{\alpha}{2}}} \right]$$</p>
+<p>Here, \(s_t^* = \sqrt{\frac{1}{R}\sum_{r=1}^R{\left( t_r - t_0 \right)^2}}\), where \(t_r\) is the estimate for bootstrap iteration \(r\), and \(q_{R, \frac{\alpha}{2}}\) and \(q_{R, {1-\frac{\alpha}{2}}}\) are the upper and lower critical \(t\) scores from a Student's t-distribution with \(R\) degrees of freedom. This method is designed to be valid even with a low number of bootstrap replications (including as low as one). See Lam (2022) for details.</p></dd>
 
 <dt><code>"basic"</code></dt>
 <dd><p>$$\left[2t_0 - t^{(1-\frac{\alpha}{2})}, 2t_0 - t^{(\frac{\alpha}{2})}\right]$$</p></dd>
@@ -153,6 +157,11 @@ This method is valid when the statistic is normally distributed around the estim
 
 <ul><li><p><code>print(fwbci)</code>: Print a bootstrap confidence interval</p></li>
 </ul></div>
+    <div class="section level2">
+    <h2 id="references">References<a class="anchor" aria-label="anchor" href="#references"></a></h2>
+    <p>Lam, H. (2022). A Cheap Bootstrap Method for Fast Inference. arXiv. <a href="https://doi.org/10.48550/arXiv.2202.00090" class="external-link">doi:10.48550/arXiv.2202.00090</a></p>
+<p>Xu, L., Gotwalt, C., Hong, Y., King, C. B., &amp; Meeker, W. Q. (2020). Applications of the Fractional-Random-Weight Bootstrap. <em>The American Statistician</em>, 74(4), 345–358. <a href="https://doi.org/10.1080/00031305.2020.1731599" class="external-link">doi:10.1080/00031305.2020.1731599</a></p>
+    </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
     <div class="dont-index">
@@ -234,7 +243,7 @@ This method is valid when the statistic is normally distributed around the estim
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.1.</p>
 </div>
 
     </footer></div>

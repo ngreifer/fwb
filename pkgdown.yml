@@ -1,9 +1,9 @@
 pandoc: 3.8.3
-pkgdown: 2.2.0
+pkgdown: 2.2.1
 pkgdown_sha: ~
 articles:
   fwb-rep: fwb-rep.html
-last_built: 2026-06-02T17:08Z
+last_built: 2026-08-12T20:34Z
 urls:
   reference: https://ngreifer.github.io/fwb/reference
   article: https://ngreifer.github.io/fwb/articles
