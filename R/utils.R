@@ -3,9 +3,8 @@ na.rem <- function(x) {
   x[!is.na(x)]
 }
 
-check_if_zero <- function(x) {
+check_if_zero <- function(x, tolerance = sqrt(.Machine$double.eps)) {
   # this is the default tolerance used in all.equal
-  tolerance <- sqrt(.Machine$double.eps)
   abs(x) < tolerance
 }
 
@@ -37,7 +36,7 @@ squish <- function(p, lo = 1e-6, hi = 1 - lo) {
   p
 }
 
-check_index <- function(index, t, several.ok = FALSE) {
+check_index <- function(index, t, several.ok = FALSE, .arg_index = rlang::caller_arg(index)) {
   if (is_null(index)) {
     return(1L)
   }
@@ -45,7 +44,7 @@ check_index <- function(index, t, several.ok = FALSE) {
   if (ncol(t) == 1L) {
     if (!(isTRUE(all.equal(index, 1)) ||
           (is_not_null(colnames(t)) && isTRUE(all.equal(index, colnames(t)[1L]))))) {
-      arg::wrn("only one statistic is available; ignoring {.arg index}")
+      arg::wrn("only one statistic is available; ignoring {.arg {(.arg_index)}}")
     }
 
     return(1L)
@@ -53,80 +52,47 @@ check_index <- function(index, t, several.ok = FALSE) {
 
   if ((!is.character(index) && !is.numeric(index)) || is_not_null(dim(index))) {
     if (several.ok) {
-      arg::err("{.arg index} must be a character or numeric vector indicating the names or indices of the desired statistics")
+      arg::err("{.arg {(.arg_index)}} must be a character or numeric vector indicating the names or indices of the desired statistics")
     }
     else {
-      arg::err("{.arg index} must be a string or number indicating the name or index of the desired statistic")
+      arg::err("{.arg {(.arg_index)}} must be a string or number indicating the name or index of the desired statistic")
     }
   }
 
   index <- unique(drop(index))
 
   if (!several.ok && length(index) > 1L) {
-    arg::err("{.arg index} must have length one")
+    arg::err("{.arg {(.arg_index)}} must have length one")
   }
 
   if (is.numeric(index)) {
     if (!rlang::is_integerish(index)) {
       if (several.ok) {
-        arg::err("{.arg index} must be a vector of positive integers")
+        arg::err("{.arg {(.arg_index)}} must be a vector of positive integers")
       }
       else {
-        arg::err("{.arg index} must be a positive integer")
+        arg::err("{.arg {(.arg_index)}} must be a positive integer")
       }
     }
 
     if (any(index > ncol(t))) {
-      arg::err(sprintf("{.arg index} must be between 1 and %s", ncol(t)))
+      arg::err(sprintf("{.arg {(.arg_index)}} must be between 1 and %s", ncol(t)))
     }
   }
   else {
     if (is_null(colnames(t))) {
-      arg::err("the estimates don't have names, so {.arg index} must be numeric")
+      arg::err("the estimates don't have names, so {.arg {(.arg_index)}} must be numeric")
     }
 
     index <- match(index, colnames(t))
 
     if (anyNA(index)) {
-      arg::err(c("All entries in {.arg index} must be the names of available statistics to compute.",
+      arg::err(c("All entries in {.arg {(.arg_index)}} must be the names of available statistics to compute.",
                  " " = "The following are allowed: {.val {colnames(t)}}"))
     }
   }
 
   index
-}
-
-add_quotes <- function(x, quotes = 2L) {
-  if (isFALSE(quotes)) {
-    return(x)
-  }
-
-  if (isTRUE(quotes)) {
-    quotes <- '"'
-  }
-
-  if (rlang::is_string(quotes)) {
-    return(paste0(quotes, x, str_rev(quotes)))
-  }
-
-  if (!rlang::is_scalar_integerish(quotes) || quotes > 2 || quotes < 0) {
-    stop("`quotes` must be boolean, 1, 2, or a string.")
-  }
-
-  if (quotes == 0) {
-    return(x)
-  }
-
-  x <- {
-    if (quotes == 1) sprintf("'%s'", x)
-    else sprintf('"%s"', x)
-  }
-
-  x
-}
-
-str_rev <- function(x) {
-  vapply(lapply(strsplit(x, NULL), rev), paste, character(1L), collapse = "")
 }
 
 .tail <- function(x, n = 1L) {
@@ -141,7 +107,7 @@ str_rev <- function(x) {
   attr(x, which, exact = exact)
 }
 
-is_null <- function(x) {identical(length(x), 0L)}
+is_null <- function(x) {isTRUE(length(x) == 0L)}
 is_not_null <- function(x) {!is_null(x)}
 `%or%` <- function(x, y) {
   # like `%||%` but works for non-NULL length 0 objects

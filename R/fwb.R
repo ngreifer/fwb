@@ -10,7 +10,7 @@
 #' @param wtype string; the type of weights to use. Allowable options include `"exp"` (the default), `"poisson"`, `"multinom"`, `"mammen"`, `"beta"`, and `"power"`. See Details. See [set_fwb_wtype()] to set a global default.
 #' @param strata optional; a vector containing stratum membership for stratified bootstrapping. If supplied, will essentially perform a separate bootstrap within each level of `strata`. This does not affect results when `wtype = "poisson"`.
 #' @param drop0 `logical`; when `wtype` is `"multinom"` or `"poisson"`, whether to drop units that are given weights of 0 from the dataset and weights supplied to `statistic` in each iteration. If `NA`, weights of 0 will be set to `NA` instead. Ignored for other `wtype`s because they don't produce 0 weights. Default is `FALSE`.
-#' @param verbose `logical`; whether to display a progress bar. The default value, `NULL`, is `FALSE` when parallelization is used (see `cl` below) and `TRUE` otherwise.
+#' @param verbose `logical`; whether to display a progress bar. The default value, `NULL`, is `FALSE` when parallelization is used (see `cl` below) and `TRUE` otherwise. Alternatively, the \CRANpkg{progressify} package can be used to incorporate a \pkg{progressr} progress bar.
 #' @param cl a cluster object created by \pkgfun{parallel}{makeCluster}, an integer to indicate the number of child-processes (integer values are ignored on Windows) for parallel evaluations, or the string `"future"` to use a `future` backend. See the `cl` argument of \pkgfun{pbapply}{pblapply} for details. If `NULL`, no parallelization will take place. See the section "Parallel Processing" in Details.
 #' @param ... other arguments passed to `statistic`.
 #'
@@ -72,7 +72,7 @@
 #'
 #' ## Parallel Processing
 #'
-#' To speed up evaluation, parallel processing can be enabled. One way to do so is to supply an argument to `cl`. This can be either an integer(not available on Windows), a cluster object created by \pkgfun{parallel}{makeCluster}, or the string `"future"`. Another general way is to use functionality in the \CRANpkg{futurize} package, which is compatible with \pkg{fwb}. See `vignette("futurize-81-fwb", package = "futurize")` for details. See also `vignette("fwb-rep")` for information on replicability with (and without) parallel processing.
+#' To speed up evaluation, parallel processing can be enabled. One way to do so is to supply an argument to `cl`. This can be either an integer (not available on Windows), a cluster object created by \pkgfun{parallel}{makeCluster}, or the string `"future"`. Another general way is to use functionality in the \CRANpkg{futurize} package, which is compatible with \pkg{fwb}. See `vignette("futurize-81-fwb", package = "futurize")` for details. See also `vignette("fwb-rep")` for information on replicability with (and without) parallel processing.
 #'
 #' @seealso
 #' * [fwb.ci()] for calculating confidence intervals
@@ -561,7 +561,7 @@ call_statistic <- function(statistic, data, ..., .wi, drop0 = FALSE) {
       }
 
       if (is.na(drop0)) {
-        is.na(.wi)[-non0_wi] <- TRUE
+        is.na(.wi[-non0_wi]) <- TRUE
       }
     }
   }

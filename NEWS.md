@@ -1,6 +1,12 @@
 *fwb* News and Updates
 ======
 
+# *fwb* (development version)
+
+* Added a new confidence interval type for `confint()`, `fwb.ci()`, and `summary()`: `"cheap"`, for the "cheap" confidence interval described by [Lam (2022)](https://arxiv.org/abs/2202.00090). This interval maintains nominal coverage even with few bootstrap replications (as low as one!).
+
+* Fixed an incorrect error when using `confint.fwb()` with incorrectly specified `parm`.
+
 # *fwb* 0.6.0
 
 * `wtype` can now be set to `"beta"` to sample weights from a $\text{Beta}(1/2,3/2)$ distribution or `"power"` to sample from a $\text{Beta}(\sqrt{2} - 1, 1)$ distribution as described by [Owen (2025)](https://doi.org/10.48550/arXiv.2508.10083).

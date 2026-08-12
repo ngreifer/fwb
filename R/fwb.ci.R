@@ -4,7 +4,7 @@
 #'
 #' @param fwb.out an `<fwb>` object; the output of a call to [fwb()].
 #' @param conf the desired confidence level. Default is .95 for 95% confidence intervals.
-#' @param type the type of confidence interval desired. Allowable options include `"wald"` (Wald interval), `"norm"` (normal approximation), `"basic"` (basic interval), `"perc"` (percentile interval), `"bc"` (bias-correct percentile interval), and `"bca"` (BCa interval). More than one is allowed. Can also be `"all"` to request all of them. BCa intervals require that the number of bootstrap replications is larger than the sample size.
+#' @param type the type of confidence interval desired. Allowable options include `"wald"` (Wald interval), `"norm"` (normal approximation), `"cheap"` (cheap interval), `"basic"` (basic interval), `"perc"` (percentile interval), `"bc"` (bias-correct percentile interval), and `"bca"` (BCa interval). More than one is allowed. Can also be `"all"` to request all of them. BCa intervals require that the number of bootstrap replications is larger than the sample size.
 #' @param index the index of the position of the quantity of interest in `fwb.out$t0` if more than one was specified in `fwb()`. Only one value is allowed at a time. By default the first statistic is used.
 #' @param h a function defining a transformation. The intervals are calculated on the scale of `h(t)` and the inverse function `hinv` applied to the resulting intervals. It must be a function of one variable only and for a vector argument, it must return a vector of the same length. Default is the identity function.
 #' @param hinv a function, like `h`, which returns the inverse of `h`. It is used to transform the intervals calculated on the scale of `h(t)` back to the original scale. The default is the identity function. If `h` is supplied but `hinv` is not, then the intervals returned will be on the transformed scale.
@@ -16,7 +16,7 @@
 #' \item{t0}{the observed value of the statistic on the same scale as the intervals (i.e., after applying `h` and then `hinv`.}
 #' \item{call}{the call to `fwb.ci()`.}
 #'
-#' There will be additional components named after each confidence interval type requested. For `"wald"` and `"norm"`, this is a matrix with one row containing the confidence level and the two confidence interval limits. For the others, this is a matrix with one row containing the confidence level, the indices of the two order statistics used in the calculations, and the confidence interval limits.
+#' There will be additional components named after each confidence interval type requested. For `"wald"`, `"norm"`, and `"cheap"`, this is a matrix with one row containing the confidence level and the two confidence interval limits. For the others, this is a matrix with one row containing the confidence level, the indices of the two order statistics used in the calculations, and the confidence interval limits.
 #'
 #' @details
 #' `fwb.ci()` functions similarly to \pkgfun{boot}{boot.ci} in that it takes in a bootstrapped object and computes confidence intervals. This interface is a bit old-fashioned, but was designed to mimic that of `boot.ci()`. For a more modern interface, see [summary.fwb()].
@@ -32,6 +32,12 @@
 #'   \deqn{\left[2t_0 - \hat{t} + s_t z_\frac{\alpha}{2}, 2t_0 - \hat{t} + s_t z_{1-\frac{\alpha}{2}}\right]}
 #'
 #' This involves subtracting the "bias" (\eqn{\hat{t} - t_0}) from the estimate \eqn{t_0} and using a standard Wald-type confidence interval. This method is valid when the statistic is normally distributed.
+#' }
+#' \item{`"cheap"`}{
+#'   \deqn{\left[ t_0 + s_t^* q_{R, \frac{\alpha}{2}}, t_0 + s_t^* q_{R, {1-\frac{\alpha}{2}}} \right]}
+#'
+#'   Here, \eqn{s_t^* = \sqrt{\frac{1}{R}\sum_{r=1}^R{\left( t_r - t_0 \right)^2}}}, where \eqn{t_r} is the estimate for bootstrap iteration \eqn{r}, and \eqn{q_{R, \frac{\alpha}{2}}} and \eqn{q_{R, {1-\frac{\alpha}{2}}}} are the upper and lower critical \eqn{t} scores from a Student's t-distribution with \eqn{R} degrees of freedom. This method is designed to be valid even with a low number of bootstrap replications (including as low as one). See Lam (2022) for details.
+#'
 #' }
 #' \item{`"basic"`}{
 #'   \deqn{\left[2t_0 - t^{(1-\frac{\alpha}{2})}, 2t_0 - t^{(\frac{\alpha}{2})}\right]}
@@ -61,6 +67,11 @@
 #' * [summary.fwb()] for producing clean output from `fwb()` that includes confidence intervals calculated by `fwb.ci()`
 #' * \pkgfun{boot}{boot.ci} for computing confidence intervals from the traditional bootstrap
 #' * [vcovFWB()] for computing parameter estimate covariance matrices using the fractional weighted bootstrap
+#'
+#' @references
+#' Lam, H. (2022). A Cheap Bootstrap Method for Fast Inference. arXiv. \doi{10.48550/arXiv.2202.00090}
+#'
+#' Xu, L., Gotwalt, C., Hong, Y., King, C. B., & Meeker, W. Q. (2020). Applications of the Fractional-Random-Weight Bootstrap. *The American Statistician*, 74(4), 345–358. \doi{10.1080/00031305.2020.1731599}
 #'
 #' @examples
 #' set.seed(123, "L'Ecuyer-CMRG")
@@ -222,6 +233,10 @@ print.fwbci <- function(x, hinv = NULL, ...) {
 
   if ("norm" %in% ci.types) {
     intlabs["norm"] <- "Normal"
+  }
+
+  if ("cheap" %in% ci.types) {
+    intlabs["cheap"] <- "Cheap"
   }
 
   if ("basic" %in% ci.types) {

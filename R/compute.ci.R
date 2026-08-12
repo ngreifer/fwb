@@ -20,6 +20,18 @@ compute_ci <- function(type, t, t0, conf = .95, index = 1, hinv = identity, boot
     return(out)
   }
 
+  if (type == "cheap") {
+    sds <- sqrt(colMeans(sweep(t[, index, drop = FALSE], 2L, t0[index])^2))
+
+    tcrit <- abs(qt((1 - conf) / 2, df = nrow(t)))
+
+    out <- cbind(conf,
+                 hinv(t0[index] - sds * tcrit),
+                 hinv(t0[index] + sds * tcrit))
+
+    return(out)
+  }
+
   if (type == "basic") {
     out <- do.call("rbind", lapply(index, function(i) {
       qq <- norm_inter(t[, i], rev(alpha))
@@ -166,6 +178,16 @@ invert_ci <- function(type, t, t0, null = 0, index = 1L, h = identity, boot.out 
     return(p)
   }
 
+  if (type == "cheap") {
+    sds <- sqrt(colMeans(sweep(t[, index, drop = FALSE], 2L, t0[index])^2))
+
+    alpha <- pt(-abs(t0[index] - h(null)) / sds, df = nrow(t))
+
+    p <- 2 * alpha
+
+    return(p)
+  }
+
   if (type == "basic") {
     alpha <- vapply(index, function(i) {
       norm_inter_invert(t[, i], 2 * t0[i] - h(null))
@@ -271,5 +293,5 @@ norm_inter_invert <- function(ti, null = 0) {
 }
 
 .allowed_ci.types <- function() {
-  c("perc", "bc", "wald", "norm", "basic", "bca")
+  c("perc", "bc", "wald", "norm", "cheap", "basic", "bca")
 }

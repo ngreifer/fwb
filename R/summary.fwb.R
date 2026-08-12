@@ -4,7 +4,7 @@
 #'
 #' @param object an `<fwb>` object; the output of a call to [fwb()].
 #' @param conf,level the desired confidence level. Default is .95 for 95% confidence intervals. Set to 0 to prevent calculation of confidence intervals.
-#' @param ci.type the type of confidence interval desired. Allowable options include `"wald"` (Wald interval), `"norm"` (normal approximation), `"basic"` (basic interval), `"perc"` (percentile interval), `"bc"` (bias-corrected percentile interval), and `"bca"` (bias-corrected and accelerated \[BCa\] interval). Only one is allowed. BCa intervals require the number of bootstrap replications to be larger than the sample size. See [fwb.ci()] for details. The default is `"bc"`. Ignored if both `conf = 0` and `p.values = FALSE`.
+#' @param ci.type the type of confidence interval desired. Allowable options include `"wald"` (Wald interval), `"norm"` (normal approximation), `"cheap"` (basic interval), `"cheap"` (basic interval), `"perc"` (percentile interval), `"bc"` (bias-corrected percentile interval), and `"bca"` (bias-corrected and accelerated \[BCa\] interval). Only one is allowed. BCa intervals require the number of bootstrap replications to be larger than the sample size. See [fwb.ci()] for details. The default is `"bc"`. Ignored if both `conf = 0` and `p.values = FALSE`.
 #' @param index,parm the index or indices of the position of the quantity of interest if more than one was specified in `fwb()`. Default is to display all quantities.
 #' @param p.value `logical`; whether to display p-values for the test that each parameter is equal to `null`. Default is `FALSE`. See Details.
 #' @param null `numeric`; when `p.value = TRUE`, the value of the estimate under the null hypothesis. Default is 0. Only one value can be supplied and it is applied to all tests.
@@ -17,7 +17,7 @@
 #' * `Std. Error`: the standard deviation of the bootstrap estimates
 #' * `CI {L}%` and `CI {U}%`: the upper and lower confidence interval bounds computed using the argument to `ci.type` (only when `conf` is not 0).
 #' * `z value`: when `p.value = TRUE` and `ci.type = "wald"`, the z-statistic for the test of the estimate against against `null`.
-#' * `Pr(>|z|)`: when `p.value = TRUE`, the p-value for the test of the estimate against against `null`.
+#' * `Pr(>|z|)`: when `p.value = TRUE`, the p-value for the test of the estimate against against `null`. When `ci.type = "cheap"`, this is listed as `Pr(>|t|)` because the p-value comes from a Student's t-distribution with \eqn{R} degrees of freedom (where \eqn{R} is the number of bootstrap replications).
 #'
 #' For `confint()`, a matrix with a row for each statistic and a column for the upper and lower confidence interval limits.
 #'
@@ -121,7 +121,12 @@ summary.fwb <- function(object, conf = .95, ci.type = "bc", p.value = FALSE,
       p.values <- simultaneous_p_value(object, p.values, index, ci.type)
     }
 
-    out <- cbind(out, `Pr(>|z|)` = p.values)
+    if (ci.type == "cheap") {
+      out <- cbind(out, `Pr(>|t|)` = p.values)
+    }
+    else {
+      out <- cbind(out, `Pr(>|z|)` = p.values)
+    }
   }
 
   attr(out, "conf") <- conf

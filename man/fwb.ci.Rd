@@ -22,7 +22,7 @@ fwb.ci(
 
 \item{conf}{the desired confidence level. Default is .95 for 95\% confidence intervals.}
 
-\item{type}{the type of confidence interval desired. Allowable options include \code{"wald"} (Wald interval), \code{"norm"} (normal approximation), \code{"basic"} (basic interval), \code{"perc"} (percentile interval), \code{"bc"} (bias-correct percentile interval), and \code{"bca"} (BCa interval). More than one is allowed. Can also be \code{"all"} to request all of them. BCa intervals require that the number of bootstrap replications is larger than the sample size.}
+\item{type}{the type of confidence interval desired. Allowable options include \code{"wald"} (Wald interval), \code{"norm"} (normal approximation), \code{"cheap"} (cheap interval), \code{"basic"} (basic interval), \code{"perc"} (percentile interval), \code{"bc"} (bias-correct percentile interval), and \code{"bca"} (BCa interval). More than one is allowed. Can also be \code{"all"} to request all of them. BCa intervals require that the number of bootstrap replications is larger than the sample size.}
 
 \item{index}{the index of the position of the quantity of interest in \code{fwb.out$t0} if more than one was specified in \code{fwb()}. Only one value is allowed at a time. By default the first statistic is used.}
 
@@ -40,7 +40,7 @@ An \verb{<fwbci>} object, which inherits from \verb{<bootci>} and has the follow
 \item{t0}{the observed value of the statistic on the same scale as the intervals (i.e., after applying \code{h} and then \code{hinv}.}
 \item{call}{the call to \code{fwb.ci()}.}
 
-There will be additional components named after each confidence interval type requested. For \code{"wald"} and \code{"norm"}, this is a matrix with one row containing the confidence level and the two confidence interval limits. For the others, this is a matrix with one row containing the confidence level, the indices of the two order statistics used in the calculations, and the confidence interval limits.
+There will be additional components named after each confidence interval type requested. For \code{"wald"}, \code{"norm"}, and \code{"cheap"}, this is a matrix with one row containing the confidence level and the two confidence interval limits. For the others, this is a matrix with one row containing the confidence level, the indices of the two order statistics used in the calculations, and the confidence interval limits.
 }
 \description{
 \code{fwb.ci()} generates several types of equi-tailed two-sided nonparametric confidence intervals. These include the normal approximation, the basic bootstrap interval, the percentile bootstrap interval, the bias-corrected percentile bootstrap interval, and the bias-correct and accelerated (BCa) bootstrap interval.
@@ -59,6 +59,12 @@ This method is valid when the statistic is normally distributed around the estim
 \deqn{\left[2t_0 - \hat{t} + s_t z_\frac{\alpha}{2}, 2t_0 - \hat{t} + s_t z_{1-\frac{\alpha}{2}}\right]}
 
 This involves subtracting the "bias" (\eqn{\hat{t} - t_0}) from the estimate \eqn{t_0} and using a standard Wald-type confidence interval. This method is valid when the statistic is normally distributed.
+}
+\item{\code{"cheap"}}{
+\deqn{\left[ t_0 + s_t^* q_{R, \frac{\alpha}{2}}, t_0 + s_t^* q_{R, {1-\frac{\alpha}{2}}} \right]}
+
+Here, \eqn{s_t^* = \sqrt{\frac{1}{R}\sum_{r=1}^R{\left( t_r - t_0 \right)^2}}}, where \eqn{t_r} is the estimate for bootstrap iteration \eqn{r}, and \eqn{q_{R, \frac{\alpha}{2}}} and \eqn{q_{R, {1-\frac{\alpha}{2}}}} are the upper and lower critical \eqn{t} scores from a Student's t-distribution with \eqn{R} degrees of freedom. This method is designed to be valid even with a low number of bootstrap replications (including as low as one). See Lam (2022) for details.
+
 }
 \item{\code{"basic"}}{
 \deqn{\left[2t_0 - t^{(1-\frac{\alpha}{2})}, 2t_0 - t^{(\frac{\alpha}{2})}\right]}
@@ -113,6 +119,11 @@ get_ci(bcci)
 # then transformed by exponentiation to be on OR
 fwb.ci(fwb_out, index = "induced", type = "norm",
        hinv = exp)
+}
+\references{
+Lam, H. (2022). A Cheap Bootstrap Method for Fast Inference. arXiv. \doi{10.48550/arXiv.2202.00090}
+
+Xu, L., Gotwalt, C., Hong, Y., King, C. B., & Meeker, W. Q. (2020). Applications of the Fractional-Random-Weight Bootstrap. \emph{The American Statistician}, 74(4), 345–358. \doi{10.1080/00031305.2020.1731599}
 }
 \seealso{
 \itemize{

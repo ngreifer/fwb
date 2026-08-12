@@ -23,7 +23,7 @@
 
 \item{conf, level}{the desired confidence level. Default is .95 for 95\% confidence intervals. Set to 0 to prevent calculation of confidence intervals.}
 
-\item{ci.type}{the type of confidence interval desired. Allowable options include \code{"wald"} (Wald interval), \code{"norm"} (normal approximation), \code{"basic"} (basic interval), \code{"perc"} (percentile interval), \code{"bc"} (bias-corrected percentile interval), and \code{"bca"} (bias-corrected and accelerated [BCa] interval). Only one is allowed. BCa intervals require the number of bootstrap replications to be larger than the sample size. See \code{\link[=fwb.ci]{fwb.ci()}} for details. The default is \code{"bc"}. Ignored if both \code{conf = 0} and \code{p.values = FALSE}.}
+\item{ci.type}{the type of confidence interval desired. Allowable options include \code{"wald"} (Wald interval), \code{"norm"} (normal approximation), \code{"cheap"} (basic interval), \code{"cheap"} (basic interval), \code{"perc"} (percentile interval), \code{"bc"} (bias-corrected percentile interval), and \code{"bca"} (bias-corrected and accelerated [BCa] interval). Only one is allowed. BCa intervals require the number of bootstrap replications to be larger than the sample size. See \code{\link[=fwb.ci]{fwb.ci()}} for details. The default is \code{"bc"}. Ignored if both \code{conf = 0} and \code{p.values = FALSE}.}
 
 \item{p.value}{\code{logical}; whether to display p-values for the test that each parameter is equal to \code{null}. Default is \code{FALSE}. See Details.}
 
@@ -42,7 +42,7 @@ For \code{summary()}, a \verb{<summary.fwb>} object, which is a matrix with the 
 \item \verb{Std. Error}: the standard deviation of the bootstrap estimates
 \item \verb{CI \{L\}\%} and \verb{CI \{U\}\%}: the upper and lower confidence interval bounds computed using the argument to \code{ci.type} (only when \code{conf} is not 0).
 \item \verb{z value}: when \code{p.value = TRUE} and \code{ci.type = "wald"}, the z-statistic for the test of the estimate against against \code{null}.
-\item \verb{Pr(>|z|)}: when \code{p.value = TRUE}, the p-value for the test of the estimate against against \code{null}.
+\item \verb{Pr(>|z|)}: when \code{p.value = TRUE}, the p-value for the test of the estimate against against \code{null}. When \code{ci.type = "cheap"}, this is listed as \verb{Pr(>|t|)} because the p-value comes from a Student's t-distribution with \eqn{R} degrees of freedom (where \eqn{R} is the number of bootstrap replications).
 }
 
 For \code{confint()}, a matrix with a row for each statistic and a column for the upper and lower confidence interval limits.

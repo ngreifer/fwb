@@ -33,6 +33,9 @@ test_that("p-values correctly invert CIs", {
   check_p_value_okay(boot, ci.type = "norm", level = level, index = index,
                      simultaneous = FALSE, eps = eps)
 
+  check_p_value_okay(boot, ci.type = "cheap", level = level, index = index,
+                     simultaneous = FALSE, eps = eps)
+
   check_p_value_okay(boot, ci.type = "basic", level = level, index = index,
                      simultaneous = FALSE, eps = eps)
 
@@ -52,6 +55,9 @@ test_that("p-values correctly invert CIs", {
                      simultaneous = FALSE, eps = eps)
 
   check_p_value_okay(boot, ci.type = "norm", level = level, index = index,
+                     simultaneous = FALSE, eps = eps)
+
+  check_p_value_okay(boot, ci.type = "cheap", level = level, index = index,
                      simultaneous = FALSE, eps = eps)
 
   check_p_value_okay(boot, ci.type = "basic", level = level, index = index,

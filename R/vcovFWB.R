@@ -364,7 +364,7 @@ make.bootfit <- function(fit, cli, start, drop0, gen_weights, .coef, .env) {
             offset <- offset[!zero_w]
           }
           else {
-            is.na(.wi)[!zero_w] <- TRUE
+            is.na(.wi[!zero_w]) <- TRUE
           }
         }
       }

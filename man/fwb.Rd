@@ -43,7 +43,7 @@ fwb(
 
 \item{drop0}{\code{logical}; when \code{wtype} is \code{"multinom"} or \code{"poisson"}, whether to drop units that are given weights of 0 from the dataset and weights supplied to \code{statistic} in each iteration. If \code{NA}, weights of 0 will be set to \code{NA} instead. Ignored for other \code{wtype}s because they don't produce 0 weights. Default is \code{FALSE}.}
 
-\item{verbose}{\code{logical}; whether to display a progress bar. The default value, \code{NULL}, is \code{FALSE} when parallelization is used (see \code{cl} below) and \code{TRUE} otherwise.}
+\item{verbose}{\code{logical}; whether to display a progress bar. The default value, \code{NULL}, is \code{FALSE} when parallelization is used (see \code{cl} below) and \code{TRUE} otherwise. Alternatively, the \CRANpkg{progressify} package can be used to incorporate a \pkg{progressr} progress bar.}
 
 \item{cl}{a cluster object created by \pkgfun{parallel}{makeCluster}, an integer to indicate the number of child-processes (integer values are ignored on Windows) for parallel evaluations, or the string \code{"future"} to use a \code{future} backend. See the \code{cl} argument of \pkgfun{pbapply}{pblapply} for details. If \code{NULL}, no parallelization will take place. See the section "Parallel Processing" in Details.}
 
@@ -116,7 +116,7 @@ Draws weights from a \eqn{\text{Beta}(\sqrt{2} - 1, 1)} distribution using \code
 
 \subsection{Parallel Processing}{
 
-To speed up evaluation, parallel processing can be enabled. One way to do so is to supply an argument to \code{cl}. This can be either an integer(not available on Windows), a cluster object created by \pkgfun{parallel}{makeCluster}, or the string \code{"future"}. Another general way is to use functionality in the \CRANpkg{futurize} package, which is compatible with \pkg{fwb}. See \code{vignette("futurize-81-fwb", package = "futurize")} for details. See also \code{vignette("fwb-rep")} for information on replicability with (and without) parallel processing.
+To speed up evaluation, parallel processing can be enabled. One way to do so is to supply an argument to \code{cl}. This can be either an integer (not available on Windows), a cluster object created by \pkgfun{parallel}{makeCluster}, or the string \code{"future"}. Another general way is to use functionality in the \CRANpkg{futurize} package, which is compatible with \pkg{fwb}. See \code{vignette("futurize-81-fwb", package = "futurize")} for details. See also \code{vignette("fwb-rep")} for information on replicability with (and without) parallel processing.
 }
 }
 \section{Methods (by generic)}{
