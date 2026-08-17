@@ -3,8 +3,8 @@
 #' `summary()` creates a regression summary-like table that displays the bootstrap estimates, their empirical standard errors, their confidence intervals, and, optionally, p-values for tests against a null value. `confint()` produces just the confidence intervals, and is called internally by `summary()`.
 #'
 #' @param object an `<fwb>` object; the output of a call to [fwb()].
-#' @param conf,level the desired confidence level. Default is .95 for 95% confidence intervals. Set to 0 to prevent calculation of confidence intervals.
-#' @param ci.type the type of confidence interval desired. Allowable options include `"wald"` (Wald interval), `"norm"` (normal approximation), `"cheap"` (basic interval), `"cheap"` (basic interval), `"perc"` (percentile interval), `"bc"` (bias-corrected percentile interval), and `"bca"` (bias-corrected and accelerated \[BCa\] interval). Only one is allowed. BCa intervals require the number of bootstrap replications to be larger than the sample size. See [fwb.ci()] for details. The default is `"bc"`. Ignored if both `conf = 0` and `p.values = FALSE`.
+#' @param conf,level the desired confidence level. Default is .95 for 95% confidence intervals. Set `conf` to 0 to prevent calculation of confidence intervals.
+#' @param ci.type the type of confidence interval desired. Allowable options include `"wald"` (Wald interval), `"norm"` (normal approximation), `"cheap"` (cheap interval), `"basic"` (basic interval), `"perc"` (percentile interval), `"bc"` (bias-corrected percentile interval), and `"bca"` (bias-corrected and accelerated \[BCa\] interval). Only one is allowed. BCa intervals require the number of bootstrap replications to be larger than the sample size. See [fwb.ci()] for details. The default is `"bc"`. Ignored if both `conf = 0` and `p.values = FALSE`.
 #' @param index,parm the index or indices of the position of the quantity of interest if more than one was specified in `fwb()`. Default is to display all quantities.
 #' @param p.value `logical`; whether to display p-values for the test that each parameter is equal to `null`. Default is `FALSE`. See Details.
 #' @param null `numeric`; when `p.value = TRUE`, the value of the estimate under the null hypothesis. Default is 0. Only one value can be supplied and it is applied to all tests.
@@ -34,7 +34,7 @@
 #' Montiel Olea, J. L., & Plagborg-Møller, M. (2019). Simultaneous confidence bands: Theory, implementation, and an application to SVARs. *Journal of Applied Econometrics*, 34(1), 1–17. \doi{10.1002/jae.2656}
 #'
 #' @examples
-#' set.seed(123, "L'Ecuyer-CMRG")
+#' set.seed(123)
 #' data("infert")
 #'
 #' fit_fun <- function(data, w) {
@@ -156,7 +156,8 @@ confint.fwb <- function(object, parm, level = .95, ci.type = "bc", simultaneous 
     parm <- seq_len(ncol(object$t))
   }
 
-  index <- check_index(parm, object[["t"]], several.ok = TRUE)
+  index <- check_index(parm, object[["t"]], several.ok = TRUE,
+                       .arg_index = "parm")
 
   if (length(index) <= 1L) {
     simultaneous <- FALSE

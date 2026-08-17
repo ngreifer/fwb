@@ -27,7 +27,7 @@ Set the default for the type of weights used in the weighted bootstrap computed 
 \dontshow{if (rlang::is_installed("survival")) withAutoprint(\{ # examplesIf}
 # Performing a Weibull analysis of the Bearing Cage
 # failure data as done in Xu et al. (2020)
-set.seed(123, "L'Ecuyer-CMRG")
+set.seed(123)
 data("bearingcage")
 
 #Set fwb type to "beta"

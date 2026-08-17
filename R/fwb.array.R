@@ -8,7 +8,7 @@
 #' A matrix with `R` rows and `n` columns, where `R` is the number of bootstrap replications and `n` is the number of observations in `boot.out$data`.
 #'
 #' @details
-#' The original seed is used to recover the bootstrap weights before being reset.
+#' `fwb()` records what is needed to reproduce the weights it drew, and `fwb.array()` reads that record: the saved `seed` when `simple = FALSE`, or the random number stream reserved for each replicate when `simple = TRUE`. Either way the weights are recovered in the calling session, so nothing needs to be set up beforehand and the result does not depend on how the original call was parallelized or on whether `statistic` drew random numbers of its own. The state of the random number generator is left unchanged.
 #'
 #' Bootstrap weights are used in computing BCa confidence intervals by approximating the empirical influence function for each unit with respect to each parameter (see Examples).
 #'
@@ -20,7 +20,7 @@
 #'
 #'
 #' @examples
-#' set.seed(123, "L'Ecuyer-CMRG")
+#' set.seed(123)
 #' data("infert")
 #'
 #' fit_fun <- function(data, w) {
@@ -64,29 +64,70 @@ fwb.array <- function(fwb.out) {
   n <- nrow(fwb.out[["data"]])
   R <- fwb.out[["R"]]
 
-  if (!isTRUE(.attr(fwb.out, "simple")) || is_null(.attr(fwb.out, "cl"))) {
-    with_seed_preserved({
-      return(gen_weights(n, R, fwb.out[["strata"]]))
-    }, new_seed = fwb.out[["seed"]])
+  cluster <- fwb.out[["cluster"]]
+  strata <- fwb.out[["strata"]]
+
+  if (is_not_null(strata)) {
+    strata <- factor(strata)
   }
 
-  if (isTRUE(.attr(fwb.out, "simple")) &&
-      isTRUE(.attr(fwb.out, "random_statistic"))) {
-    arg::wrn('bootstrap weights cannot be reliably re-generated when there is randomness in {.arg statistic} and {.code simple = TRUE} in the call to {.fun fbw}. See {.vignette [vignette("fwb-rep")](fwb::fwb-rep)} for details')
+  #One weight is drawn per cluster and then spread over its members, so the generator
+  #works at cluster scale and the result is expanded to unit scale at the end. With
+  #both present, `fwb()` collapses `strata` to one entry per cluster, which has to be
+  #reproduced here or the generator would be handed the wrong number of columns.
+  if (is_null(cluster)) {
+    n_w <- n
+    expand <- NULL
+  }
+  else {
+    cluster <- factor(cluster)
+    n_w <- nlevels(cluster)
+    expand <- as.integer(cluster)
+
+    if (is_not_null(strata)) {
+      cs <- unique(data.frame(cluster, strata))
+      strata <- factor(cs[[2L]])
+    }
   }
 
-  FUN <- function(i) {
-    drop(gen_weights(n, 1L, fwb.out[["strata"]]))
-  }
-
-  opb <- pbapply::pboptions(type = "none")
-  on.exit(pbapply::pboptions(opb))
-
-  #Run bootstrap
-  with_seed_preserved({
-    if (identical(.attr(fwb.out, "cl"), "future"))
-      do.call("rbind", pbapply::pblapply(seq_len(R), FUN, cl = "future", future.seed = TRUE))
+  w <- {
+    #An exhaustive multinomial run drew no random numbers, so the weights come back by
+    #re-running the enumeration rather than from any recorded seed.
+    if (isTRUE(.attr(fwb.out, "exhaustive")))
+      gen_all_multinom_weights(n_w, strata)
+    else if (isTRUE(.attr(fwb.out, "simple")))
+      replay_stream_weights(gen_weights, .attr(fwb.out, "seeds"),
+                            n_w, R, strata)
     else
-      do.call("rbind", pbapply::pblapply(seq_len(R), FUN, cl = .attr(fwb.out, "cl")))
-  }, new_seed = fwb.out[["seed"]])
+      with_seed_preserved(gen_weights(n_w, R, strata),
+                          new_seed = .attr(fwb.out, "seeds"))
+  }
+
+  if (is_null(expand)) {
+    return(w)
+  }
+
+  w[, expand, drop = FALSE]
+}
+
+#Re-draw `simple = TRUE` weights one replicate at a time from the recorded streams.
+#
+#Because each replicate's stream was recorded rather than inferred, this needs no
+#knowledge of how the original run was parallelized and gives the same answer whatever
+#`statistic` did to the random number stream.
+replay_stream_weights <- function(gen_weights, seeds, n, R, strata) {
+  if (is_null(seeds)) {
+    arg::err("the bootstrap weights cannot be recovered from an {.cls fwb} object created by {.pkg fwb} before version 0.7.0; re-run {.fun fwb} to compute this quantity")
+  }
+
+  w <- matrix(0, nrow = R, ncol = n)
+
+  with_seed_preserved({
+    for (i in seq_len(R)) {
+      set_stream_seed(seeds[i, ])
+      w[i, ] <- drop(gen_weights(n, 1L, strata))
+    }
+  })
+
+  w
 }

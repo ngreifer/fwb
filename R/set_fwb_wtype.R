@@ -16,7 +16,7 @@
 #' @examplesIf rlang::is_installed("survival")
 #' # Performing a Weibull analysis of the Bearing Cage
 #' # failure data as done in Xu et al. (2020)
-#' set.seed(123, "L'Ecuyer-CMRG")
+#' set.seed(123)
 #' data("bearingcage")
 #'
 #' #Set fwb type to "beta"

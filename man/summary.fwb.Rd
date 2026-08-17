@@ -21,9 +21,9 @@
 \arguments{
 \item{object}{an \verb{<fwb>} object; the output of a call to \code{\link[=fwb]{fwb()}}.}
 
-\item{conf, level}{the desired confidence level. Default is .95 for 95\% confidence intervals. Set to 0 to prevent calculation of confidence intervals.}
+\item{conf, level}{the desired confidence level. Default is .95 for 95\% confidence intervals. Set \code{conf} to 0 to prevent calculation of confidence intervals.}
 
-\item{ci.type}{the type of confidence interval desired. Allowable options include \code{"wald"} (Wald interval), \code{"norm"} (normal approximation), \code{"cheap"} (basic interval), \code{"cheap"} (basic interval), \code{"perc"} (percentile interval), \code{"bc"} (bias-corrected percentile interval), and \code{"bca"} (bias-corrected and accelerated [BCa] interval). Only one is allowed. BCa intervals require the number of bootstrap replications to be larger than the sample size. See \code{\link[=fwb.ci]{fwb.ci()}} for details. The default is \code{"bc"}. Ignored if both \code{conf = 0} and \code{p.values = FALSE}.}
+\item{ci.type}{the type of confidence interval desired. Allowable options include \code{"wald"} (Wald interval), \code{"norm"} (normal approximation), \code{"cheap"} (cheap interval), \code{"basic"} (basic interval), \code{"perc"} (percentile interval), \code{"bc"} (bias-corrected percentile interval), and \code{"bca"} (bias-corrected and accelerated [BCa] interval). Only one is allowed. BCa intervals require the number of bootstrap replications to be larger than the sample size. See \code{\link[=fwb.ci]{fwb.ci()}} for details. The default is \code{"bc"}. Ignored if both \code{conf = 0} and \code{p.values = FALSE}.}
 
 \item{p.value}{\code{logical}; whether to display p-values for the test that each parameter is equal to \code{null}. Default is \code{FALSE}. See Details.}
 
@@ -58,7 +58,7 @@ Simultaneous confidence intervals are computed using the "sup-t" confidence band
 \code{tidy()} and \code{print()} methods are available for \verb{<summary.fwb>} objects.
 }
 \examples{
-set.seed(123, "L'Ecuyer-CMRG")
+set.seed(123)
 data("infert")
 
 fit_fun <- function(data, w) {

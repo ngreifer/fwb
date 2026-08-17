@@ -17,7 +17,7 @@ test_that("fwb() works", {
   })
 
   expect_identical(names(f0),
-                   c("t0", "t", "R", "data", "seed", "statistic", "call", "cluster",
+                   c("t0", "t", "R", "data", "statistic", "call", "cluster",
                      "strata", "wtype"))
 
   expect_equal(length(f0[["t0"]]), length(boot_fun(test_data)))
@@ -37,8 +37,19 @@ test_that("fwb() works", {
               simple = FALSE)
   })
 
-  expect_equal(f1[-7], f0[-7], tolerance = eps)
   expect_false(attr(f1, "simple", TRUE))
+
+  #`simple` now changes the replicates. `simple = FALSE` draws the whole weight matrix
+  #in one call (which is what keeps `wtype = "multinom"` identical to `boot`);
+  #`simple = TRUE` draws each replicate from its own recorded stream, so that the
+  #results do not depend on the backend. The two consume the stream differently, so
+  #they no longer coincide -- but each is reproducible on its own, and both are valid
+  #draws from the same weight distribution.
+  expect_not_equal(f1[["t"]], f0[["t"]], tolerance = eps)
+
+  expect_equal(f1[["t0"]], f0[["t0"]], tolerance = eps)
+  expect_equal(dim(f1[["t"]]), dim(f0[["t"]]))
+  expect_equal(colMeans(f1[["t"]]), colMeans(f0[["t"]]), tolerance = 1e-1)
 
   set.seed(1234, "L")
   expect_no_condition({
@@ -47,7 +58,7 @@ test_that("fwb() works", {
   })
 
   expect_identical(names(f2),
-                   c("t0", "t", "R", "data", "seed", "statistic", "call", "cluster",
+                   c("t0", "t", "R", "data", "statistic", "call", "cluster",
                      "strata", "wtype"))
 
   expect_equal(length(f2[["t0"]]), length(boot_fun(test_data)) + nrow(test_data))
@@ -79,60 +90,62 @@ test_that("parallel works", {
 
   test_data <- readRDS(test_path("fixtures", "test_data.rds"))
 
-  test_data$clus <- sample(1:50, nrow(test_data), replace = TRUE)
-
   boot_fun <- function(data, w = NULL) {
     fit <- glm(Y_B ~ A + X1 + X2 + X3 + X4, data = data,
                family = quasibinomial("probit"), weights = w)
     coef(fit)
   }
 
-  set.seed(1234, "L")
-  expect_no_condition({
-    f0 <- fwb(test_data, boot_fun, R = 100, verbose = FALSE)
-  })
+  #Weights are drawn from streams recorded before any work is dispatched, so `cl` has
+  #no bearing on the result: every backend and worker count gives the same replicates
+  #as sequential evaluation, for either value of `simple`. `test-replicability.R`
+  #covers the full grid; this is the smoke test.
+  for (simple in c(TRUE, FALSE)) {
+    set.seed(1234, "L")
+    ref <- fwb(test_data, boot_fun, R = 100, verbose = FALSE, simple = simple)
 
-  set.seed(1234, "L")
-  expect_no_condition({
-    f1 <- fwb(test_data, boot_fun, R = 100, verbose = FALSE,
-              cl = 2, simple = FALSE)
-  })
+    set.seed(1234, "L")
+    expect_no_condition({
+      f_int <- fwb(test_data, boot_fun, R = 100, verbose = FALSE,
+                   cl = 2, simple = simple)
+    })
 
-  expect_equal(f1[-7], f0[-7], tolerance = eps)
-  expect_false(attr(f1, "simple", TRUE))
+    expect_equal(f_int[["t"]], ref[["t"]], tolerance = eps)
 
-  #Using cl = int
-  set.seed(1234, "L")
-  expect_no_condition({
-    f2 <- fwb(test_data, boot_fun, R = 100, verbose = FALSE,
-              cl = 2, simple = TRUE)
-  })
+    cl <- parallel::makeCluster(2)
 
-  set.seed(1234, "L")
-  expect_no_condition({
-    f3 <- fwb(test_data, boot_fun, R = 100, verbose = FALSE,
-              cl = 2, simple = TRUE)
-  })
+    set.seed(1234, "L")
+    expect_no_condition({
+      f_clus <- fwb(test_data, boot_fun, R = 100, verbose = FALSE,
+                    cl = cl, simple = simple)
+    })
 
-  expect_equal(f2, f3, tolerance = eps)
+    parallel::stopCluster(cl)
 
-  #Using a cluster
+    expect_equal(f_clus[["t"]], ref[["t"]], tolerance = eps)
+  }
+
+  #`set.seed()` in the calling session is what makes a `cluster` run reproducible;
+  #`parallel::clusterSetRNGStream()` no longer has any effect, because the workers'
+  #own streams are never used to draw weights.
   cl <- parallel::makeCluster(2)
   on.exit(parallel::stopCluster(cl))
 
   parallel::clusterSetRNGStream(cl, 1234)
-  expect_no_condition({
-    f2 <- fwb(test_data, boot_fun, R = 100, verbose = FALSE,
-              cl = cl, simple = TRUE)
-  })
+  a <- fwb(test_data, boot_fun, R = 100, verbose = FALSE, cl = cl)
 
   parallel::clusterSetRNGStream(cl, 1234)
-  expect_no_condition({
-    f3 <- fwb(test_data, boot_fun, R = 100, verbose = FALSE,
-              cl = cl, simple = TRUE)
-  })
+  b <- fwb(test_data, boot_fun, R = 100, verbose = FALSE, cl = cl)
 
-  expect_equal(f2, f3, tolerance = eps)
+  expect_not_equal(a[["t"]], b[["t"]], tolerance = eps)
+
+  set.seed(99, "L")
+  c1 <- fwb(test_data, boot_fun, R = 100, verbose = FALSE, cl = cl)
+
+  set.seed(99, "L")
+  c2 <- fwb(test_data, boot_fun, R = 100, verbose = FALSE, cl = cl)
+
+  expect_equal(c1[["t"]], c2[["t"]], tolerance = eps)
 })
 
 test_that("wtype = 'multinom' replcates boot::boot()", {

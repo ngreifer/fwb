@@ -82,7 +82,7 @@ Here, \eqn{s_t^* = \sqrt{\frac{1}{R}\sum_{r=1}^R{\left( t_r - t_0 \right)^2}}}, 
 \item{\code{"bca"} (bias-corrected and accelerated confidence interval)}{
 \deqn{\left[t^{(l)}, t^{(u)}\right]}
 
-\eqn{l = \Phi\left(z_0 + \frac{z_0 + z_\frac{\alpha}{2}}{1-a(z_0+z_\frac{\alpha}{2})}\right)}, \eqn{u = \Phi\left(z_0 + \frac{z_0 + z_{1-\frac{\alpha}{2}}}{1-a(z_0+z_{1-\frac{\alpha}{2}})}\right)}, using the same definitions as above, but with the additional acceleration parameter \eqn{a}, where \eqn{a = \frac{1}{6}\frac{\sum{L^3}}{(\sum{L^2})^{3/2}}}. \eqn{L} is the empirical influence value of each unit, which is computed using the regression method described in \pkgfun{boot}{empinf}. When \eqn{a=0}, the \code{"bca"} and \code{"bc"} intervals coincide. The acceleration parameter corrects for bias and skewness in the statistic. It can only be used when clusters are absent and the number of bootstrap replications is larger than the sample size. Note that BCa intervals cannot be requested when \code{simple = TRUE} and there is randomness in the \code{statistic} supplied to \code{fwb()}.
+\eqn{l = \Phi\left(z_0 + \frac{z_0 + z_\frac{\alpha}{2}}{1-a(z_0+z_\frac{\alpha}{2})}\right)}, \eqn{u = \Phi\left(z_0 + \frac{z_0 + z_{1-\frac{\alpha}{2}}}{1-a(z_0+z_{1-\frac{\alpha}{2}})}\right)}, using the same definitions as above, but with the additional acceleration parameter \eqn{a}, where \eqn{a = \frac{1}{6}\frac{\sum{L^3}}{(\sum{L^2})^{3/2}}}. \eqn{L} is the empirical influence value of each unit, which is computed using the regression method described in \pkgfun{boot}{empinf}. When \eqn{a=0}, the \code{"bca"} and \code{"bc"} intervals coincide. The acceleration parameter corrects for bias and skewness in the statistic. It can only be used when clusters are absent and the number of bootstrap replications is larger than the sample size.
 }
 }
 
@@ -94,7 +94,7 @@ Interpolation on the normal quantile scale is used when a non-integer order stat
 
 }}
 \examples{
-set.seed(123, "L'Ecuyer-CMRG")
+set.seed(123)
 data("infert")
 
 fit_fun <- function(data, w) {

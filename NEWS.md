@@ -3,9 +3,85 @@
 
 # *fwb* (development version)
 
+### New Features
+
 * Added a new confidence interval type for `confint()`, `fwb.ci()`, and `summary()`: `"cheap"`, for the "cheap" confidence interval described by [Lam (2022)](https://arxiv.org/abs/2202.00090). This interval maintains nominal coverage even with few bootstrap replications (as low as one!).
 
+### Breaking changes
+
+* **Bootstrap weights now depend only on the seed.** Previously, when `simple = TRUE`, the weights were drawn inside each bootstrap replication and so depended on how the work was distributed: results changed with `cl`, with the number of workers, and with `verbose`, and reproducing a parallel run required `set.seed(###, "L'Ecuyer-CMRG")` (or, with a `cluster` object, `parallel::clusterSetRNGStream()` instead of `set.seed()`). `fwb()` and `vcovFWB()` now reserve one random number stream per replicate before any work is dispatched, and each replication draws its weights from its own stream. A plain call to `set.seed()` is all that is needed, whatever `cl`, `verbose`, or `RNGkind()` are set to, and `parallel::clusterSetRNGStream()` no longer has any effect. See `vignette("fwb-rep")`.
+
+* **This changes the bootstrap estimates when `simple = TRUE`** (the default for every `wtype` except `"multinom"`). Analyses that need to reproduce results from *fwb* 0.6.0 or earlier should install that version (e.g., using `pak::pak("fwb@0.6.0")`). Results with `simple = FALSE` are unchanged, so `wtype = "multinom"` continues to match `boot::boot(., stype = "f")` exactly. Note also that `simple = TRUE` and `simple = FALSE` no longer give the same estimates as each other, even for the weight types where they previously did.
+
+* `<fwb>` objects no longer store the `cl` argument, since nothing about the backend is needed to recover the weights any more. Previously, a `cluster` object kept in the result made the object unusable after `parallel::stopCluster()` or after being saved and reloaded.
+
+* `vignette("fwb-rep")` has been rewritten around the new behavior. It no longer describes the several cases that used to require different treatment, and it explains how to reproduce results from earlier versions.
+
+* **The multinomial bootstrap is now exhaustive when it can be.** There are only $n^n$ distinct multinomial bootstrap samples of $n$ units, so when `R` is at least that many, `fwb()` and `vcovFWB()` now use each of them exactly once instead of sampling, and set `R` to that number (reporting this in a message). The estimates are then the exact bootstrap distribution rather than a sample from it, and they no longer depend on the seed. This applies with `strata` (where the count is $\prod_s n_s^{n_s}$) and with `cluster` (where it is computed over clusters). It is the one respect in which `wtype = "multinom"` no longer matches `boot::boot(., stype = "f")`, which always samples; it reaches only very small samples, as $n = 6$ already has 46656 distinct samples.
+
+### Other fixes
+
+* Simultaneous inference with `ci.type = "perc"` is much faster and now exact. Previously the confidence level was found by numerical search, which could return a band whose coverage fell short of the one requested; it is now computed directly.
+
+* Simultaneous inference now produces an error rather than `NA` when some of the bootstrap estimates are `NA` or non-finite.
+
+* BCa confidence intervals and `fwb.array()` now work in every case. Previously, when `simple = TRUE` and the function supplied to `statistic` involved a random element, the weights could not be recovered: `fwb.array()` warned and returned weights that were not the ones used, and `fwb.ci()` and `summary()` refused to compute BCa intervals. Recovering the weights no longer involves replaying the random number stream, so these restrictions are gone.
+
+* Fixed a bug in `fwb.array()` where the bootstrap weights were computed as if `cluster` had not been supplied, returning weights unrelated to those used in the cluster bootstrap.
+
+* Fixed a bug in `fwb.array()` where `strata` was ignored unless it had been supplied as a `factor`, which also gave incorrect BCa confidence intervals for stratified bootstraps.
+
+* Fixed a bug in `fwb.array()` where the bootstrap weights were incorrect when `wtype = "multinom"` and `simple = TRUE`.
+
+* Fixed a bug in `fwb()` where stratified bootstrapping failed with an error when `simple = TRUE` (its default for every `wtype` except `"multinom"`).
+
+* Fixed a bug in `vcovFWB()` that could give incorrect standard errors for `lm` models with a weight type that allows zeroes.
+
+* Weight generation with `wtype = "multinom"` is faster, by up to 2x for small samples. Estimates are unchanged, so results still match `boot::boot(., stype = "f")` exactly.
+
+* `fwb()` and `vcovFWB()` now throw an error when there is only one unit, or only one cluster, to resample. Previously `fwb()` failed with an obscure message for some weight types and returned all-zero standard errors for others, and `vcovFWB()` returned a matrix of zeros.
+
+* `fwb()` now checks that the function supplied to `statistic` can accept the dataset and the weights, and that its arguments do not share a name with one of `fwb()`'s own (which would prevent them from ever being supplied through `...`). Functions with a `...` argument are exempt, since they can accept whatever they are given; this keeps packages that wrap `statistic`, such as [*progressify*](https://CRAN.R-project.org/package=progressify), working unchanged.
+
+* Confidence interval types that cannot be computed from the available number of bootstrap replications now say so. Previously, with `R` below what a type needs, `"wald"` and `"norm"` returned `NA` limits without comment and the other types produced errors from deep inside the calculation ("subscript out of bounds", "missing value where TRUE/FALSE needed"). Only `"cheap"` can be computed from a single replication; the others require at least two.
+
+* `fwb.ci()` now computes the interval types it can and skips the rest with a warning, rather than failing outright. Previously `type = "all"` at a small `R` failed on the first type it could not compute, returning nothing.
+
+* `summary()` and `confint()` now enforce BCa's requirements, as `fwb.ci()` always has. Previously, requesting `ci.type = "bca"` with fewer bootstrap replications than units, or with clusters, produced an interval from an underdetermined calculation without any indication that it was not usable.
+
+* Fixed a bug in `vcovFWB()` where an error was produced for any model whose fit dropped rows due to missing values in the model variables (e.g., under the default `na.action`). The weights are now aligned with the rows the model used before the model is re-fit.
+
+* `vcovFWB()` is faster when `drop0` is `TRUE` or `NA` for `lm` and `glm` models. Previously, these settings silently disabled the fast re-fitting paths used for these models, so every replicate was re-fit with a full `update()` call.
+
+* Fixed a bug in `vcovFWB()` where `drop0 = NA` produced an error ("cannot find valid starting values") for `glm` models. All three values of `drop0` now give identical results for `lm` and `glm` models, as they should.
+
+* `vcovFWB()` no longer fails for models that reject weights of 0 (e.g., `survival::coxph()`) while it determines how to re-fit them.
+
+* Fixed a bug in `vcovFWB()` where `fix = TRUE` produced an error whenever the covariance matrix it was meant to correct was not positive semi-definite.
+
+* Fixed a bug in `vcovFWB()` where an error was produced in a session that had not yet used the random number generator (e.g., in a fresh `Rscript` process).
+
+* Fixed a bug in `vcovFWB()` where `drop0 = NA` set the weights of units with nonzero weights to `NA` rather than those with weights of 0.
+
+* Fixed a bug in `summary()` where simultaneous p-values were assigned to the wrong estimates when `ci.type = "wald"` and one of the estimates had a variance of 0.
+
+* Fixed a bug in `w_scale()` (and `w_std()` with `center = FALSE`) where the variable was scaled by its uncentered second moment rather than by its weighted standard deviation as documented, when weights were supplied.
+
 * Fixed an incorrect error when using `confint.fwb()` with incorrectly specified `parm`.
+
+* `w_std()`, `w_scale()`, and `w_center()` now always return a vector as long as their input. Previously, units with weights of 0 or with missing values were dropped from the output, which made these functions fail inside a model formula (as demonstrated in `help("w_std")`) whenever any weight was 0, i.e., with `wtype = "multinom"` or `"poisson"`.
+
+* The `w_*()` functions can now be used inside `statistic` when `cl` is a `cluster` object; previously this failed with an error about the function not being found, because *fwb* was not attached on the workers.
+
+* `w_cor()` gains an `na.rm` argument, matching the rest of the `w_*()` functions.
+
+* `vcovFWB()` now requires `R` to be greater than 1; previously `R = 0` produced an unrelated error from `stats::cov()`.
+
+* `vcovFWB()` no longer forwards `...` to the model refitting function; as documented, it is ignored.
+
+* Documentation fixes.
+
+* New tests.
 
 # *fwb* 0.6.0
 

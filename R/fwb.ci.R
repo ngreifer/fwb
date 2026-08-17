@@ -55,7 +55,7 @@
 #' \item{`"bca"` (bias-corrected and accelerated confidence interval)}{
 #'   \deqn{\left[t^{(l)}, t^{(u)}\right]}
 #'
-#' \eqn{l = \Phi\left(z_0 + \frac{z_0 + z_\frac{\alpha}{2}}{1-a(z_0+z_\frac{\alpha}{2})}\right)}, \eqn{u = \Phi\left(z_0 + \frac{z_0 + z_{1-\frac{\alpha}{2}}}{1-a(z_0+z_{1-\frac{\alpha}{2}})}\right)}, using the same definitions as above, but with the additional acceleration parameter \eqn{a}, where \eqn{a = \frac{1}{6}\frac{\sum{L^3}}{(\sum{L^2})^{3/2}}}. \eqn{L} is the empirical influence value of each unit, which is computed using the regression method described in \pkgfun{boot}{empinf}. When \eqn{a=0}, the `"bca"` and `"bc"` intervals coincide. The acceleration parameter corrects for bias and skewness in the statistic. It can only be used when clusters are absent and the number of bootstrap replications is larger than the sample size. Note that BCa intervals cannot be requested when `simple = TRUE` and there is randomness in the `statistic` supplied to `fwb()`.
+#' \eqn{l = \Phi\left(z_0 + \frac{z_0 + z_\frac{\alpha}{2}}{1-a(z_0+z_\frac{\alpha}{2})}\right)}, \eqn{u = \Phi\left(z_0 + \frac{z_0 + z_{1-\frac{\alpha}{2}}}{1-a(z_0+z_{1-\frac{\alpha}{2}})}\right)}, using the same definitions as above, but with the additional acceleration parameter \eqn{a}, where \eqn{a = \frac{1}{6}\frac{\sum{L^3}}{(\sum{L^2})^{3/2}}}. \eqn{L} is the empirical influence value of each unit, which is computed using the regression method described in \pkgfun{boot}{empinf}. When \eqn{a=0}, the `"bca"` and `"bc"` intervals coincide. The acceleration parameter corrects for bias and skewness in the statistic. It can only be used when clusters are absent and the number of bootstrap replications is larger than the sample size.
 #' }
 #' }
 #'
@@ -74,7 +74,7 @@
 #' Xu, L., Gotwalt, C., Hong, Y., King, C. B., & Meeker, W. Q. (2020). Applications of the Fractional-Random-Weight Bootstrap. *The American Statistician*, 74(4), 345–358. \doi{10.1080/00031305.2020.1731599}
 #'
 #' @examples
-#' set.seed(123, "L'Ecuyer-CMRG")
+#' set.seed(123)
 #' data("infert")
 #'
 #' fit_fun <- function(data, w) {
@@ -133,11 +133,6 @@ fwb.ci <- function(fwb.out, conf = .95, type = "bc", index = 1L,
       msg <- c(msg, "BCa confidence intervals cannot be computed when there are fewer bootstrap replications than units in the original dataset")
     }
 
-    if (isTRUE(.attr(fwb.out, "simple")) &&
-        isTRUE(.attr(fwb.out, "random_statistic"))) {
-      msg <- c(msg, 'BCa confidence intervals cannot be computed when there is randomness in {.arg statistic} and {.code simple = TRUE} in the call to {.fun fbw}. See {.vignette [vignette("fwb-rep")]{fwb::fwb-rep} for details')
-    }
-
     if (is_not_null(msg)) {
       if (all(type == "bca")) {
         arg::err(msg[1L])
@@ -147,6 +142,24 @@ fwb.ci <- function(fwb.out, conf = .95, type = "bc", index = 1L,
 
       type <- setdiff(type, "bca")
     }
+  }
+
+  #Drop any remaining type that this many replications cannot support, keeping the ones
+  #that can: `type = "all"` at a small `R` should still return the intervals it can
+  #compute rather than failing on the first one it cannot. Erroring is left to the case
+  #where nothing is computable, where there would be no output to return.
+  too_few <- vapply(type, min_R_for_ci, integer(1L)) > fwb.out[["R"]]
+
+  if (any(too_few)) {
+    if (all(too_few)) {
+      check_ci_feasible(type[1L], fwb.out[["R"]])
+    }
+
+    dropped <- type[too_few]
+
+    arg::wrn("more bootstrap replications are needed to compute the {.or {.val {dropped}}} confidence interval{?s}; skipping {?it/them}")
+
+    type <- type[!too_few]
   }
 
   index <- check_index(index, fwb.out[["t"]])
@@ -162,7 +175,7 @@ fwb.ci <- function(fwb.out, conf = .95, type = "bc", index = 1L,
     arg::err("some bootstrap estimates are non-finite; cannot calculate confidence intervals")
   }
 
-  if (all_the_same(t)) {
+  if (length(t) > 1L && all_the_same(t)) {
     arg::err("all estimates are equal to {.val {mean(t)}}; cannot calculate confidence intervals")
   }
 
@@ -170,9 +183,7 @@ fwb.ci <- function(fwb.out, conf = .95, type = "bc", index = 1L,
     arg::err("{.field t} must be of length {fwb.out[['R']]}")
   }
 
-  fins <- which(is.finite(t))
-
-  output <- c(list(R = length(fins), t0 = hinv(t0), call = call),
+  output <- c(list(R = length(t), t0 = hinv(t0), call = call),
               setNames(vector("list", length(type)), type))
 
   if (!identical(t, h(t))) {

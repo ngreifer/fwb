@@ -36,7 +36,43 @@ squish <- function(p, lo = 1e-6, hi = 1 - lo) {
   p
 }
 
-check_index <- function(index, t, several.ok = FALSE, .arg_index = rlang::caller_arg(index)) {
+#Row-wise tabulation: `out[r, u]` is the number of times `u` appears in row `r`
+#of the index matrix `i`.
+#
+#Two strategies, because their costs cross over. Adding `(u - 1) * R` to each draw
+#puts the count for `out[r, u]` at position `r + (u - 1) * R`, which is exactly
+#where a column-major `R x n` matrix keeps it -- so the whole matrix can be counted
+#by one `tabulate()` call, with no per-row overhead and no transpose. That wins by a
+#wide margin while `n` is small (~7x at `n = 20`, ~2.7x at `n = 64`), because there
+#the per-row overhead is most of the work. But it scatters writes across `R * n`
+#bins, and past `n` of roughly 400 that costs more than the overhead it saves.
+#Above the threshold, count each replicate separately, transposing first so that
+#each replicate's draws are contiguous in memory.
+#
+#The threshold predicts on `n` alone, not on `R * n`: the first branch still wins
+#at `n = 100, R = 50000` (five million bins), so this is about per-row overhead
+#rather than about the bin array fitting in cache.
+#
+#Either way the counts depend only on the multiset of each row of `i`, never on the
+#order within a row, so `wtype = "multinom"` stays identical to
+#`boot:::ordinary.array()`.
+tabulate_rows <- function(i, n) {
+  R <- nrow(i)
+
+  if (n <= 256L && R <= .Machine$integer.max %/% n) {
+    out <- tabulate(rep.int(seq_len(R), n) + (i - 1L) * R, R * n)
+
+    dim(out) <- c(R, n)
+
+    return(out)
+  }
+
+  it <- t(i)
+
+  t(vapply(seq_len(R), function(r) tabulate(it[, r], n), integer(n)))
+}
+
+check_index <- function(index, t, several.ok = FALSE, .arg_index = "index") {
   if (is_null(index)) {
     return(1L)
   }
@@ -124,34 +160,93 @@ is_not_null <- function(x) {!is_null(x)}
   x
 }
 
+#Draw `R` independent L'Ecuyer-CMRG streams, one per bootstrap replicate.
+#
+#Seeding each replicate's weights from its own stream is what makes the weights a
+#function of the replicate index alone, rather than of how a backend happened to
+#chunk and seed the work. That is what lets `fwb.array()` recover them without
+#re-running anything, and what makes the results identical across every value of
+#`cl` and `verbose`.
+#
+#Exactly one draw is taken from the caller's stream, so successive calls to `fwb()`
+#without an intervening `set.seed()` use different streams, and the caller's RNG kind
+#is never changed -- the L'Ecuyer chain is built inside `with_seed_preserved()`.
+make_stream_seeds <- function(R) {
+
+  if (identical(RNGkind()[1L], "L'Ecuyer-CMRG")) {
+    #Consume a draw so repeated calls differ, then start the chain from the state
+    #that draw left behind.
+    sample.int(.Machine$integer.max, 1L)
+    seed <- get(".Random.seed", globalenv(), mode = "integer", inherits = FALSE)
+  }
+  else {
+    s <- sample.int(.Machine$integer.max, 1L)
+
+    with_seed_preserved({
+      suppressWarnings(RNGkind("L'Ecuyer-CMRG"))
+      set.seed(s)
+      seed <- get(".Random.seed", globalenv(), mode = "integer", inherits = FALSE)
+    })
+  }
+
+  seeds <- matrix(0L, nrow = R, ncol = length(seed))
+
+  for (i in seq_len(R)) {
+    seed <- parallel::nextRNGStream(seed)
+    seeds[i, ] <- seed
+  }
+
+  seeds
+}
+
+#Make the package's exported functions findable on `cluster` workers.
+#
+#`library()` is used rather than `requireNamespace()` because the lookup that fails
+#happens through the search path: `statistic` is a closure whose enclosing environment
+#is the worker's (empty) global environment, so loading the namespace without attaching
+#it does not help. Errors are swallowed because a worker that cannot see the package
+#library is only a problem for a `statistic` that needs it, and that failure reports
+#itself clearly.
+attach_on_workers <- function(cl) {
+  try(parallel::clusterCall(cl, function() {
+    suppressWarnings(suppressMessages(library("fwb", character.only = TRUE)))
+    NULL
+  }), silent = TRUE)
+
+  invisible(NULL)
+}
+
+#Install a stream recorded by `make_stream_seeds()`. Assigning `.Random.seed` also
+#sets the RNG kind from its first element, which is why every caller runs inside
+#`with_seed_preserved()`.
+set_stream_seed <- function(seed) {
+  assign(".Random.seed", value = seed, envir = globalenv())
+}
+
 with_seed_preserved <- function(expr, new_seed = NULL) {
+
+  if (!exists(".Random.seed", envir = globalenv(), inherits = FALSE)) {
+    runif(1L)
+  }
 
   old_seed <- list(random_seed = get(".Random.seed", globalenv(), mode = "integer",
                                      inherits = FALSE),
                    rng_kind = RNGkind())
 
-  if (is_null(old_seed)) {
-    on.exit({
-      set.seed(seed = NULL)
-      rm(".Random.seed", envir = globalenv())
-    }, add = TRUE)
-  }
-  else {
-    on.exit({
-      .RNGkind <- get("RNGkind")
-      .RNGkind(old_seed$rng_kind[[1L]], normal.kind = old_seed$rng_kind[[2L]])
-      sample_kind <- old_seed$rng_kind[[3L]]
+  on.exit({
+    .RNGkind <- get("RNGkind")
+    .RNGkind(old_seed$rng_kind[[1L]], normal.kind = old_seed$rng_kind[[2L]])
+    sample_kind <- old_seed$rng_kind[[3L]]
 
-      if (identical(sample_kind, "Rounding")) {
-        suppressWarnings(.RNGkind(sample.kind = sample_kind))
-      }
-      else {
-        .RNGkind(sample.kind = sample_kind)
-      }
+    if (identical(sample_kind, "Rounding")) {
+      suppressWarnings(.RNGkind(sample.kind = sample_kind))
+    }
+    else {
+      .RNGkind(sample.kind = sample_kind)
+    }
 
-      assign(".Random.seed", old_seed$random_seed, globalenv())
-    }, add = TRUE)
-  }
+    assign(".Random.seed", old_seed$random_seed, globalenv())
+  }, add = TRUE)
 
   if (is_not_null(new_seed)) {
     assign(".Random.seed", value = new_seed, envir = globalenv())

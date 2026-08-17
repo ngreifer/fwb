@@ -42,11 +42,11 @@ pak::pak("ngreifer/fwb")
 
 ## Examples
 
-Below are some examples of how to use *fwb*. We set a seed to ensure all results are replicable. (Note that when parallel processing is used, a special kind of seed needs to be set; see `vignette("fwb-rep")` for details.)
+Below are some examples of how to use *fwb*. We set a seed to ensure all results are replicable; this is all that is required, including when parallel processing is used. See `vignette("fwb-rep")` for details.
 
 ```{r}
 library("fwb")
-set.seed(123456, "L'Ecuyer-CMRG")
+set.seed(123456)
 ```
 
 ### Bearing cage field failure Weibull analysis from Xu et al. (2020)

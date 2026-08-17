@@ -7,21 +7,11 @@ vignette: >
   %\VignetteEncoding{UTF-8}
 ---
 
-Reproducibility ensures re-running the same analysis yields identical results. Because a random process is involved in generating the bootstrap weights with `fwb::fwb()`, steps must be taken to ensure reproducibility is possible.
+Reproducibility means that re-running the same analysis yields identical results. Because bootstrap weights are drawn at random, this takes some care in general. In *fwb*, it is as simple as setting the seed prior to calling `fwb()` or `vcovFWB()`.
 
-There are a few arguments to `fwb()` that are relevant for reproducibility. These are `statistic`, `simple`, and `cl`. 
+## The short version
 
-- `statistic` is the function that is applied to each bootstrap dataset and returns the quantities of interest to be estimated. It can either have a random component or not; each case requires special attention. It is always safer to avoid having a random component in `statistic`. Most common regression functions to do not involve a random component, but some advanced models, like machine learning models, may. Do not ever include a call to `set.seed()` or supply a seed to `statistic`. If you are using parallelization for `fwb()`, do not use parallelization within `statistic`.
-
-- `simple` controls whether the bootstrap weights are generated all at once (`simple = FALSE`) or generated separately within each bootstrap iteration (`simple = TRUE`). When `simple = FALSE`, the weights are generated before any parallelization takes place or `statistic` is called, which makes ensuring reproducibility more straightforward. When `simple = TRUE`, the weights are generated before the call to `statistic` in each bootstrap iteration, which can make it a bit more challenging to ensure reproducibility when using parallelization and adds even more challenges when `statistic` also has a random component.
-
-- `cl` controls whether and how parallelization takes place. It is passed directly to `pbapply::pblapply()`, which calls either `parallel::mclapply()`, `parallel::parLapply()`, or `future.apply::future_lapply()`, depending on how it is specified. The usual arguments include an integer referring to the number of cores, which only works on Mac and triggers `parallel::mclapply()`; a `cluster` object (usually the result of a call to `parallel::makeCluster()` or related functions), which triggers `parallel::parLapply()`; or `"future"`, which uses a `future` backend (usually initialized using `future::plan()`). Each of these involves different requirements for ensuring reproducibility.
-
-This guide will proceed for combinations of these scenarios.
-
-### Case 1: No parallelization (`cl = NULL`) {#case-1}
-
-When no parallelization is used (i.e., `cl` is unspecified, `NULL`, or `1`), all you need to do is call `set.seed()` before `fwb()` to ensure reproducibility. It doesn't matter what `simple` or `statistic` do. This is probably the most common case. Just run the following to ensure reproducibility, replacing `{N}` with your favorite integer.
+Call `set.seed()` before `fwb()`, replacing `{N}` with your favorite integer:
 
 ```r
 set.seed({N})
@@ -29,71 +19,102 @@ set.seed({N})
 f.out <- fwb(.)
 ```
 
-### Case 2: `simple = FALSE`, non-random `statistic` {#case-2}
+That is the whole procedure, and the same one works for `vcovFWB()`. You do not need to choose a particular random number generator, and you do not need to do anything differently when you parallelize.
 
-If `simple = FALSE` and `statistic` does not have a random component, see [Case 1](#case-1), regardless of whether or how parallelization is used. In this case, no random process occurs within each cluster, so no special steps need to be taken beyond setting a seed. Note that `simple = TRUE` by default unless `wtype = "multinom"`, so this must be set manually. See below for a code example:
+## What is and is not guaranteed
 
-```r
+The bootstrap weights are a function of the state of the random number generator when `fwb()` is called. Nothing about *how* the work is carried out enters into them. So none of the following changes your results:
+
+* the value of `cl`; no parallelization, an integer, a `cluster` object, or `"future"`
+* the number of workers, or the *future* plan in use
+* the value of `verbose`, i.e., whether a progress bar is displayed
+* the random number generator in effect (`RNGkind()`)
+* whether the function supplied to `statistic` draws random numbers of its own
+
+An analysis is therefore reproducible on a machine with a different number of cores, or by a collaborator who prefers a different parallel backend. Switching from `cl = 2` to `cl = "future"` to inspect a slow bootstrap is free: you get the same numbers back.
+
+What *does* determine the results is the seed together with the arguments that define the bootstrap itself: `R`, `wtype`, `strata`, `cluster`, and `simple` (see below). One further exception is described under [Using *futurize*](#futurize).
+
+## Why this works
+
+Before any bootstrap replication runs, `fwb()` reserves a separate random number stream for each of the `R` replications, and each replication draws its weights from the stream reserved for it. (These are L'Ecuyer-CMRG streams, generated with `parallel::nextRNGStream()`.) The streams are derived from the calling session's generator state, which is what `set.seed()` sets, and they are recorded in the returned object.
+
+Two useful things follow. First, the weights for a given replication depend on the seed and on the replication number, and not on which worker happened to run it or in what order, so a parallel backend cannot change them. Second, because the seeds used to generate the weights are recorded, the weights that were used can be perfectly reproduced rather than inferred, so `fwb.array()` can hand them back exactly without needing the backend that produced them.
+
+## What changed, and reproducing older results
+
+**Results from *fwb* 0.6.0 and earlier cannot be reproduced with version 0.7.0 or later** when `simple = TRUE`, which is the default for every `wtype` except `"multinom"`. If you need to reproduce a specific earlier analysis, install the version it was run under. Results with `simple = FALSE` are unchanged.
+
+Before version 0.7.0, weights were drawn inside each bootstrap replication, from whatever random number stream the worker running it happened to have. That made the results depend on how the work was distributed, and reproducing them required arranging the workers' streams by hand. The guidance was correspondingly involved: it depended on `cl`, on `simple`, on whether `statistic` was random, and on `verbose`, and with a `cluster` object it required `parallel::clusterSetRNGStream()` *instead of* `set.seed()`.
+
+None of that applies now, and two pieces of it are worth calling out because following them today would be actively counterproductive:
+
+* **`parallel::clusterSetRNGStream()` no longer has any effect on `fwb()`.** The workers' own streams are never used to draw weights. Code that relies on it in place of `set.seed()` is not reproducible.
+* **`set.seed(., "L'Ecuyer-CMRG")` is no longer needed.** `set.seed()` with any generator is enough, and the choice of generator no longer affects whether parallel results can be reproduced. Note that different generators select different streams, so the same integer gives different (individually reproducible) results with and without the `kind` argument.
+
+## The `simple` argument
+
+`simple` controls when the weights are drawn. With `simple = FALSE`, the entire `R` × *n* weight matrix is drawn in one step before `statistic` is applied to anything; with `simple = TRUE`, each replication draws its own weights as it runs, which avoids holding the whole matrix in memory.
+
+Both settings are fully reproducible, and both draw from the same weight distribution, so either supports valid inference. But they consume their random number streams differently, and so `simple = TRUE` and `simple = FALSE` do not give the same replicates as each other, even with the same seed. Prior to version 0.7.0 they did coincide for the continuous weight types, so this is worth knowing if you have code that switched between them freely^[To install a prior version of *fwb*, you can use, e.g., `pak::pak("fwb@0.6.0")`].
+
+The default is `simple = TRUE` except when `wtype = "multinom"`, where `simple = FALSE` is used so that results match `boot::boot(., stype = "f")` exactly.
+
+## BCa confidence intervals
+
+Bias-corrected and accelerated (BCa) intervals need the empirical influence of each unit on the bootstrap estimates, which means recovering the weights that were used. Because those weights are recorded (i.e., via the seeds that generated them), `fwb.ci(., type = "bca")` and `summary(., ci.type = "bca")` work without any preparation on your part, whatever `cl` was set to and whether or not `statistic` is random.
+
+Before version 0.7.0 of *fwb*, BCa intervals were refused outright when `simple = TRUE` and `statistic` had a random component. BCa intervals still require more bootstrap replications than there are units in the data, and still cannot be used with `cluster` (i.e., with the clustered bootstrap).
+
+## Choosing a parallel backend
+
+Since the choice does not affect your results, it can be made on practical grounds. `cl` accepts an integer (forking; not available on Windows), a `cluster` object from `parallel::makeCluster()`, or the string `"future"` to use whatever backend `future::plan()` has set up. The *futurize* package offers a further route, described below.
+
+Two things do differ between backends, neither of which concerns reproducibility:
+
+* **Packages on the workers.** A `cluster` object starts fresh R processes with no packages attached, so a `statistic` that calls functions from another package needs that package attached there, e.g., with `parallel::clusterEvalQ(cl, library(mypkg))`. *fwb* itself is attached for you, so the `w_*()` functions (e.g., `w_mean()`, `w_std()`) can be used without extra effort. Forking and `future` backends handle this on their own.
+* **Progress reporting.** See below.
+
+## Using *futurize* {#futurize}
+
+The *futurize* package can parallelize an `fwb()` call by piping it:
+
+```{r, eval = FALSE}
+library(futurize)
+plan(multisession)
+
 set.seed({N})
 
-f.out <- fwb(., simple = FALSE)
+f.out <- fwb(.) |> futurize()
 ```
 
-### Case 3: `cl` is an integer {#case-3}
+This is reproducible in the ordinary way, and a plain `set.seed()` is all it needs. There is one wrinkle worth knowing about, and it is the single exception to "only the seed matters":
 
-When `cl` is an integer and the criteria for [Case 2](#case-2) are not met (i.e., `simple = TRUE` or `statistic` has a random component), one additional step is required for ensuring reproducibility. Again, all you need to do is use `set.seed()`, but you must call it with `kind = "L'Ecuyer-CMRG"`, which is the only method appropriate for use across multiple clusters. See below for a code example:
+**Adding or removing `|> futurize()` changes the replicates.** *futurize* switches the generator to L'Ecuyer-CMRG for the duration of the call, and doing so re-initializes the generator state even when L'Ecuyer-CMRG is already in use. The streams *fwb* then reserves are a deterministic function of your seed, but not the same ones a call without the pipe would have used. Reproducing a result therefore means reproducing whether `futurize()` was used.
 
-```r
-set.seed({N}, "L'Ecuyer-CMRG")
+See `vignette("futurize-81-fwb", package = "futurize")` for more details on using *futurize* with *fwb*.
 
-f.out <- fwb(., cl = 3)
+## Progress bars
+
+`fwb()` displays a progress bar when `verbose = TRUE`, using the *pbapply* package. This works with every backend and, unlike in earlier versions, has no effect on the results. Its default is `TRUE` when running sequentially and `FALSE` when parallelizing.
+
+Alternatively, the *progressify* package routes progress through *progressr*, which lets you choose the reporter:
+
+```{r, eval = FALSE}
+library(progressify)
+handlers(global = TRUE)
+
+set.seed({N})
+
+f.out <- fwb(.) |> progressify()
 ```
 
-### Case 4: `cl` is `"future"` {#case-4}
+When using parallelization in combination with *progressify*, a *future* backend must be used (i.e., `cl = "future"`, or the `futurize()` pipe described above) because *progressr* has no way to receive updates from a forked worker. With `cl` set to an integer or a `cluster` object, the bootstrap runs correctly but no progress is reported. Use `verbose = TRUE` in that case to display a progress bar.
 
-When using a `future` backend and the criteria for [Case 2](#case-2) are not met, you can use the same solution as for Case 3. `fwb()` performs an additional step to make sure the seed is correctly sent to `future.apply::future_lapply()`. (Internally, this works by setting `future.seed = TRUE`, which you should not do yourself.) See below for a code example:
+See `vignette("progressify-81-fwb", package = "progressify")` for more details on using *progressify* with *fwb*.
 
-```r
-library(future)
+## A note on `statistic`
 
-plan(multisession, workers = 3)
-set.seed({N}, "L'Ecuyer-CMRG")
+`statistic` may draw random numbers; doing so no longer costs you anything in reproducibility, because each replication's weights are drawn from a stream reserved in advance and cannot be shifted by what `statistic` did in an earlier replication. Its own draws are reproducible too, for the same reason.
 
-f.out <- fwb(., cl = "future")
-```
-
-### Case 5: `cl` is a `cluster` object {#case-5}
-
-When `cl` is a `cluster` object (i.e., the output of a call to `parallel::makeCluster()`, `parallel::makePSOCKcluster()`, `parallel::makeForkCluster()` or similar functions in *parallelly*), an additional step must be taken to ensure reproducibility. Unfortunately, you can't use `set.seed()`; you have to use `parallel::clusterSetRNGStream()`, to which you supply the `cluster` object and your desired seed. See below for a code example:
-
-```r
-library(parallel)
-
-cl <- makeCluster(3)
-clusterSetRNGStream(cl, {N})
-
-f.out <- fwb(., cl = cl)
-```
-## Computing BCa confidence intervals
-
-Although the main purpose of considering reproducibility is to ensure that multiple runs of the same code produce identical results, there is another situation in which it can be important to be able to reproduce the weights, and that is when computing bias-corrected accelerated (BCa) confidence intervals using `fwb.ci(., type = "bca")` or `summary(., ci.type = "bca")`. BCa confidence intervals have the best statistical properties among the available bootstrap confidence intervals, but they require computing the influence each unit has on the bootstrap estimates, which requires re-generating the weights as they were generated by `fwb()`.
-
-There are some cases where you don't have to do any special work to ensure BCa intervals are correctly computed. These include:
-
-* `simple = FALSE`, regardless of parallelization or randomness in `statistic`
-* `simple = TRUE`, there is no randomness in `statistic`, and no parallelization is used
-* `simple = TRUE`, there is no randomness in `statistic`, and `cl` is an integer or `"future"`
-
-In these cases, `fwb()` saves the state of the random seed that was used to originally generate the weights, and `fwb.ci()` recalls that seed to re-generate the weights and then computes the required statistics for the BCa interval without requiring any extra involvement by the user. Remember, `simple = TRUE` by default unless `wtype = "multinom"`.
-
-Otherwise, when the following condition is met, an additional step is required:
-
-* `simple = TRUE`, there is no randomness in `statistic`, and `cl` is a `cluster` object
-
-In this case, you need to call `parallel::clusterSetRNGStream(cl, {N})` with the same seed as as was used prior to `fwb()` immediately before calling `fwb.ci()` or `summary()`.
-
-When `simple = TRUE` and there is any randomness in `statistic`, it is not possible to re-generate the weights that were used in the bootstrap, so BCa confidence intervals cannot be computed. `fwb.ci()` (and `summary()` and `confint()`, which call `fwb.ci()`) automatically checks for this case and throws an error if BCa confidence intervals are requested when these conditions are met.
-
-## `verbose`
-
-It may be surprising to know that the `verbose` argument can affect reproducibility. This is because of how *pbapply*, the package used to generate progress bars when `verbose = TRUE`, handles parallelization. To ensure reproducibility when parallelization is used, it is advisable to set `verbose = FALSE` and omit a progress bar. As of *fwb* version 0.6.0, this is the default. This also improves performance. Setting `verbose = TRUE` affects reproducibility in Cases [3](#case-3), [4](#case-4), and [5](#case-5).
+Two things are still worth avoiding. Do not call `set.seed()` inside `statistic`: that would give every replication the same draws. And be aware that a `statistic` that parallelizes internally, on top of *fwb*'s own parallelization, may not be reproducible --- that is a property of the nested code, not of `fwb()`.

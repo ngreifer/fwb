@@ -21,7 +21,7 @@
 
 \item{qdist}{\code{character}; when a Q-Q plot is requested (as it is by default; see \code{type} argument below), the distribution against which the Q-Q plot should be drawn. Allowable options include \code{"norm"} (normal distribution - the default) and \code{"chisq"} (chi-squared distribution).}
 
-\item{nclass}{when a histogram is requested (as it is by default; see \code{type} argument below), the number of classes to be used. The default is the integer between 10 and 100 closest to \code{ceiling(length(R)/25)} where \code{R} is the number of bootstrap replicates.}
+\item{nclass}{when a histogram is requested (as it is by default; see \code{type} argument below), the number of classes to be used. The default is the integer between 10 and 100 closest to \code{ceiling(R / 25)} where \code{R} is the number of bootstrap replicates.}
 
 \item{df}{if \code{qdist} is \code{"chisq"}, the degrees of freedom for the chi-squared distribution to be used. If not supplied, the degrees of freedom will be estimated using maximum likelihood.}
 

@@ -46,11 +46,11 @@
 #'                       \deqn{x_{c,w} = x - \bar{x}_w}}
 #'   \item{`w_scale()`}{Scales the variable by its (weighted) standard deviation.
 #'                      \deqn{x_{s,w} = x / s_{x,w}}}
-#'   \item{`w_std()`}{Centers and scales the variable by its (weighted) mean and standard deviation.
+#'   \item{`w_std()`}{Centers and scales the variable by its (weighted) mean and (weighted) standard deviation.
 #'                    \deqn{x_{z,w} = (x - \bar{x}_w) / s_{x,w}}}
 #' }
 #'
-#' `w_scale()` and `w_center()` are efficient wrappers to `w_std()` with `center = FALSE` and `scale = FALSE`, respectively.
+#' `w_scale()` and `w_center()` are wrappers to `w_std()` with `center = FALSE` and `scale = FALSE`, respectively.
 #'
 #' @seealso
 #' * [mean()] and [weighted.mean()] for computing the unweighted and weighted mean
@@ -80,7 +80,7 @@
 #'   c(m0 = m0, m1 = m1, ATE = m1 - m0)
 #' }
 #'
-#' set.seed(123, "L'Ecuyer-CMRG")
+#' set.seed(123)
 #' boot_est <- fwb(lalonde, statistic = ate_est,
 #'                 R = 199, verbose = FALSE)
 #' summary(boot_est)
@@ -159,6 +159,7 @@ w_cov <- function(x, w = NULL, na.rm = FALSE) {
   }
 
   arg::arg_supplied(x)
+  arg::arg_flag(na.rm)
 
   x <- as.matrix(x)
 
@@ -209,7 +210,7 @@ w_cov <- function(x, w = NULL, na.rm = FALSE) {
 
 #' @export
 #' @rdname w_mean
-w_cor <- function(x, w = NULL) {
+w_cor <- function(x, w = NULL, na.rm = FALSE) {
   if (is_null(w)) {
     w <- .get_internal_w()
   }
@@ -219,10 +220,11 @@ w_cor <- function(x, w = NULL) {
   x <- as.matrix(x)
 
   if (is_null(w)) {
-    return(cor(x))
+    arg::arg_flag(na.rm)
+    return(cor(x, use = if (na.rm) "pairwise.complete.obs" else "everything"))
   }
 
-  cov2cor(w_cov(x, w))
+  cov2cor(w_cov(x, w, na.rm = na.rm))
 }
 
 #' @export
@@ -296,9 +298,9 @@ w_median <- function(x, w = NULL, na.rm = FALSE) {
   }
 
   arg::arg_supplied(x)
-  arg::arg_flag(na.rm)
 
   if (is_null(w)) {
+    arg::arg_flag(na.rm)
     return(median(x, na.rm = na.rm))
   }
 
@@ -331,6 +333,8 @@ w_std <- function(x, w = NULL, na.rm = TRUE, scale = TRUE, center = TRUE) {
     return((x - mu) / sqrt(v))
   }
 
+  x0 <- x
+
   if (na.rm && (anyNA(x) || anyNA(w))) {
     i <- !is.na(x) & !is.na(w)
     x <- x[i]
@@ -352,11 +356,11 @@ w_std <- function(x, w = NULL, na.rm = TRUE, scale = TRUE, center = TRUE) {
   }
 
   v <- {
-    if (scale) sum(w * (x - mu)^2) / (1 - sum(w^2))
+    if (scale) sum(w * (x - sum(w * x))^2) / (1 - sum(w^2))
     else 1
   }
 
-  (x - mu) / sqrt(v)
+  (x0 - mu) / sqrt(v)
 }
 
 #' @export

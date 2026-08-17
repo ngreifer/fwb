@@ -28,7 +28,7 @@ vcovFWB(
     By default (\code{cluster = NULL}), either \code{attr(x, "cluster")} is used
     (if any) or otherwise every observation is assumed to be its own cluster.}
 
-\item{R}{the number of bootstrap replications. Default is 1000 (more is better but slower).}
+\item{R}{the number of bootstrap replications. When \code{wtype = "multinom"} and \code{R} is at least the number of distinct bootstrap samples of the clusters, every one of them is used exactly once instead and \code{R} is ignored; see \code{\link[=fwb]{fwb()}}. Default is 1000 (more is better but slower).}
 
 \item{start}{\code{logical}; should \code{.coef(x)} be passed as \code{start} to the \code{update(x, weights = ...)} call? In case the model \code{x} is computed by some numeric iteration, this may speed up the bootstrapping. Default is \code{FALSE}.}
 
@@ -46,7 +46,7 @@ vcovFWB(
 
 \item{verbose}{\code{logical}; whether to display a progress bar. The default value, \code{NULL}, is \code{FALSE} when parallelization is used (see \code{cl} below) and \code{TRUE} otherwise. Alternatively, the \CRANpkg{progressify} package can be used to incorporate a \pkg{progressr} progress bar.}
 
-\item{cl}{a cluster object created by \pkgfun{parallel}{makeCluster}, an integer to indicate the number of child-processes (integer values are ignored on Windows) for parallel evaluations, or the string \code{"future"} to use a \code{future} backend. See the \code{cl} argument of \pkgfun{pbapply}{pblapply} for details. If \code{NULL}, no parallelization will take place. See the section "Parallel Processing" in Details.}
+\item{cl}{a cluster object created by \pkgfun{parallel}{makeCluster}, an integer to indicate the number of child-processes (integer values are ignored on Windows) for parallel evaluations, or the string \code{"future"} to use a \code{future} backend. See the \code{cl} argument of \pkgfun{pbapply}{pblapply} for details. If \code{NULL}, no parallelization will take place. Alternatively, the \CRANpkg{futurize} package can be used to incorporate a \code{future} backend. See the section "Parallel Processing" in Details.}
 }
 \value{
 A matrix containing the covariance matrix estimate.
@@ -62,12 +62,16 @@ For \code{lm} objects, the model is re-fit using \code{\link[=.lm.fit]{.lm.fit()
 See \pkgfun{sandwich}{vcovBS} and \pkgfun{sandwich}{vcovCL} for more information on clustering covariance matrices, and see \code{\link[=fwb]{fwb()}} for more information on how clusters work with the fractional weighted bootstrap. When clusters are specified, each cluster is given a bootstrap weight, and all members of the cluster are given that weight; estimation then proceeds as normal. By default, when \code{cluster} is unspecified, each unit is considered its own cluster.
 \subsection{Parallel Processing}{
 
-To speed up evaluation, parallel processing can be enabled. One way to do so is to supply an argument to \code{cl}. This can be either an integer(not available on Windows), a cluster object created by \pkgfun{parallel}{makeCluster}, or the string \code{"future"}. Another general way is to use functionality in the \CRANpkg{futurize} package, which is compatible with \pkg{fwb}. See \code{vignette("futurize-81-fwb", package = "futurize")} for details. See also \code{vignette("fwb-rep")} for information on replicability with (and without) parallel processing.
+To speed up evaluation, parallel processing can be enabled. One way to do so is to supply an argument to \code{cl}. This can be either an integer (not available on Windows), a cluster object created by \pkgfun{parallel}{makeCluster}, or the string \code{"future"}. Another general way is to use functionality in the \CRANpkg{futurize} package, which is compatible with \pkg{fwb}. See \code{vignette("futurize-81-fwb", package = "futurize")} for details.
+
+Parallel processing does not change the results: the same seed gives the same covariance matrix whatever \code{cl} is set to, and calling \code{\link[=set.seed]{set.seed()}} beforehand is all that is required to make a run reproducible. See \code{vignette("fwb-rep")} for details.
+
+When \code{cl} is a cluster object, \pkg{fwb} is attached on each worker so that the \verb{w_*()} functions (see \code{\link[=w_mean]{w_mean()}}) can be used in the model formula. Other packages the model needs must be attached by the user, e.g., with \pkgfun{parallel}{clusterEvalQ}.
 }
 }
 \examples{
 \dontshow{if (rlang::is_installed("lmtest")) withAutoprint(\{ # examplesIf}
-set.seed(123, "L'Ecuyer-CMRG")
+set.seed(123)
 data("infert")
 fit <- glm(case ~ spontaneous + induced, data = infert,
              family = "binomial")

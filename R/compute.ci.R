@@ -1,7 +1,42 @@
 #Functions for computing and inverting confidence intervals
 
+# The fewest bootstrap replications each interval type can be computed from
+min_R_for_ci <- function(type) {
+  if (type == "cheap") {
+    return(1L)
+  }
+
+  2L
+}
+
+# Whether `type` can be computed at all from these replicates, with a message naming the
+# type and its requirement when it cannot.
+check_ci_feasible <- function(type, R, boot.out = NULL) {
+  min_R <- min_R_for_ci(type)
+
+  if (R < min_R) {
+    arg::err("the {.val {type}} confidence interval requires at least {min_R} bootstrap replications; there {?is/are} only {R}")
+  }
+
+  if (identical(type, "bca") && is_not_null(boot.out)) {
+    n <- nrow(boot.out[["data"]])
+
+    if (R <= n) {
+      arg::err("the {.val {type}} confidence interval requires more bootstrap replications than units in the original dataset; there are {R} replications and {n} units")
+    }
+
+    if (is_not_null(boot.out[["cluster"]])) {
+      arg::err("the {.val {type}} confidence interval cannot be used with clusters")
+    }
+  }
+
+  invisible(NULL)
+}
+
 # Compute confidence intervals
 compute_ci <- function(type, t, t0, conf = .95, index = 1, hinv = identity, boot.out = NULL) {
+  check_ci_feasible(type, nrow(t), boot.out)
+
   alpha <- (1 + c(-conf, conf)) / 2
 
   if (type %in% c("wald", "norm")) {
@@ -131,7 +166,15 @@ norm_inter <- function(ti, alpha = c(.025, .975)) {
 
 # Regression-based empirical influence function. Centered coefficients from
 # regression of estimates on bootstrap weights. Yields 1 value per unit per
-# quantity of interest. Slow due to R x n design matrix.
+# quantity of interest. Slow due to R x n design matrix -- often slower than the
+# `fwb()` run that produced `t`.
+#
+# `crossprod()`-based normal equations are the obvious replacement and were
+# measured: 30x faster under an optimized BLAS, but no faster (and up to 1.7x
+# slower when R is close to n) under the reference BLAS that R ships by default,
+# since `.lm.fit()` uses level-1 LINPACK and so does not care which BLAS is
+# linked. They also lose 5 digits at `R = n + 1`, which `fwb.ci()` permits.
+# Not worth it; see dev/review-2026-08.md.
 empinf.reg <- function(boot.out, t = NULL) {
   n <- NROW(boot.out[["data"]])
   f <- fwb.array(boot.out)
@@ -163,6 +206,9 @@ empinf.reg <- function(boot.out, t = NULL) {
 
 #Invert confidence intervals to get p-values
 invert_ci <- function(type, t, t0, null = 0, index = 1L, h = identity, boot.out = NULL) {
+  #A p-value here is the level at which the interval's endpoint lands on `null`, so it
+  #needs exactly what the interval needs.
+  check_ci_feasible(type, nrow(t), boot.out)
 
   if (type %in% c("wald", "norm")) {
     bias <- switch(type,

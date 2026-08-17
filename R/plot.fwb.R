@@ -5,7 +5,7 @@
 #' @param x an `<fwb>` object; the output of a call to [fwb()].
 #' @param index the index of the position of the quantity of interest in `x$t0` if more than one was specified in `fwb()`. Only one value is allowed at a time. By default the first statistic is used.
 #' @param qdist `character`; when a Q-Q plot is requested (as it is by default; see `type` argument below), the distribution against which the Q-Q plot should be drawn. Allowable options include `"norm"` (normal distribution - the default) and `"chisq"` (chi-squared distribution).
-#' @param nclass when a histogram is requested (as it is by default; see `type` argument below), the number of classes to be used. The default is the integer between 10 and 100 closest to `ceiling(length(R)/25)` where `R` is the number of bootstrap replicates.
+#' @param nclass when a histogram is requested (as it is by default; see `type` argument below), the number of classes to be used. The default is the integer between 10 and 100 closest to `ceiling(R / 25)` where `R` is the number of bootstrap replicates.
 #' @param df if `qdist` is `"chisq"`, the degrees of freedom for the chi-squared distribution to be used. If not supplied, the degrees of freedom will be estimated using maximum likelihood.
 #' @param type the type of plot to display. Allowable options include `"hist"` for a histogram of the bootstrap estimates and `"qq"` for a Q-Q plot of the estimates against the distribution supplied to `qdist`.
 #' @param ... ignored.
@@ -82,7 +82,7 @@ plot.fwb <- function(x, index = 1L, qdist = "norm", nclass = NULL, df, type = c(
       graphics::abline(v = t0, lty = 2L)
     }
     else if (i == "qq") {
-      p <- ppoints(x$R, a = .5)
+      p <- ppoints(length(t), a = .5)
 
       if (qdist == "chisq") {
         qfun <- function(p_) qchisq(p_, df = df)

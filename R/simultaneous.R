@@ -1,4 +1,54 @@
 # Simultaneous CIs and p-values
+
+# For each bootstrap draw, the narrowest pointwise level at which it enters the band.
+#
+# The pointwise interval for parameter `j` at level `l` is
+# `[norm_inter(t_j, p), norm_inter(t_j, 1 - p)]` with `p = (1 - l) / 2`. `norm_inter()` is
+# increasing in `p` and returns the `i`th order statistic exactly at `p = i / (R + 1)`, so
+# writing `i` for the rank of `t[r, j]` within column `j`:
+#
+#     t[r, j] >= lower  <=>  p <= i / (R + 1)
+#     t[r, j] <= upper  <=>  p <= 1 - i / (R + 1)
+#
+# The coordinate is therefore inside its own interval exactly when
+# `p <= min(i, R + 1 - i) / (R + 1)`, and the draw is inside the whole band when that holds
+# for every `j` -- i.e. at the smallest such `p` across parameters.
+#
+# Ties are broken so that whichever endpoint binds is the one used: the highest tied rank
+# against the lower endpoint, the lowest against the upper.
+sup_t_entry_levels <- function(t) {
+  R <- nrow(t)
+
+  lo <- apply(t, 2L, rank, ties.method = "min")
+  hi <- apply(t, 2L, rank, ties.method = "max")
+
+  p <- pmin(hi, R + 1L - lo) / (R + 1)
+
+  1 - 2 * apply(p, 1L, min)
+}
+
+# The sup-t percentile level: the narrowest pointwise level whose intervals jointly contain
+# at least `level` of the bootstrap draws.
+#
+# Coverage at level `l` is the proportion of draws whose entry level is at most `l`, so this
+# needs no search -- it is the `ceiling(level * R)`th smallest entry level. Two ranks per
+# parameter and one partial sort, with no interval ever constructed.
+#
+# The result is nudged a few ulps wider, which is not cosmetic. At the exact level the
+# binding draw sits *on* an endpoint, and `compute_ci()` does not receive `p` -- it receives
+# the level and recomputes `p = (1 - level) / 2`. Since the level is near 1, that round trip
+# loses about an ulp of `p`, enough to flip `floor((R + 1) * p)` from `i` to `i - 1`; the
+# endpoint then lands a hair inside the binding draw and coverage comes out one draw short.
+# The nudge puts `p` safely on the correct side of the floor, and moves each endpoint by
+# ~1e-16 of the gap between adjacent order statistics -- unchanged to full double precision.
+sup_t_level <- function(t, level) {
+  entry <- sup_t_entry_levels(t)
+
+  m <- ceiling(level * nrow(t))
+
+  sort(entry, partial = m)[m] + 16 * .Machine$double.eps
+}
+
 simultaneous_ci_level <- function(object, level = .95, index = seq_len(ncol(object[["t"]])), ci.type = "perc") {
 
   arg::arg_supplied(object)
@@ -22,29 +72,13 @@ simultaneous_ci_level <- function(object, level = .95, index = seq_len(ncol(obje
   }
 
   if (ci.type == "perc") {
-    estimates <- t(object[["t"]][, index, drop = FALSE])
-    R <- ncol(estimates)
+    t <- object[["t"]][, index, drop = FALSE]
 
-    fun <- function(l) {
-      suppressWarnings({
-        ci.out <- compute_ci(ci.type, t = object[["t"]], t0 = object[["t0"]],
-                             conf = l, index = index, boot.out = object)
-      })
-
-      nc <- ncol(ci.out)
-
-      interval <- ci.out[, c(nc - 1L, nc), drop = FALSE]
-
-      all_est_above <- colSums(estimates >= interval[, 1L]) == k
-      all_est_below <- colSums(estimates <= interval[, 2L]) == k
-
-      coverage <- mean(all_est_above & all_est_below)
-
-      R * abs(coverage - level) + l
+    if (!all(is.finite(t))) {
+      arg::err("simultaneous inference cannot be used when some bootstrap estimates are {.val {NA}} or non-finite")
     }
 
-    new_level <- optimize(fun, interval = c(level, 1 - (1 - level) / k),
-                          tol = 1e-10)$minimum
+    new_level <- sup_t_level(t, level)
   }
   else {
     rlang::check_installed("mvtnorm")
@@ -91,25 +125,19 @@ simultaneous_p_value <- function(object, p.values, index = seq_len(ncol(object[[
   }
 
   if (ci.type == "perc") {
-    estimates <- t(object[["t"]][, index, drop = FALSE])
+    t <- object[["t"]][, index, drop = FALSE]
 
-    p <- vapply(1 - p.values, function(level) {
-      suppressWarnings({
-        ci.out <- compute_ci(ci.type, t = object[["t"]], t0 = object[["t0"]],
-                             conf = level, index = index, boot.out = object)
-      })
+    if (!all(is.finite(t))) {
+      arg::err("simultaneous inference cannot be used when some bootstrap estimates are {.val {NA}} or non-finite")
+    }
 
-      nc <- ncol(ci.out)
+    #The simultaneous p-value is one minus the coverage of the band whose pointwise level
+    #is `1 - p`. Once the entry levels are in hand that is a comparison, not an interval
+    #calculation -- and it is the same quantity `simultaneous_ci_level()` inverts, computed
+    #the same way, which is what keeps the p-values consistent with the bands.
+    entry <- sup_t_entry_levels(t)
 
-      interval <- ci.out[, c(nc - 1L, nc), drop = FALSE]
-
-      all_est_above <- colSums(estimates >= interval[, 1L]) == k
-      all_est_below <- colSums(estimates <= interval[, 2L]) == k
-
-      coverage <- mean(all_est_above & all_est_below)
-
-      1 - coverage
-    }, numeric(1L))
+    p <- vapply(1 - p.values, function(level) mean(entry > level), numeric(1L))
   }
   else {
     rlang::check_installed("mvtnorm")
@@ -124,7 +152,7 @@ simultaneous_p_value <- function(object, p.values, index = seq_len(ncol(object[[
 
     p <- rep.int(0.0, length(index))
 
-    p[!zeros] <- vapply(z, function(zi) {
+    p[!zeros] <- vapply(z[!zeros], function(zi) {
       1 - mvtnorm::pmvnorm(lower = rep.int(-zi, sum(!zeros)),
                            upper = rep.int(zi, sum(!zeros)),
                            corr = v,

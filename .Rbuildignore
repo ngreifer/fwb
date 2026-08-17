@@ -13,3 +13,4 @@
 ^\.positai$
 ^\.claude$
 ^CLAUDE\.md$
+^dev$

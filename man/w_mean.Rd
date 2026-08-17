@@ -21,7 +21,7 @@ w_sd(x, w = NULL, na.rm = FALSE)
 
 w_cov(x, w = NULL, na.rm = FALSE)
 
-w_cor(x, w = NULL)
+w_cor(x, w = NULL, na.rm = FALSE)
 
 w_quantile(
   x,
@@ -94,11 +94,11 @@ Weighted transformations use the weighted mean and/or standard deviation to re-c
 \deqn{x_{c,w} = x - \bar{x}_w}}
 \item{\code{w_scale()}}{Scales the variable by its (weighted) standard deviation.
 \deqn{x_{s,w} = x / s_{x,w}}}
-\item{\code{w_std()}}{Centers and scales the variable by its (weighted) mean and standard deviation.
+\item{\code{w_std()}}{Centers and scales the variable by its (weighted) mean and (weighted) standard deviation.
 \deqn{x_{z,w} = (x - \bar{x}_w) / s_{x,w}}}
 }
 
-\code{w_scale()} and \code{w_center()} are efficient wrappers to \code{w_std()} with \code{center = FALSE} and \code{scale = FALSE}, respectively.
+\code{w_scale()} and \code{w_center()} are wrappers to \code{w_std()} with \code{center = FALSE} and \code{scale = FALSE}, respectively.
 }
 }
 \examples{
@@ -123,7 +123,7 @@ ate_est <- function(data, w) {
   c(m0 = m0, m1 = m1, ATE = m1 - m0)
 }
 
-set.seed(123, "L'Ecuyer-CMRG")
+set.seed(123)
 boot_est <- fwb(lalonde, statistic = ate_est,
                 R = 199, verbose = FALSE)
 summary(boot_est)

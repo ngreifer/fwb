@@ -27,13 +27,13 @@ fwb(
 )
 }
 \arguments{
-\item{data}{the dataset used to compute the statistic}
+\item{data}{the dataset used to compute the statistic; must contain more than one unit}
 
-\item{statistic}{a function, which, when applied to \code{data}, returns a vector containing the statistic(s) of interest. The function should take at least two arguments; the first argument should correspond to the dataset and the second argument should correspond to a vector of weights. Any further arguments can be passed to \code{statistic} through the \code{...} argument.}
+\item{statistic}{a function, which, when applied to \code{data}, returns a vector containing the statistic(s) of interest. The function should take at least two arguments; the first argument should correspond to the dataset and the second argument should correspond to a vector of weights. Any further arguments can be passed to \code{statistic} through the \code{...} argument, but they cannot share a name with an argument of \code{fwb()}, which would claim them instead. These requirements are checked unless \code{statistic} has a \code{...} argument, in which case no assumption is made about what it accepts.}
 
-\item{R}{the number of bootstrap replicates. Default is 999 but more is always better. For the percentile bootstrap confidence interval to be exact, it can be beneficial to use one less than a multiple of 100.}
+\item{R}{the number of bootstrap replicates. Default is 999 but more is always better. For the percentile bootstrap confidence interval to be exact, it can be beneficial to use one less than a multiple of 100. When \code{wtype = "multinom"} and \code{R} is at least the number of distinct bootstrap samples of \code{data}, it is ignored; see the description of \code{"multinom"} below.}
 
-\item{cluster}{optional; a vector containing cluster membership. If supplied, will run the cluster bootstrap. See Details. Evaluated first in \code{data} and then in the global environment.}
+\item{cluster}{optional; a vector containing cluster membership. If supplied, will run the cluster bootstrap. Must contain more than one cluster. See Details. Evaluated first in \code{data} and then in the global environment.}
 
 \item{simple}{\code{logical}; if \code{TRUE}, weights will be generated on-the-fly in each bootstrap replication; if \code{FALSE}, all weights will be generated at once and then supplied to \code{statistic}. The default (\code{NULL}) sets to \code{FALSE} if \code{wtype = "multinom"} and to \code{TRUE} otherwise.}
 
@@ -45,7 +45,7 @@ fwb(
 
 \item{verbose}{\code{logical}; whether to display a progress bar. The default value, \code{NULL}, is \code{FALSE} when parallelization is used (see \code{cl} below) and \code{TRUE} otherwise. Alternatively, the \CRANpkg{progressify} package can be used to incorporate a \pkg{progressr} progress bar.}
 
-\item{cl}{a cluster object created by \pkgfun{parallel}{makeCluster}, an integer to indicate the number of child-processes (integer values are ignored on Windows) for parallel evaluations, or the string \code{"future"} to use a \code{future} backend. See the \code{cl} argument of \pkgfun{pbapply}{pblapply} for details. If \code{NULL}, no parallelization will take place. See the section "Parallel Processing" in Details.}
+\item{cl}{a cluster object created by \pkgfun{parallel}{makeCluster}, an integer to indicate the number of child-processes (integer values are ignored on Windows) for parallel evaluations, or the string \code{"future"} to use a \code{future} backend. See the \code{cl} argument of \pkgfun{pbapply}{pblapply} for details. If \code{NULL}, no parallelization will take place. Alternatively, the \CRANpkg{futurize} package can be used to incorporate a \code{future} backend. See the section "Parallel Processing" in Details.}
 
 \item{...}{other arguments passed to \code{statistic}.}
 
@@ -60,14 +60,15 @@ An \verb{<fwb>} object, which also inherits from \verb{<boot>}, with the followi
 
 \item{t0}{The observed value of \code{statistic} applied to \code{data} with uniform weights.}
 \item{t}{A matrix with \code{R} rows, each of which is a bootstrap replicate of the result of calling \code{statistic}.}
-\item{R}{The value of \code{R} as passed to \code{fwb()}.}
+\item{R}{The value of \code{R} as passed to \code{fwb()}, except in the exhaustive multinomial case described under \code{"multinom"} below, where it is the number of distinct bootstrap samples.}
 \item{data}{The \code{data} as passed to \code{fwb()}.}
-\item{seed}{The value of \code{.Random.seed} just prior to generating the weights (after the first call to \code{statistic} with uniform weights).}
 \item{statistic}{The function \code{statistic} as passed to \code{fwb()}.}
 \item{call}{The original call to \code{fwb()}.}
 \item{cluster}{The vector passed to \code{cluster}, if any.}
 \item{strata}{The vector passed to \code{strata}, if any.}
 \item{wtype}{The type of weights used as determined by the \code{wtype} argument.}
+
+The seed (when \code{simple = FALSE}) or seeds (when \code{simple = TRUE}) used to re-generate the weights is stored in the \code{"seeds"} attribute of the returned object. In the exhaustive multinomial case described under \code{"multinom"} below, no random numbers are used and the \code{"exhaustive"} attribute is \code{TRUE}.
 
 \verb{<fwb>} objects have \code{\link[=coef]{coef()}} and \code{\link[=vcov]{vcov()}} methods, which extract the \code{t0} component and covariance of the \code{t} components, respectively.
 }
@@ -79,11 +80,13 @@ An \verb{<fwb>} object, which also inherits from \verb{<boot>}, with the followi
 
 When fitting binomial regression models (e.g., logistic) using \code{\link[=glm]{glm()}}, it may be useful to change the \code{family} to a "quasi" variety (e.g., \code{\link[=quasibinomial]{quasibinomial()}}) to avoid a spurious warning about "non-integer #successes".
 
-The cluster bootstrap can be requested by supplying a vector of cluster membership to \code{cluster}. Rather than generating a weight for each unit, a weight is generated for each cluster and then applied to all units in that cluster.
+The cluster/block bootstrap can be requested by supplying a vector of cluster membership to \code{cluster}. Rather than generating a weight for each unit, a weight is generated for each cluster and then applied to all units in that cluster.
 
 Bootstrapping can be performed within strata by supplying a vector of stratum membership to \code{strata}. This essentially rescales the weights within each stratum to have a mean of 1, ensuring that the sum of weights in each stratum is equal to the stratum size. For multinomial weights, using strata is equivalent to drawing samples with replacement from each stratum. Strata do not affect bootstrapping when using Poisson weights.
 
-Ideally, \code{statistic} should not involve a random element, or else it will not be straightforward to replicate the bootstrap results using the \code{seed} included in the output object. Setting a seed using \code{\link[=set.seed]{set.seed()}} is always advised. See \code{vignette("fwb-rep")} for details.
+The bootstrap weights depend only on the state of the random number generator when \code{fwb()} is called, so calling \code{\link[=set.seed]{set.seed()}} beforehand is all that is required to make a run reproducible. In particular, the weights do not depend on \code{cl}, on the number of workers, on \code{verbose}, or on whether \code{statistic} itself draws random numbers, and no particular \code{\link[=RNGkind]{RNGkind()}} is required. See \code{vignette("fwb-rep")} for details.
+
+Note that \code{simple} does affect the weights: \code{simple = FALSE} draws them in a single call before \code{statistic} is applied, whereas \code{simple = TRUE} draws each replicate's weights from a random number stream reserved for that replicate. Both are reproducible, but they are not interchangeable, so you will get different results depending on whether \code{simple} is \code{TRUE} or \code{FALSE}. It's recommended to leave \code{simple} at its default value.
 
 The \code{print()} method displays the value of the statistics, the bias (the difference between the statistic and the mean of its bootstrap distribution), and the standard error (the standard deviation of the bootstrap distribution).
 \subsection{Weight types}{
@@ -96,6 +99,8 @@ Draws weights from an exponential distribution with rate parameter 1 using \code
 }
 \item{\code{"multinom"}}{
 Draws integer weights using \code{\link[=sample]{sample()}}, which samples unit indices with replacement and uses the tabulation of the indices as frequency weights. This is equivalent to drawing weights from a multinomial distribution. Using \code{wtype = "multinom"} is the same as using \code{boot::boot(., stype = "f")} instead of \code{fwb()} (i.e., the resulting estimates will be identical). When \code{strata} is supplied, unit indices are drawn with replacement within each stratum so that the sum of the weights in each stratum is equal to the stratum size.
+
+Unlike the other weight types, the multinomial weights have only finitely many possible values: there are \eqn{n^n} distinct bootstrap samples of \eqn{n} units (or \eqn{\prod_s n_s^{n_s}} with strata, and computed at the cluster level when \code{cluster} is supplied). When \code{R} is at least that many, \code{fwb()} enumerates every one of them exactly once instead of sampling, sets \code{R} to that number, and reports this in a message. The resulting estimates are then the exact bootstrap distribution rather than a sample from it, and they no longer depend on the seed. This is the one respect in which \code{wtype = "multinom"} differs from \code{boot::boot(., stype = "f")}, which always samples; it only applies to very small samples, as \eqn{n = 6} already has 46656 distinct samples.
 }
 \item{\code{"poisson"}}{
 Draws integer weights from a Poisson distribution with \eqn{\lambda = 1} using \code{\link[=rpois]{rpois()}}. This is an alternative to the multinomial weights that yields similar estimates (especially as the sample size grows) but can be faster. Note \code{strata} is ignored when using \code{"poisson"}.
@@ -116,7 +121,13 @@ Draws weights from a \eqn{\text{Beta}(\sqrt{2} - 1, 1)} distribution using \code
 
 \subsection{Parallel Processing}{
 
-To speed up evaluation, parallel processing can be enabled. One way to do so is to supply an argument to \code{cl}. This can be either an integer (not available on Windows), a cluster object created by \pkgfun{parallel}{makeCluster}, or the string \code{"future"}. Another general way is to use functionality in the \CRANpkg{futurize} package, which is compatible with \pkg{fwb}. See \code{vignette("futurize-81-fwb", package = "futurize")} for details. See also \code{vignette("fwb-rep")} for information on replicability with (and without) parallel processing.
+To speed up evaluation, parallel processing can be enabled. One way to do so is to supply an argument to \code{cl}. This can be either an integer (not available on Windows), a \verb{<cluster>} object created by \pkgfun{parallel}{makeCluster}, or the string \code{"future"} (combined with setting a parallelization scheme with \pkgfun{future}{plan}. Another general way is to use functionality in the \CRANpkg{futurize} package, which is compatible with \pkg{fwb}. See \code{vignette("futurize-81-fwb", package = "futurize")} for details.
+
+Parallel processing does not change the results: the same seed gives the same bootstrap replicates whatever \code{cl} is set to. See \code{vignette("fwb-rep")} for details.
+
+When \code{cl} is a \verb{<cluster>} object, \pkg{fwb} is attached on each worker so that the \verb{w_*()} functions (e.g., \code{\link[=w_mean]{w_mean()}}, \code{\link[=w_std]{w_std()}}) can be used inside \code{statistic}. Other packages needed by \code{statistic} must be attached by the user, e.g., with \pkgfun{parallel}{clusterEvalQ}.
+
+When parallel processing is used, a \CRANpkg{progressr} progress bar via the \CRANpkg{progressify} package requires a \pkg{future} backend (i.e., \code{cl = "future"} or the \code{futurize()} pipe); with other values of \code{cl} no progress is reported. The \pkg{pbapply} progress bar controlled by \code{verbose} works with all of them, but may slow down evaluation and so is not recommended. \pkg{progressify} progress bars work as normal with no parallelization.
 }
 }
 \section{Methods (by generic)}{
@@ -128,7 +139,7 @@ To speed up evaluation, parallel processing can be enabled. One way to do so is 
 \dontshow{if (rlang::is_installed("survival")) withAutoprint(\{ # examplesIf}
 # Performing a Weibull analysis of the Bearing Cage
 # failure data as done in Xu et al. (2020)
-set.seed(123, "L'Ecuyer-CMRG")
+set.seed(123)
 data("bearingcage")
 
 weibull_est <- function(data, w) {

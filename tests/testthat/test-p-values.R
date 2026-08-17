@@ -93,8 +93,8 @@ test_that("p-values correctly invert simultaneous CIs", {
   level <- .877
   index <- 4
 
-  # check_p_value_okay(boot, ci.type = "perc", level = level, index = index,
-  #                    simultaneous = TRUE, eps = eps)
+  check_p_value_okay(boot, ci.type = "perc", level = level, index = index,
+                     simultaneous = TRUE, eps = eps)
 
   check_p_value_okay(boot, ci.type = "wald", level = level, index = index,
                      simultaneous = TRUE, eps = eps)
@@ -102,8 +102,8 @@ test_that("p-values correctly invert simultaneous CIs", {
   level <- .6
   index <- 2
 
-  # check_p_value_okay(boot, ci.type = "perc", level = level, index = index,
-  #                    simultaneous = TRUE, eps = eps)
+  check_p_value_okay(boot, ci.type = "perc", level = level, index = index,
+                     simultaneous = TRUE, eps = eps)
 
   check_p_value_okay(boot, ci.type = "wald", level = level, index = index,
                      simultaneous = TRUE, eps = eps)
