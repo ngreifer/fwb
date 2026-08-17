@@ -15,7 +15,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">fwb</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.0.9000</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.0.9001</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -85,7 +85,7 @@
 
 
 <dt id="arg-r">R<a class="anchor" aria-label="anchor" href="#arg-r"></a></dt>
-<dd><p>the number of bootstrap replications. Default is 1000 (more is better but slower).</p></dd>
+<dd><p>the number of bootstrap replications. When <code>wtype = "multinom"</code> and <code>R</code> is at least the number of distinct bootstrap samples of the clusters, every one of them is used exactly once instead and <code>R</code> is ignored; see <code><a href="fwb.html">fwb()</a></code>. Default is 1000 (more is better but slower).</p></dd>
 
 
 <dt id="arg-start">start<a class="anchor" aria-label="anchor" href="#arg-start"></a></dt>
@@ -123,7 +123,7 @@
 <dt id="arg-cl">cl<a class="anchor" aria-label="anchor" href="#arg-cl"></a></dt>
 <dd><p>a cluster object created by <code><a href="https://rdrr.io/r/parallel/makeCluster.html" class="external-link">parallel::makeCluster()</a></code>
 , an integer to indicate the number of child-processes (integer values are ignored on Windows) for parallel evaluations, or the string <code>"future"</code> to use a <code>future</code> backend. See the <code>cl</code> argument of <code><a href="https://peter.solymos.org/pbapply/reference/pbapply.html" class="external-link">pbapply::pblapply()</a></code>
- for details. If <code>NULL</code>, no parallelization will take place. See the section "Parallel Processing" in Details.</p></dd>
+ for details. If <code>NULL</code>, no parallelization will take place. Alternatively, the <a href="https://CRAN.R-project.org/package=futurize" class="external-link"><span class="pkg">futurize</span></a> package can be used to incorporate a <code>future</code> backend. See the section "Parallel Processing" in Details.</p></dd>
 
 </dl></div>
     <div class="section level2">
@@ -141,8 +141,11 @@
 <h3 id="parallel-processing">Parallel Processing<a class="anchor" aria-label="anchor" href="#parallel-processing"></a></h3>
 
 
-<p>To speed up evaluation, parallel processing can be enabled. One way to do so is to supply an argument to <code>cl</code>. This can be either an integer(not available on Windows), a cluster object created by <code><a href="https://rdrr.io/r/parallel/makeCluster.html" class="external-link">parallel::makeCluster()</a></code>
-, or the string <code>"future"</code>. Another general way is to use functionality in the <a href="https://CRAN.R-project.org/package=futurize" class="external-link"><span class="pkg">futurize</span></a> package, which is compatible with <span class="pkg">fwb</span>. See <code><a href="https://futurize.futureverse.org/articles/futurize-81-fwb.html" class="external-link">vignette("futurize-81-fwb", package = "futurize")</a></code> for details. See also <code><a href="../articles/fwb-rep.html">vignette("fwb-rep")</a></code> for information on replicability with (and without) parallel processing.</p>
+<p>To speed up evaluation, parallel processing can be enabled. One way to do so is to supply an argument to <code>cl</code>. This can be either an integer (not available on Windows), a cluster object created by <code><a href="https://rdrr.io/r/parallel/makeCluster.html" class="external-link">parallel::makeCluster()</a></code>
+, or the string <code>"future"</code>. Another general way is to use functionality in the <a href="https://CRAN.R-project.org/package=futurize" class="external-link"><span class="pkg">futurize</span></a> package, which is compatible with <span class="pkg">fwb</span>. See <code><a href="https://futurize.futureverse.org/articles/futurize-81-fwb.html" class="external-link">vignette("futurize-81-fwb", package = "futurize")</a></code> for details.</p>
+<p>Parallel processing does not change the results: the same seed gives the same covariance matrix whatever <code>cl</code> is set to, and calling <code><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed()</a></code> beforehand is all that is required to make a run reproducible. See <code><a href="../articles/fwb-rep.html">vignette("fwb-rep")</a></code> for details.</p>
+<p>When <code>cl</code> is a cluster object, <span class="pkg">fwb</span> is attached on each worker so that the <code>w_*()</code> functions (see <code><a href="w_mean.html">w_mean()</a></code>) can be used in the model formula. Other packages the model needs must be attached by the user, e.g., with <code><a href="https://rdrr.io/r/parallel/clusterApply.html" class="external-link">parallel::clusterEvalQ()</a></code>
+.</p>
 </div>
 
     </div>
@@ -159,19 +162,18 @@
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">123</span>, <span class="st">"L'Ecuyer-CMRG"</span><span class="op">)</span></span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">123</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"infert"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/glm.html" class="external-link">glm</a></span><span class="op">(</span><span class="va">case</span> <span class="op">~</span> <span class="va">spontaneous</span> <span class="op">+</span> <span class="va">induced</span>, data <span class="op">=</span> <span class="va">infert</span>,</span></span>
 <span class="r-in"><span>             family <span class="op">=</span> <span class="st">"binomial"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu">lmtest</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/lmtest/man/coeftest.html" class="external-link">coeftest</a></span><span class="op">(</span><span class="va">fit</span>, vcov. <span class="op">=</span> <span class="va">vcovFWB</span>, R <span class="op">=</span> <span class="fl">200</span><span class="op">)</span></span></span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>non-integer #successes in a binomial glm!</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> z test of coefficients:</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>             Estimate Std. Error z value  Pr(&gt;|z|)    </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> (Intercept) -1.70786    0.26445 -6.4581 1.060e-10 ***</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> spontaneous  1.19721    0.21868  5.4746 4.384e-08 ***</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> induced      0.41813    0.19723  2.1201     0.034 *  </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> (Intercept) -1.70786    0.25051 -6.8174 9.270e-12 ***</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> spontaneous  1.19721    0.19745  6.0634 1.333e-09 ***</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> induced      0.41813    0.19603  2.1330   0.03292 *  </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> ---</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
@@ -188,8 +190,8 @@
 <span class="r-in"><span>  <span class="st">"FWB-cluster"</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">sqrt</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/diag.html" class="external-link">diag</a></span><span class="op">(</span><span class="fu">vcovFWB</span><span class="op">(</span><span class="va">m</span>, cluster <span class="op">=</span> <span class="op">~</span><span class="va">firm</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>                     BS        FWB BS-cluster FWB-cluster</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> (Intercept) 0.02834177 0.02862498 0.07244951  0.06554226</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> x           0.02642269 0.02837431 0.04724351  0.04789381</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> (Intercept) 0.02698853 0.02807288 0.06656130  0.06624835</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> x           0.02704580 0.02774800 0.04854799  0.04914723</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Using `wtype = "multinom"` exactly reproduces</span></span></span>
 <span class="r-in"><span><span class="co"># `sandwich::vcovBS()`</span></span></span>
@@ -199,7 +201,7 @@
 <span class="r-in"><span><span class="va">f</span> <span class="op">&lt;-</span> <span class="fu">vcovFWB</span><span class="op">(</span><span class="va">m</span>, R <span class="op">=</span> <span class="fl">200</span>, wtype <span class="op">=</span> <span class="st">"multinom"</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/all.equal.html" class="external-link">all.equal</a></span><span class="op">(</span><span class="va">s</span>, <span class="va">f</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] TRUE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "Mean relative difference: 0.3294052"</span>
 <span class="r-in"><span><span class="co"># Using a custom argument to `.coef`</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">123</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"infert"</span><span class="op">)</span></span></span>
@@ -229,15 +231,15 @@
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="fu">vcovFWB</span><span class="op">(</span><span class="va">fit</span>, R <span class="op">=</span> <span class="fl">200</span>, .coef <span class="op">=</span> <span class="va">coef_multinom</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>                     6-11yrs:(Intercept)  6-11yrs:age 12+ yrs:(Intercept)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 6-11yrs:(Intercept)           7.1290604 -0.202821220           6.7927253</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 6-11yrs:age                  -0.2028212  0.005837787          -0.1923858</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 12+ yrs:(Intercept)           6.7927253 -0.192385799           7.1922051</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 12+ yrs:age                  -0.1922646  0.005504376          -0.2046696</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 6-11yrs:(Intercept)           7.8222618 -0.218836364           7.2118467</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 6-11yrs:age                  -0.2188364  0.006207432          -0.2015247</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 12+ yrs:(Intercept)           7.2118467 -0.201524717           7.4204504</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 12+ yrs:age                  -0.2003089  0.005675118          -0.2080932</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>                      12+ yrs:age</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 6-11yrs:(Intercept) -0.192264594</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 6-11yrs:age          0.005504376</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 12+ yrs:(Intercept) -0.204669617</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 12+ yrs:age          0.005897351</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 6-11yrs:(Intercept) -0.200308895</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 6-11yrs:age          0.005675118</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 12+ yrs:(Intercept) -0.208093239</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 12+ yrs:age          0.005929822</span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

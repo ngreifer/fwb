@@ -13,7 +13,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">fwb</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.0.9000</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.0.9001</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -77,19 +77,19 @@
 
 
 <dl><dt id="arg-data">data<a class="anchor" aria-label="anchor" href="#arg-data"></a></dt>
-<dd><p>the dataset used to compute the statistic</p></dd>
+<dd><p>the dataset used to compute the statistic; must contain more than one unit</p></dd>
 
 
 <dt id="arg-statistic">statistic<a class="anchor" aria-label="anchor" href="#arg-statistic"></a></dt>
-<dd><p>a function, which, when applied to <code>data</code>, returns a vector containing the statistic(s) of interest. The function should take at least two arguments; the first argument should correspond to the dataset and the second argument should correspond to a vector of weights. Any further arguments can be passed to <code>statistic</code> through the <code>...</code> argument.</p></dd>
+<dd><p>a function, which, when applied to <code>data</code>, returns a vector containing the statistic(s) of interest. The function should take at least two arguments; the first argument should correspond to the dataset and the second argument should correspond to a vector of weights. Any further arguments can be passed to <code>statistic</code> through the <code>...</code> argument, but they cannot share a name with an argument of <code>fwb()</code>, which would claim them instead. These requirements are checked unless <code>statistic</code> has a <code>...</code> argument, in which case no assumption is made about what it accepts.</p></dd>
 
 
 <dt id="arg-r">R<a class="anchor" aria-label="anchor" href="#arg-r"></a></dt>
-<dd><p>the number of bootstrap replicates. Default is 999 but more is always better. For the percentile bootstrap confidence interval to be exact, it can be beneficial to use one less than a multiple of 100.</p></dd>
+<dd><p>the number of bootstrap replicates. Default is 999 but more is always better. For the percentile bootstrap confidence interval to be exact, it can be beneficial to use one less than a multiple of 100. When <code>wtype = "multinom"</code> and <code>R</code> is at least the number of distinct bootstrap samples of <code>data</code>, it is ignored; see the description of <code>"multinom"</code> below.</p></dd>
 
 
 <dt id="arg-cluster">cluster<a class="anchor" aria-label="anchor" href="#arg-cluster"></a></dt>
-<dd><p>optional; a vector containing cluster membership. If supplied, will run the cluster bootstrap. See Details. Evaluated first in <code>data</code> and then in the global environment.</p></dd>
+<dd><p>optional; a vector containing cluster membership. If supplied, will run the cluster bootstrap. Must contain more than one cluster. See Details. Evaluated first in <code>data</code> and then in the global environment.</p></dd>
 
 
 <dt id="arg-simple">simple<a class="anchor" aria-label="anchor" href="#arg-simple"></a></dt>
@@ -115,7 +115,7 @@
 <dt id="arg-cl">cl<a class="anchor" aria-label="anchor" href="#arg-cl"></a></dt>
 <dd><p>a cluster object created by <code><a href="https://rdrr.io/r/parallel/makeCluster.html" class="external-link">parallel::makeCluster()</a></code>
 , an integer to indicate the number of child-processes (integer values are ignored on Windows) for parallel evaluations, or the string <code>"future"</code> to use a <code>future</code> backend. See the <code>cl</code> argument of <code><a href="https://peter.solymos.org/pbapply/reference/pbapply.html" class="external-link">pbapply::pblapply()</a></code>
- for details. If <code>NULL</code>, no parallelization will take place. See the section "Parallel Processing" in Details.</p></dd>
+ for details. If <code>NULL</code>, no parallelization will take place. Alternatively, the <a href="https://CRAN.R-project.org/package=futurize" class="external-link"><span class="pkg">futurize</span></a> package can be used to incorporate a <code>future</code> backend. See the section "Parallel Processing" in Details.</p></dd>
 
 
 <dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>
@@ -144,13 +144,10 @@
 <dd><p>A matrix with <code>R</code> rows, each of which is a bootstrap replicate of the result of calling <code>statistic</code>.</p></dd>
 
 <dt>R</dt>
-<dd><p>The value of <code>R</code> as passed to <code>fwb()</code>.</p></dd>
+<dd><p>The value of <code>R</code> as passed to <code>fwb()</code>, except in the exhaustive multinomial case described under <code>"multinom"</code> below, where it is the number of distinct bootstrap samples.</p></dd>
 
 <dt>data</dt>
 <dd><p>The <code>data</code> as passed to <code>fwb()</code>.</p></dd>
-
-<dt>seed</dt>
-<dd><p>The value of <code>.Random.seed</code> just prior to generating the weights (after the first call to <code>statistic</code> with uniform weights).</p></dd>
 
 <dt>statistic</dt>
 <dd><p>The function <code>statistic</code> as passed to <code>fwb()</code>.</p></dd>
@@ -168,15 +165,17 @@
 <dd><p>The type of weights used as determined by the <code>wtype</code> argument.</p></dd>
 
 
-</dl><p><code>&lt;fwb&gt;</code> objects have <code><a href="https://rdrr.io/r/stats/coef.html" class="external-link">coef()</a></code> and <code><a href="https://rdrr.io/r/stats/vcov.html" class="external-link">vcov()</a></code> methods, which extract the <code>t0</code> component and covariance of the <code>t</code> components, respectively.</p>
+</dl><p>The seed (when <code>simple = FALSE</code>) or seeds (when <code>simple = TRUE</code>) used to re-generate the weights is stored in the <code>"seeds"</code> attribute of the returned object. In the exhaustive multinomial case described under <code>"multinom"</code> below, no random numbers are used and the <code>"exhaustive"</code> attribute is <code>TRUE</code>.</p>
+<p><code>&lt;fwb&gt;</code> objects have <code><a href="https://rdrr.io/r/stats/coef.html" class="external-link">coef()</a></code> and <code><a href="https://rdrr.io/r/stats/vcov.html" class="external-link">vcov()</a></code> methods, which extract the <code>t0</code> component and covariance of the <code>t</code> components, respectively.</p>
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
     <p><code>fwb()</code> implements the fractional weighted bootstrap and is meant to function as a drop-in for <code>boot::boot(., stype = "f")</code> (i.e., the usual bootstrap but with frequency weights representing the number of times each unit is drawn). In each bootstrap replication, when <code>wtype = "exp"</code> (the default), the weights are sampled from independent exponential distributions with rate parameter 1 and then normalized to have a mean of 1, equivalent to drawing the weights from a Dirichlet distribution. Other weights are allowed as determined by the <code>wtype</code> argument (see below for details). The function supplied to <code>statistic</code> must incorporate the weights to compute a weighted statistic. For example, if the output is a regression coefficient, the weights supplied to the <code>w</code> argument of <code>statistic</code> should be supplied to the <code>weights</code> argument of <code><a href="https://rdrr.io/r/stats/lm.html" class="external-link">lm()</a></code>. These weights should be used any time frequency weights would be, since they are meant to function like frequency weights (which, in the case of the traditional bootstrap, would be integers). Unfortunately, there is no way for <code>fwb()</code> to know whether you are using the weights correctly, so care should be taken to ensure weights are correctly incorporated into the estimator.</p>
 <p>When fitting binomial regression models (e.g., logistic) using <code><a href="https://rdrr.io/r/stats/glm.html" class="external-link">glm()</a></code>, it may be useful to change the <code>family</code> to a "quasi" variety (e.g., <code><a href="https://rdrr.io/r/stats/family.html" class="external-link">quasibinomial()</a></code>) to avoid a spurious warning about "non-integer #successes".</p>
-<p>The cluster bootstrap can be requested by supplying a vector of cluster membership to <code>cluster</code>. Rather than generating a weight for each unit, a weight is generated for each cluster and then applied to all units in that cluster.</p>
+<p>The cluster/block bootstrap can be requested by supplying a vector of cluster membership to <code>cluster</code>. Rather than generating a weight for each unit, a weight is generated for each cluster and then applied to all units in that cluster.</p>
 <p>Bootstrapping can be performed within strata by supplying a vector of stratum membership to <code>strata</code>. This essentially rescales the weights within each stratum to have a mean of 1, ensuring that the sum of weights in each stratum is equal to the stratum size. For multinomial weights, using strata is equivalent to drawing samples with replacement from each stratum. Strata do not affect bootstrapping when using Poisson weights.</p>
-<p>Ideally, <code>statistic</code> should not involve a random element, or else it will not be straightforward to replicate the bootstrap results using the <code>seed</code> included in the output object. Setting a seed using <code><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed()</a></code> is always advised. See <code><a href="../articles/fwb-rep.html">vignette("fwb-rep")</a></code> for details.</p>
+<p>The bootstrap weights depend only on the state of the random number generator when <code>fwb()</code> is called, so calling <code><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed()</a></code> beforehand is all that is required to make a run reproducible. In particular, the weights do not depend on <code>cl</code>, on the number of workers, on <code>verbose</code>, or on whether <code>statistic</code> itself draws random numbers, and no particular <code><a href="https://rdrr.io/r/base/Random.html" class="external-link">RNGkind()</a></code> is required. See <code><a href="../articles/fwb-rep.html">vignette("fwb-rep")</a></code> for details.</p>
+<p>Note that <code>simple</code> does affect the weights: <code>simple = FALSE</code> draws them in a single call before <code>statistic</code> is applied, whereas <code>simple = TRUE</code> draws each replicate's weights from a random number stream reserved for that replicate. Both are reproducible, but they are not interchangeable, so you will get different results depending on whether <code>simple</code> is <code>TRUE</code> or <code>FALSE</code>. It's recommended to leave <code>simple</code> at its default value.</p>
 <p>The <code><a href="https://rdrr.io/r/base/print.html" class="external-link">print()</a></code> method displays the value of the statistics, the bias (the difference between the statistic and the mean of its bootstrap distribution), and the standard error (the standard deviation of the bootstrap distribution).</p><div class="section">
 <h3 id="weight-types">Weight types<a class="anchor" aria-label="anchor" href="#weight-types"></a></h3>
 
@@ -186,7 +185,8 @@
 <dd><p>Draws weights from an exponential distribution with rate parameter 1 using <code><a href="https://rdrr.io/r/stats/Exponential.html" class="external-link">rexp()</a></code>. These weights are the usual "Bayesian bootstrap" weights described in Xu et al. (2020). They are equivalent to drawing weights from a uniform Dirichlet distribution, which is what gives these weights the interpretation of a Bayesian prior. These positive weights have a mean and variance of 1 and skewness of 2. The weights are scaled to have a mean of 1 within each stratum (or in the full sample if <code>strata</code> is not supplied).</p></dd>
 
 <dt><code>"multinom"</code></dt>
-<dd><p>Draws integer weights using <code><a href="https://rdrr.io/r/base/sample.html" class="external-link">sample()</a></code>, which samples unit indices with replacement and uses the tabulation of the indices as frequency weights. This is equivalent to drawing weights from a multinomial distribution. Using <code>wtype = "multinom"</code> is the same as using <code>boot::boot(., stype = "f")</code> instead of <code>fwb()</code> (i.e., the resulting estimates will be identical). When <code>strata</code> is supplied, unit indices are drawn with replacement within each stratum so that the sum of the weights in each stratum is equal to the stratum size.</p></dd>
+<dd><p>Draws integer weights using <code><a href="https://rdrr.io/r/base/sample.html" class="external-link">sample()</a></code>, which samples unit indices with replacement and uses the tabulation of the indices as frequency weights. This is equivalent to drawing weights from a multinomial distribution. Using <code>wtype = "multinom"</code> is the same as using <code>boot::boot(., stype = "f")</code> instead of <code>fwb()</code> (i.e., the resulting estimates will be identical). When <code>strata</code> is supplied, unit indices are drawn with replacement within each stratum so that the sum of the weights in each stratum is equal to the stratum size.</p>
+<p>Unlike the other weight types, the multinomial weights have only finitely many possible values: there are \(n^n\) distinct bootstrap samples of \(n\) units (or \(\prod_s n_s^{n_s}\) with strata, and computed at the cluster level when <code>cluster</code> is supplied). When <code>R</code> is at least that many, <code>fwb()</code> enumerates every one of them exactly once instead of sampling, sets <code>R</code> to that number, and reports this in a message. The resulting estimates are then the exact bootstrap distribution rather than a sample from it, and they no longer depend on the seed. This is the one respect in which <code>wtype = "multinom"</code> differs from <code>boot::boot(., stype = "f")</code>, which always samples; it only applies to very small samples, as \(n = 6\) already has 46656 distinct samples.</p></dd>
 
 <dt><code>"poisson"</code></dt>
 <dd><p>Draws integer weights from a Poisson distribution with \(\lambda = 1\) using <code><a href="https://rdrr.io/r/stats/Poisson.html" class="external-link">rpois()</a></code>. This is an alternative to the multinomial weights that yields similar estimates (especially as the sample size grows) but can be faster. Note <code>strata</code> is ignored when using <code>"poisson"</code>.</p></dd>
@@ -208,8 +208,13 @@
 <h3 id="parallel-processing">Parallel Processing<a class="anchor" aria-label="anchor" href="#parallel-processing"></a></h3>
 
 
-<p>To speed up evaluation, parallel processing can be enabled. One way to do so is to supply an argument to <code>cl</code>. This can be either an integer (not available on Windows), a cluster object created by <code><a href="https://rdrr.io/r/parallel/makeCluster.html" class="external-link">parallel::makeCluster()</a></code>
-, or the string <code>"future"</code>. Another general way is to use functionality in the <a href="https://CRAN.R-project.org/package=futurize" class="external-link"><span class="pkg">futurize</span></a> package, which is compatible with <span class="pkg">fwb</span>. See <code><a href="https://futurize.futureverse.org/articles/futurize-81-fwb.html" class="external-link">vignette("futurize-81-fwb", package = "futurize")</a></code> for details. See also <code><a href="../articles/fwb-rep.html">vignette("fwb-rep")</a></code> for information on replicability with (and without) parallel processing.</p>
+<p>To speed up evaluation, parallel processing can be enabled. One way to do so is to supply an argument to <code>cl</code>. This can be either an integer (not available on Windows), a <code>&lt;cluster&gt;</code> object created by <code><a href="https://rdrr.io/r/parallel/makeCluster.html" class="external-link">parallel::makeCluster()</a></code>
+, or the string <code>"future"</code> (combined with setting a parallelization scheme with <code><a href="https://future.futureverse.org/reference/plan.html" class="external-link">future::plan()</a></code>
+. Another general way is to use functionality in the <a href="https://CRAN.R-project.org/package=futurize" class="external-link"><span class="pkg">futurize</span></a> package, which is compatible with <span class="pkg">fwb</span>. See <code><a href="https://futurize.futureverse.org/articles/futurize-81-fwb.html" class="external-link">vignette("futurize-81-fwb", package = "futurize")</a></code> for details.</p>
+<p>Parallel processing does not change the results: the same seed gives the same bootstrap replicates whatever <code>cl</code> is set to. See <code><a href="../articles/fwb-rep.html">vignette("fwb-rep")</a></code> for details.</p>
+<p>When <code>cl</code> is a <code>&lt;cluster&gt;</code> object, <span class="pkg">fwb</span> is attached on each worker so that the <code>w_*()</code> functions (e.g., <code><a href="w_mean.html">w_mean()</a></code>, <code><a href="w_mean.html">w_std()</a></code>) can be used inside <code>statistic</code>. Other packages needed by <code>statistic</code> must be attached by the user, e.g., with <code><a href="https://rdrr.io/r/parallel/clusterApply.html" class="external-link">parallel::clusterEvalQ()</a></code>
+.</p>
+<p>When parallel processing is used, a <a href="https://CRAN.R-project.org/package=progressr" class="external-link"><span class="pkg">progressr</span></a> progress bar via the <a href="https://CRAN.R-project.org/package=progressify" class="external-link"><span class="pkg">progressify</span></a> package requires a <span class="pkg">future</span> backend (i.e., <code>cl = "future"</code> or the <code>futurize()</code> pipe); with other values of <code>cl</code> no progress is reported. The <span class="pkg">pbapply</span> progress bar controlled by <code>verbose</code> works with all of them, but may slow down evaluation and so is not recommended. <span class="pkg">progressify</span> progress bars work as normal with no parallelization.</p>
 </div>
 
     </div>
@@ -242,7 +247,7 @@
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># Performing a Weibull analysis of the Bearing Cage</span></span></span>
 <span class="r-in"><span><span class="co"># failure data as done in Xu et al. (2020)</span></span></span>
-<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">123</span>, <span class="st">"L'Ecuyer-CMRG"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">123</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"bearingcage"</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="va">weibull_est</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">data</span>, <span class="va">w</span><span class="op">)</span> <span class="op">{</span></span></span>
@@ -263,15 +268,15 @@
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Bootstrap Statistics :</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>          original         bias   std. error</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> eta  11792.178173 6576.7323747 2.102547e+04</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> beta     2.035319    0.2416885 8.668478e-01</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> eta  11792.178173 7240.2183068 2.243515e+04</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> beta     2.035319    0.2665026 9.365437e-01</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co">#Get standard errors and CIs; uses bias-corrected</span></span></span>
 <span class="r-in"><span><span class="co">#percentile CI by default</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">boot_est</span>, ci.type <span class="op">=</span> <span class="st">"bc"</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>      Estimate Std. Error CI 2.5 % CI 97.5 %</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> eta  1.18e+04   2.10e+04 3.08e+03  6.83e+04</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> beta 2.04e+00   8.67e-01 1.23e+00  4.66e+00</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> eta  1.18e+04   2.24e+04 3.35e+03  8.33e+04</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> beta 2.04e+00   9.37e-01 1.17e+00  4.17e+00</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co">#Plot statistic distributions</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">boot_est</span>, index <span class="op">=</span> <span class="st">"beta"</span>, type <span class="op">=</span> <span class="st">"hist"</span><span class="op">)</span></span></span>

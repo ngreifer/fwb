@@ -20,7 +20,7 @@ w_sd(x, w = NULL, na.rm = FALSE)
 
 w_cov(x, w = NULL, na.rm = FALSE)
 
-w_cor(x, w = NULL)
+w_cor(x, w = NULL, na.rm = FALSE)
 
 w_quantile(
   x,
@@ -162,10 +162,10 @@ to re-center or re-scale the given variable. In the formulas below,
 
 - `w_std()`:
 
-  Centers and scales the variable by its (weighted) mean and standard
-  deviation. \$\$x\_{z,w} = (x - \bar{x}\_w) / s\_{x,w}\$\$
+  Centers and scales the variable by its (weighted) mean and (weighted)
+  standard deviation. \$\$x\_{z,w} = (x - \bar{x}\_w) / s\_{x,w}\$\$
 
-`w_scale()` and `w_center()` are efficient wrappers to `w_std()` with
+`w_scale()` and `w_center()` are wrappers to `w_std()` with
 `center = FALSE` and `scale = FALSE`, respectively.
 
 ## See also
@@ -214,14 +214,14 @@ ate_est <- function(data, w) {
   c(m0 = m0, m1 = m1, ATE = m1 - m0)
 }
 
-set.seed(123, "L'Ecuyer-CMRG")
+set.seed(123)
 boot_est <- fwb(lalonde, statistic = ate_est,
                 R = 199, verbose = FALSE)
 summary(boot_est)
 #>     Estimate Std. Error CI 2.5 % CI 97.5 %
-#> m0      6296        344     5587      6978
-#> m1      7371        974     5702      9688
-#> ATE     1075        987     -672      3167
+#> m0      6296        383     5575      7002
+#> m1      7371        980     5576      9807
+#> ATE     1075       1048     -548      3900
 
 # Using `w_*()` data transformations inside a model
 # supplied to vcovFWB():
@@ -233,10 +233,10 @@ lmtest::coeftest(fit, vcov = vcovFWB, R = 500)
 #> t test of coefficients:
 #> 
 #>                     Estimate Std. Error t value Pr(>|t|)    
-#> (Intercept)         6934.358    366.357 18.9279  < 2e-16 ***
-#> treat               -436.121    682.525 -0.6390  0.52307    
-#> w_center(age)         74.667     37.289  2.0024  0.04569 *  
-#> treat:w_center(age)   21.710     72.651  0.2988  0.76517    
+#> (Intercept)         6934.358    328.802 21.0898  < 2e-16 ***
+#> treat               -436.121    674.748 -0.6463  0.51830    
+#> w_center(age)         74.667     35.295  2.1155  0.03479 *  
+#> treat:w_center(age)   21.710     72.817  0.2982  0.76569    
 #> ---
 #> Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
 #> 

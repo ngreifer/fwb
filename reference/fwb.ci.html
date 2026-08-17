@@ -13,7 +13,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">fwb</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.0.9000</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.0.9001</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -146,7 +146,7 @@ This method is valid when the statistic is normally distributed around the estim
 <dt><code>"bca"</code> (bias-corrected and accelerated confidence interval)</dt>
 <dd><p>$$\left[t^{(l)}, t^{(u)}\right]$$</p>
 <p>\(l = \Phi\left(z_0 + \frac{z_0 + z_\frac{\alpha}{2}}{1-a(z_0+z_\frac{\alpha}{2})}\right)\), \(u = \Phi\left(z_0 + \frac{z_0 + z_{1-\frac{\alpha}{2}}}{1-a(z_0+z_{1-\frac{\alpha}{2}})}\right)\), using the same definitions as above, but with the additional acceleration parameter \(a\), where \(a = \frac{1}{6}\frac{\sum{L^3}}{(\sum{L^2})^{3/2}}\). \(L\) is the empirical influence value of each unit, which is computed using the regression method described in <code><a href="https://rdrr.io/pkg/boot/man/empinf.html" class="external-link">boot::empinf()</a></code>
-. When \(a=0\), the <code>"bca"</code> and <code>"bc"</code> intervals coincide. The acceleration parameter corrects for bias and skewness in the statistic. It can only be used when clusters are absent and the number of bootstrap replications is larger than the sample size. Note that BCa intervals cannot be requested when <code>simple = TRUE</code> and there is randomness in the <code>statistic</code> supplied to <code><a href="fwb.html">fwb()</a></code>.</p></dd>
+. When \(a=0\), the <code>"bca"</code> and <code>"bc"</code> intervals coincide. The acceleration parameter corrects for bias and skewness in the statistic. It can only be used when clusters are absent and the number of bootstrap replications is larger than the sample size.</p></dd>
 
 
 </dl><p>Interpolation on the normal quantile scale is used when a non-integer order statistic is required, as in <code><a href="https://rdrr.io/pkg/boot/man/boot.ci.html" class="external-link">boot::boot.ci()</a></code>. Note that unlike with <code><a href="https://rdrr.io/pkg/boot/man/boot.ci.html" class="external-link">boot::boot.ci()</a></code>
@@ -176,7 +176,7 @@ This method is valid when the statistic is normally distributed around the estim
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">123</span>, <span class="st">"L'Ecuyer-CMRG"</span><span class="op">)</span></span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">123</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"infert"</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="va">fit_fun</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">data</span>, <span class="va">w</span><span class="op">)</span> <span class="op">{</span></span></span>
@@ -201,7 +201,7 @@ This method is valid when the statistic is normally distributed around the estim
 <span class="r-out co"><span class="r-pr">#&gt;</span> Intervals :</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Level BC Percentile </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  95%  (0.745, 1.638)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  95%  (0.767, 1.590)</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Calculations and Intervals on Original Scale</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Some bias-corrected percentile intervals may be unstable</span>
@@ -211,7 +211,7 @@ This method is valid when the statistic is normally distributed around the estim
 <span class="r-in"><span><span class="fu"><a href="get_ci.html">get_ci</a></span><span class="op">(</span><span class="va">bcci</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $bc</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>         L         U </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 0.7453669 1.6378339 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 0.7669207 1.5897374 </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> attr(,"conf")</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.95</span>
@@ -229,7 +229,7 @@ This method is valid when the statistic is normally distributed around the estim
 <span class="r-out co"><span class="r-pr">#&gt;</span> Intervals :</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Level     Normal    </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  95%  (1.029, 2.232)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  95%  (1.041, 2.237)</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Calculations on Original Scale but Intervals Transformed</span>
 </code></pre></div>

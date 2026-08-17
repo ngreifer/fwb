@@ -26,7 +26,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">fwb</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.0.9000</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.0.9001</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -71,202 +71,247 @@
 
     
     
-<p>Reproducibility ensures re-running the same analysis yields identical
-results. Because a random process is involved in generating the
-bootstrap weights with <code><a href="../reference/fwb.html">fwb::fwb()</a></code>, steps must be taken to
-ensure reproducibility is possible.</p>
-<p>There are a few arguments to <code><a href="../reference/fwb.html">fwb()</a></code> that are relevant for
-reproducibility. These are <code>statistic</code>, <code>simple</code>,
-and <code>cl</code>.</p>
-<ul>
-<li><p><code>statistic</code> is the function that is applied to each
-bootstrap dataset and returns the quantities of interest to be
-estimated. It can either have a random component or not; each case
-requires special attention. It is always safer to avoid having a random
-component in <code>statistic</code>. Most common regression functions to
-do not involve a random component, but some advanced models, like
-machine learning models, may. Do not ever include a call to
-<code><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed()</a></code> or supply a seed to <code>statistic</code>. If
-you are using parallelization for <code><a href="../reference/fwb.html">fwb()</a></code>, do not use
-parallelization within <code>statistic</code>.</p></li>
-<li><p><code>simple</code> controls whether the bootstrap weights are
-generated all at once (<code>simple = FALSE</code>) or generated
-separately within each bootstrap iteration (<code>simple = TRUE</code>).
-When <code>simple = FALSE</code>, the weights are generated before any
-parallelization takes place or <code>statistic</code> is called, which
-makes ensuring reproducibility more straightforward. When
-<code>simple = TRUE</code>, the weights are generated before the call to
-<code>statistic</code> in each bootstrap iteration, which can make it a
-bit more challenging to ensure reproducibility when using
-parallelization and adds even more challenges when
-<code>statistic</code> also has a random component.</p></li>
-<li><p><code>cl</code> controls whether and how parallelization takes
-place. It is passed directly to <code><a href="https://peter.solymos.org/pbapply/reference/pbapply.html" class="external-link">pbapply::pblapply()</a></code>, which
-calls either <code><a href="https://rdrr.io/r/parallel/mclapply.html" class="external-link">parallel::mclapply()</a></code>,
-<code><a href="https://rdrr.io/r/parallel/clusterApply.html" class="external-link">parallel::parLapply()</a></code>, or
-<code><a href="https://future.apply.futureverse.org/reference/future_lapply.html" class="external-link">future.apply::future_lapply()</a></code>, depending on how it is
-specified. The usual arguments include an integer referring to the
-number of cores, which only works on Mac and triggers
-<code><a href="https://rdrr.io/r/parallel/mclapply.html" class="external-link">parallel::mclapply()</a></code>; a <code>cluster</code> object
-(usually the result of a call to <code><a href="https://rdrr.io/r/parallel/makeCluster.html" class="external-link">parallel::makeCluster()</a></code> or
-related functions), which triggers <code><a href="https://rdrr.io/r/parallel/clusterApply.html" class="external-link">parallel::parLapply()</a></code>;
-or <code>"future"</code>, which uses a <code>future</code> backend
-(usually initialized using <code><a href="https://future.futureverse.org/reference/plan.html" class="external-link">future::plan()</a></code>). Each of these
-involves different requirements for ensuring reproducibility.</p></li>
-</ul>
-<p>This guide will proceed for combinations of these scenarios.</p>
-<div class="section level3">
-<h3 id="case-1">Case 1: No parallelization (<code>cl = NULL</code>)<a class="anchor" aria-label="anchor" href="#case-1"></a>
-</h3>
-<p>When no parallelization is used (i.e., <code>cl</code> is
-unspecified, <code>NULL</code>, or <code>1</code>), all you need to do
-is call <code><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed()</a></code> before <code><a href="../reference/fwb.html">fwb()</a></code> to ensure
-reproducibility. It doesn’t matter what <code>simple</code> or
-<code>statistic</code> do. This is probably the most common case. Just
-run the following to ensure reproducibility, replacing <code>{N}</code>
-with your favorite integer.</p>
+<p>Reproducibility means that re-running the same analysis yields
+identical results. Because bootstrap weights are drawn at random, this
+takes some care in general. In <em>fwb</em>, it is as simple as setting
+the seed prior to calling <code><a href="../reference/fwb.html">fwb()</a></code> or
+<code><a href="../reference/vcovFWB.html">vcovFWB()</a></code>.</p>
+<div class="section level2">
+<h2 id="the-short-version">The short version<a class="anchor" aria-label="anchor" href="#the-short-version"></a>
+</h2>
+<p>Call <code><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed()</a></code> before <code><a href="../reference/fwb.html">fwb()</a></code>, replacing
+<code>{N}</code> with your favorite integer:</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="op">{</span><span class="va">N</span><span class="op">}</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">f.out</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/fwb.html">fwb</a></span><span class="op">(</span><span class="va">.</span><span class="op">)</span></span></code></pre></div>
+<p>That is the whole procedure, and the same one works for
+<code><a href="../reference/vcovFWB.html">vcovFWB()</a></code>. You do not need to choose a particular random
+number generator, and you do not need to do anything differently when
+you parallelize.</p>
 </div>
-<div class="section level3">
-<h3 id="case-2">Case 2: <code>simple = FALSE</code>, non-random
-<code>statistic</code><a class="anchor" aria-label="anchor" href="#case-2"></a>
-</h3>
-<p>If <code>simple = FALSE</code> and <code>statistic</code> does not
-have a random component, see <a href="#case-1">Case 1</a>, regardless of
-whether or how parallelization is used. In this case, no random process
-occurs within each cluster, so no special steps need to be taken beyond
-setting a seed. Note that <code>simple = TRUE</code> by default unless
-<code>wtype = "multinom"</code>, so this must be set manually. See below
-for a code example:</p>
+<div class="section level2">
+<h2 id="what-is-and-is-not-guaranteed">What is and is not guaranteed<a class="anchor" aria-label="anchor" href="#what-is-and-is-not-guaranteed"></a>
+</h2>
+<p>The bootstrap weights are a function of the state of the random
+number generator when <code><a href="../reference/fwb.html">fwb()</a></code> is called. Nothing about
+<em>how</em> the work is carried out enters into them. So none of the
+following changes your results:</p>
+<ul>
+<li>the value of <code>cl</code>; no parallelization, an integer, a
+<code>cluster</code> object, or <code>"future"</code>
+</li>
+<li>the number of workers, or the <em>future</em> plan in use</li>
+<li>the value of <code>verbose</code>, i.e., whether a progress bar is
+displayed</li>
+<li>the random number generator in effect (<code><a href="https://rdrr.io/r/base/Random.html" class="external-link">RNGkind()</a></code>)</li>
+<li>whether the function supplied to <code>statistic</code> draws random
+numbers of its own</li>
+</ul>
+<p>An analysis is therefore reproducible on a machine with a different
+number of cores, or by a collaborator who prefers a different parallel
+backend. Switching from <code>cl = 2</code> to
+<code>cl = "future"</code> to inspect a slow bootstrap is free: you get
+the same numbers back.</p>
+<p>What <em>does</em> determine the results is the seed together with
+the arguments that define the bootstrap itself: <code>R</code>,
+<code>wtype</code>, <code>strata</code>, <code>cluster</code>, and
+<code>simple</code> (see below). One further exception is described
+under <a href="#futurize">Using <em>futurize</em></a>.</p>
+</div>
+<div class="section level2">
+<h2 id="why-this-works">Why this works<a class="anchor" aria-label="anchor" href="#why-this-works"></a>
+</h2>
+<p>Before any bootstrap replication runs, <code><a href="../reference/fwb.html">fwb()</a></code> reserves a
+separate random number stream for each of the <code>R</code>
+replications, and each replication draws its weights from the stream
+reserved for it. (These are L’Ecuyer-CMRG streams, generated with
+<code><a href="https://rdrr.io/r/parallel/RngStream.html" class="external-link">parallel::nextRNGStream()</a></code>.) The streams are derived from
+the calling session’s generator state, which is what
+<code><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed()</a></code> sets, and they are recorded in the returned
+object.</p>
+<p>Two useful things follow. First, the weights for a given replication
+depend on the seed and on the replication number, and not on which
+worker happened to run it or in what order, so a parallel backend cannot
+change them. Second, because the seeds used to generate the weights are
+recorded, the weights that were used can be perfectly reproduced rather
+than inferred, so <code><a href="../reference/fwb.array.html">fwb.array()</a></code> can hand them back exactly
+without needing the backend that produced them.</p>
+</div>
+<div class="section level2">
+<h2 id="what-changed-and-reproducing-older-results">What changed, and reproducing older results<a class="anchor" aria-label="anchor" href="#what-changed-and-reproducing-older-results"></a>
+</h2>
+<p><strong>Results from <em>fwb</em> 0.6.0 and earlier cannot be
+reproduced with version 0.7.0 or later</strong> when
+<code>simple = TRUE</code>, which is the default for every
+<code>wtype</code> except <code>"multinom"</code>. If you need to
+reproduce a specific earlier analysis, install the version it was run
+under. Results with <code>simple = FALSE</code> are unchanged.</p>
+<p>Before version 0.7.0, weights were drawn inside each bootstrap
+replication, from whatever random number stream the worker running it
+happened to have. That made the results depend on how the work was
+distributed, and reproducing them required arranging the workers’
+streams by hand. The guidance was correspondingly involved: it depended
+on <code>cl</code>, on <code>simple</code>, on whether
+<code>statistic</code> was random, and on <code>verbose</code>, and with
+a <code>cluster</code> object it required
+<code><a href="https://rdrr.io/r/parallel/RngStream.html" class="external-link">parallel::clusterSetRNGStream()</a></code> <em>instead of</em>
+<code><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed()</a></code>.</p>
+<p>None of that applies now, and two pieces of it are worth calling out
+because following them today would be actively counterproductive:</p>
+<ul>
+<li>
+<strong><code><a href="https://rdrr.io/r/parallel/RngStream.html" class="external-link">parallel::clusterSetRNGStream()</a></code> no longer has
+any effect on <code><a href="../reference/fwb.html">fwb()</a></code>.</strong> The workers’ own streams are
+never used to draw weights. Code that relies on it in place of
+<code><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed()</a></code> is not reproducible.</li>
+<li>
+<strong><code>set.seed(., "L'Ecuyer-CMRG")</code> is no longer
+needed.</strong> <code><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed()</a></code> with any generator is enough,
+and the choice of generator no longer affects whether parallel results
+can be reproduced. Note that different generators select different
+streams, so the same integer gives different (individually reproducible)
+results with and without the <code>kind</code> argument.</li>
+</ul>
+</div>
+<div class="section level2">
+<h2 id="the-simple-argument">The <code>simple</code> argument<a class="anchor" aria-label="anchor" href="#the-simple-argument"></a>
+</h2>
+<p><code>simple</code> controls when the weights are drawn. With
+<code>simple = FALSE</code>, the entire <code>R</code> × <em>n</em>
+weight matrix is drawn in one step before <code>statistic</code> is
+applied to anything; with <code>simple = TRUE</code>, each replication
+draws its own weights as it runs, which avoids holding the whole matrix
+in memory.</p>
+<p>Both settings are fully reproducible, and both draw from the same
+weight distribution, so either supports valid inference. But they
+consume their random number streams differently, and so
+<code>simple = TRUE</code> and <code>simple = FALSE</code> do not give
+the same replicates as each other, even with the same seed. Prior to
+version 0.7.0 they did coincide for the continuous weight types, so this
+is worth knowing if you have code that switched between them freely<a class="footnote-ref" tabindex="0" data-bs-toggle="popover" data-bs-content='&lt;p&gt;To install a prior version of &lt;em&gt;fwb&lt;/em&gt;, you can use,
+e.g., &lt;code&gt;pak::pak("fwb@0.6.0")&lt;/code&gt;&lt;/p&gt;'><sup>1</sup></a>.</p>
+<p>The default is <code>simple = TRUE</code> except when
+<code>wtype = "multinom"</code>, where <code>simple = FALSE</code> is
+used so that results match <code>boot::boot(., stype = "f")</code>
+exactly.</p>
+</div>
+<div class="section level2">
+<h2 id="bca-confidence-intervals">BCa confidence intervals<a class="anchor" aria-label="anchor" href="#bca-confidence-intervals"></a>
+</h2>
+<p>Bias-corrected and accelerated (BCa) intervals need the empirical
+influence of each unit on the bootstrap estimates, which means
+recovering the weights that were used. Because those weights are
+recorded (i.e., via the seeds that generated them),
+<code>fwb.ci(., type = "bca")</code> and
+<code>summary(., ci.type = "bca")</code> work without any preparation on
+your part, whatever <code>cl</code> was set to and whether or not
+<code>statistic</code> is random.</p>
+<p>Before version 0.7.0 of <em>fwb</em>, BCa intervals were refused
+outright when <code>simple = TRUE</code> and <code>statistic</code> had
+a random component. BCa intervals still require more bootstrap
+replications than there are units in the data, and still cannot be used
+with <code>cluster</code> (i.e., with the clustered bootstrap).</p>
+</div>
+<div class="section level2">
+<h2 id="choosing-a-parallel-backend">Choosing a parallel backend<a class="anchor" aria-label="anchor" href="#choosing-a-parallel-backend"></a>
+</h2>
+<p>Since the choice does not affect your results, it can be made on
+practical grounds. <code>cl</code> accepts an integer (forking; not
+available on Windows), a <code>cluster</code> object from
+<code><a href="https://rdrr.io/r/parallel/makeCluster.html" class="external-link">parallel::makeCluster()</a></code>, or the string
+<code>"future"</code> to use whatever backend
+<code><a href="https://future.futureverse.org/reference/plan.html" class="external-link">future::plan()</a></code> has set up. The <em>futurize</em> package
+offers a further route, described below.</p>
+<p>Two things do differ between backends, neither of which concerns
+reproducibility:</p>
+<ul>
+<li>
+<strong>Packages on the workers.</strong> A <code>cluster</code>
+object starts fresh R processes with no packages attached, so a
+<code>statistic</code> that calls functions from another package needs
+that package attached there, e.g., with
+<code>parallel::clusterEvalQ(cl, library(mypkg))</code>. <em>fwb</em>
+itself is attached for you, so the <code>w_*()</code> functions (e.g.,
+<code><a href="../reference/w_mean.html">w_mean()</a></code>, <code><a href="../reference/w_mean.html">w_std()</a></code>) can be used without extra
+effort. Forking and <code>future</code> backends handle this on their
+own.</li>
+<li>
+<strong>Progress reporting.</strong> See below.</li>
+</ul>
+</div>
+<div class="section level2">
+<h2 id="futurize">Using <em>futurize</em><a class="anchor" aria-label="anchor" href="#futurize"></a>
+</h2>
+<p>The <em>futurize</em> package can parallelize an <code><a href="../reference/fwb.html">fwb()</a></code>
+call by piping it:</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="op">{</span><span class="va">N</span><span class="op">}</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://futurize.futureverse.org" class="external-link">futurize</a></span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://future.futureverse.org/reference/plan.html" class="external-link">plan</a></span><span class="op">(</span><span class="va">multisession</span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">f.out</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/fwb.html">fwb</a></span><span class="op">(</span><span class="va">.</span>, simple <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="op">{</span><span class="va">N</span><span class="op">}</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">f.out</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/fwb.html">fwb</a></span><span class="op">(</span><span class="va">.</span><span class="op">)</span> <span class="op">|&gt;</span> <span class="fu"><a href="https://futurize.futureverse.org/reference/futurize.html" class="external-link">futurize</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<p>This is reproducible in the ordinary way, and a plain
+<code><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed()</a></code> is all it needs. There is one wrinkle worth
+knowing about, and it is the single exception to “only the seed
+matters”:</p>
+<p><strong>Adding or removing <code>|&gt; futurize()</code> changes the
+replicates.</strong> <em>futurize</em> switches the generator to
+L’Ecuyer-CMRG for the duration of the call, and doing so re-initializes
+the generator state even when L’Ecuyer-CMRG is already in use. The
+streams <em>fwb</em> then reserves are a deterministic function of your
+seed, but not the same ones a call without the pipe would have used.
+Reproducing a result therefore means reproducing whether
+<code><a href="https://futurize.futureverse.org/reference/futurize.html" class="external-link">futurize()</a></code> was used.</p>
+<p>See <code><a href="https://futurize.futureverse.org/articles/futurize-81-fwb.html" class="external-link">vignette("futurize-81-fwb", package = "futurize")</a></code>
+for more details on using <em>futurize</em> with <em>fwb</em>.</p>
 </div>
-<div class="section level3">
-<h3 id="case-3">Case 3: <code>cl</code> is an integer<a class="anchor" aria-label="anchor" href="#case-3"></a>
-</h3>
-<p>When <code>cl</code> is an integer and the criteria for <a href="#case-2">Case 2</a> are not met (i.e., <code>simple = TRUE</code>
-or <code>statistic</code> has a random component), one additional step
-is required for ensuring reproducibility. Again, all you need to do is
-use <code><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed()</a></code>, but you must call it with
-<code>kind = "L'Ecuyer-CMRG"</code>, which is the only method
-appropriate for use across multiple clusters. See below for a code
-example:</p>
+<div class="section level2">
+<h2 id="progress-bars">Progress bars<a class="anchor" aria-label="anchor" href="#progress-bars"></a>
+</h2>
+<p><code><a href="../reference/fwb.html">fwb()</a></code> displays a progress bar when
+<code>verbose = TRUE</code>, using the <em>pbapply</em> package. This
+works with every backend and, unlike in earlier versions, has no effect
+on the results. Its default is <code>TRUE</code> when running
+sequentially and <code>FALSE</code> when parallelizing.</p>
+<p>Alternatively, the <em>progressify</em> package routes progress
+through <em>progressr</em>, which lets you choose the reporter:</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="op">{</span><span class="va">N</span><span class="op">}</span>, <span class="st">"L'Ecuyer-CMRG"</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://progressify.futureverse.org" class="external-link">progressify</a></span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://progressr.futureverse.org/reference/handlers.html" class="external-link">handlers</a></span><span class="op">(</span>global <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">f.out</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/fwb.html">fwb</a></span><span class="op">(</span><span class="va">.</span>, cl <span class="op">=</span> <span class="fl">3</span><span class="op">)</span></span></code></pre></div>
-</div>
-<div class="section level3">
-<h3 id="case-4">Case 4: <code>cl</code> is <code>"future"</code><a class="anchor" aria-label="anchor" href="#case-4"></a>
-</h3>
-<p>When using a <code>future</code> backend and the criteria for <a href="#case-2">Case 2</a> are not met, you can use the same solution as
-for Case 3. <code><a href="../reference/fwb.html">fwb()</a></code> performs an additional step to make sure
-the seed is correctly sent to
-<code><a href="https://future.apply.futureverse.org/reference/future_lapply.html" class="external-link">future.apply::future_lapply()</a></code>. (Internally, this works by
-setting <code>future.seed = TRUE</code>, which you should not do
-yourself.) See below for a code example:</p>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://future.futureverse.org" class="external-link">future</a></span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="op">{</span><span class="va">N</span><span class="op">}</span><span class="op">)</span></span>
 <span></span>
-<span><span class="fu"><a href="https://future.futureverse.org/reference/plan.html" class="external-link">plan</a></span><span class="op">(</span><span class="va">multisession</span>, workers <span class="op">=</span> <span class="fl">3</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="op">{</span><span class="va">N</span><span class="op">}</span>, <span class="st">"L'Ecuyer-CMRG"</span><span class="op">)</span></span>
-<span></span>
-<span><span class="va">f.out</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/fwb.html">fwb</a></span><span class="op">(</span><span class="va">.</span>, cl <span class="op">=</span> <span class="st">"future"</span><span class="op">)</span></span></code></pre></div>
-</div>
-<div class="section level3">
-<h3 id="case-5">Case 5: <code>cl</code> is a <code>cluster</code> object<a class="anchor" aria-label="anchor" href="#case-5"></a>
-</h3>
-<p>When <code>cl</code> is a <code>cluster</code> object (i.e., the
-output of a call to <code><a href="https://rdrr.io/r/parallel/makeCluster.html" class="external-link">parallel::makeCluster()</a></code>,
-<code><a href="https://rdrr.io/r/parallel/makeCluster.html" class="external-link">parallel::makePSOCKcluster()</a></code>,
-<code><a href="https://rdrr.io/r/parallel/makeCluster.html" class="external-link">parallel::makeForkCluster()</a></code> or similar functions in
-<em>parallelly</em>), an additional step must be taken to ensure
-reproducibility. Unfortunately, you can’t use <code><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed()</a></code>;
-you have to use <code><a href="https://rdrr.io/r/parallel/RngStream.html" class="external-link">parallel::clusterSetRNGStream()</a></code>, to which
-you supply the <code>cluster</code> object and your desired seed. See
-below for a code example:</p>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">parallel</span><span class="op">)</span></span>
-<span></span>
-<span><span class="va">cl</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/parallel/makeCluster.html" class="external-link">makeCluster</a></span><span class="op">(</span><span class="fl">3</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/parallel/RngStream.html" class="external-link">clusterSetRNGStream</a></span><span class="op">(</span><span class="va">cl</span>, <span class="op">{</span><span class="va">N</span><span class="op">}</span><span class="op">)</span></span>
-<span></span>
-<span><span class="va">f.out</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/fwb.html">fwb</a></span><span class="op">(</span><span class="va">.</span>, cl <span class="op">=</span> <span class="va">cl</span><span class="op">)</span></span></code></pre></div>
+<span><span class="va">f.out</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/fwb.html">fwb</a></span><span class="op">(</span><span class="va">.</span><span class="op">)</span> <span class="op">|&gt;</span> <span class="fu"><a href="https://progressify.futureverse.org/reference/progressify.html" class="external-link">progressify</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<p>When using parallelization in combination with <em>progressify</em>,
+a <em>future</em> backend must be used (i.e.,
+<code>cl = "future"</code>, or the <code><a href="https://futurize.futureverse.org/reference/futurize.html" class="external-link">futurize()</a></code> pipe
+described above) because <em>progressr</em> has no way to receive
+updates from a forked worker. With <code>cl</code> set to an integer or
+a <code>cluster</code> object, the bootstrap runs correctly but no
+progress is reported. Use <code>verbose = TRUE</code> in that case to
+display a progress bar.</p>
+<p>See
+<code><a href="https://progressify.futureverse.org/articles/progressify-81-fwb.html" class="external-link">vignette("progressify-81-fwb", package = "progressify")</a></code> for
+more details on using <em>progressify</em> with <em>fwb</em>.</p>
 </div>
 <div class="section level2">
-<h2 id="computing-bca-confidence-intervals">Computing BCa confidence intervals<a class="anchor" aria-label="anchor" href="#computing-bca-confidence-intervals"></a>
+<h2 id="a-note-on-statistic">A note on <code>statistic</code><a class="anchor" aria-label="anchor" href="#a-note-on-statistic"></a>
 </h2>
-<p>Although the main purpose of considering reproducibility is to ensure
-that multiple runs of the same code produce identical results, there is
-another situation in which it can be important to be able to reproduce
-the weights, and that is when computing bias-corrected accelerated (BCa)
-confidence intervals using <code>fwb.ci(., type = "bca")</code> or
-<code>summary(., ci.type = "bca")</code>. BCa confidence intervals have
-the best statistical properties among the available bootstrap confidence
-intervals, but they require computing the influence each unit has on the
-bootstrap estimates, which requires re-generating the weights as they
-were generated by <code><a href="../reference/fwb.html">fwb()</a></code>.</p>
-<p>There are some cases where you don’t have to do any special work to
-ensure BCa intervals are correctly computed. These include:</p>
-<ul>
-<li>
-<code>simple = FALSE</code>, regardless of parallelization or
-randomness in <code>statistic</code>
-</li>
-<li>
-<code>simple = TRUE</code>, there is no randomness in
-<code>statistic</code>, and no parallelization is used</li>
-<li>
-<code>simple = TRUE</code>, there is no randomness in
-<code>statistic</code>, and <code>cl</code> is an integer or
-<code>"future"</code>
-</li>
-</ul>
-<p>In these cases, <code><a href="../reference/fwb.html">fwb()</a></code> saves the state of the random seed
-that was used to originally generate the weights, and
-<code><a href="../reference/fwb.ci.html">fwb.ci()</a></code> recalls that seed to re-generate the weights and
-then computes the required statistics for the BCa interval without
-requiring any extra involvement by the user. Remember,
-<code>simple = TRUE</code> by default unless
-<code>wtype = "multinom"</code>.</p>
-<p>Otherwise, when the following condition is met, an additional step is
-required:</p>
-<ul>
-<li>
-<code>simple = TRUE</code>, there is no randomness in
-<code>statistic</code>, and <code>cl</code> is a <code>cluster</code>
-object</li>
-</ul>
-<p>In this case, you need to call
-<code>parallel::clusterSetRNGStream(cl, {N})</code> with the same seed
-as as was used prior to <code><a href="../reference/fwb.html">fwb()</a></code> immediately before calling
-<code><a href="../reference/fwb.ci.html">fwb.ci()</a></code> or <code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code>.</p>
-<p>When <code>simple = TRUE</code> and there is any randomness in
-<code>statistic</code>, it is not possible to re-generate the weights
-that were used in the bootstrap, so BCa confidence intervals cannot be
-computed. <code><a href="../reference/fwb.ci.html">fwb.ci()</a></code> (and <code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code> and
-<code><a href="https://rdrr.io/r/stats/confint.html" class="external-link">confint()</a></code>, which call <code><a href="../reference/fwb.ci.html">fwb.ci()</a></code>) automatically
-checks for this case and throws an error if BCa confidence intervals are
-requested when these conditions are met.</p>
+<p><code>statistic</code> may draw random numbers; doing so no longer
+costs you anything in reproducibility, because each replication’s
+weights are drawn from a stream reserved in advance and cannot be
+shifted by what <code>statistic</code> did in an earlier replication.
+Its own draws are reproducible too, for the same reason.</p>
+<p>Two things are still worth avoiding. Do not call
+<code><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed()</a></code> inside <code>statistic</code>: that would give
+every replication the same draws. And be aware that a
+<code>statistic</code> that parallelizes internally, on top of
+<em>fwb</em>’s own parallelization, may not be reproducible — that is a
+property of the nested code, not of <code><a href="../reference/fwb.html">fwb()</a></code>.</p>
 </div>
-<div class="section level2">
-<h2 id="verbose">
-<code>verbose</code><a class="anchor" aria-label="anchor" href="#verbose"></a>
-</h2>
-<p>It may be surprising to know that the <code>verbose</code> argument
-can affect reproducibility. This is because of how <em>pbapply</em>, the
-package used to generate progress bars when <code>verbose = TRUE</code>,
-handles parallelization. To ensure reproducibility when parallelization
-is used, it is advisable to set <code>verbose = FALSE</code> and omit a
-progress bar. As of <em>fwb</em> version 0.6.0, this is the default.
-This also improves performance. Setting <code>verbose = TRUE</code>
-affects reproducibility in Cases <a href="#case-3">3</a>, <a href="#case-4">4</a>, and <a href="#case-5">5</a>.</p>
-</div>
+
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside>
 </div>

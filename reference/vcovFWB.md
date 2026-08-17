@@ -46,8 +46,12 @@ vcovFWB(
 
 - R:
 
-  the number of bootstrap replications. Default is 1000 (more is better
-  but slower).
+  the number of bootstrap replications. When `wtype = "multinom"` and
+  `R` is at least the number of distinct bootstrap samples of the
+  clusters, every one of them is used exactly once instead and `R` is
+  ignored; see
+  [`fwb()`](https://ngreifer.github.io/fwb/reference/fwb.md). Default is
+  1000 (more is better but slower).
 
 - start:
 
@@ -118,8 +122,11 @@ vcovFWB(
   are ignored on Windows) for parallel evaluations, or the string
   `"future"` to use a `future` backend. See the `cl` argument of
   [`pbapply::pblapply()`](https://peter.solymos.org/pbapply/reference/pbapply.html)
-  for details. If `NULL`, no parallelization will take place. See the
-  section "Parallel Processing" in Details.
+  for details. If `NULL`, no parallelization will take place.
+  Alternatively, the
+  [futurize](https://CRAN.R-project.org/package=futurize) package can be
+  used to incorporate a `future` backend. See the section "Parallel
+  Processing" in Details.
 
 ## Value
 
@@ -169,16 +176,29 @@ is considered its own cluster.
 ### Parallel Processing
 
 To speed up evaluation, parallel processing can be enabled. One way to
-do so is to supply an argument to `cl`. This can be either an
-integer(not available on Windows), a cluster object created by
+do so is to supply an argument to `cl`. This can be either an integer
+(not available on Windows), a cluster object created by
 [`parallel::makeCluster()`](https://rdrr.io/r/parallel/makeCluster.html)
 , or the string `"future"`. Another general way is to use functionality
 in the [futurize](https://CRAN.R-project.org/package=futurize) package,
 which is compatible with fwb. See
 [`vignette("futurize-81-fwb", package = "futurize")`](https://futurize.futureverse.org/articles/futurize-81-fwb.html)
-for details. See also
+for details.
+
+Parallel processing does not change the results: the same seed gives the
+same covariance matrix whatever `cl` is set to, and calling
+[`set.seed()`](https://rdrr.io/r/base/Random.html) beforehand is all
+that is required to make a run reproducible. See
 [`vignette("fwb-rep")`](https://ngreifer.github.io/fwb/articles/fwb-rep.md)
-for information on replicability with (and without) parallel processing.
+for details.
+
+When `cl` is a cluster object, fwb is attached on each worker so that
+the `w_*()` functions (see
+[`w_mean()`](https://ngreifer.github.io/fwb/reference/w_mean.md)) can be
+used in the model formula. Other packages the model needs must be
+attached by the user, e.g., with
+[`parallel::clusterEvalQ()`](https://rdrr.io/r/parallel/clusterApply.html)
+.
 
 ## See also
 
@@ -200,19 +220,18 @@ for information on replicability with (and without) parallel processing.
 ## Examples
 
 ``` r
-set.seed(123, "L'Ecuyer-CMRG")
+set.seed(123)
 data("infert")
 fit <- glm(case ~ spontaneous + induced, data = infert,
              family = "binomial")
 lmtest::coeftest(fit, vcov. = vcovFWB, R = 200)
-#> Warning: non-integer #successes in a binomial glm!
 #> 
 #> z test of coefficients:
 #> 
 #>             Estimate Std. Error z value  Pr(>|z|)    
-#> (Intercept) -1.70786    0.26445 -6.4581 1.060e-10 ***
-#> spontaneous  1.19721    0.21868  5.4746 4.384e-08 ***
-#> induced      0.41813    0.19723  2.1201     0.034 *  
+#> (Intercept) -1.70786    0.25051 -6.8174 9.270e-12 ***
+#> spontaneous  1.19721    0.19745  6.0634 1.333e-09 ***
+#> induced      0.41813    0.19603  2.1330   0.03292 *  
 #> ---
 #> Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
 #> 
@@ -229,8 +248,8 @@ cbind(
   "FWB-cluster" = sqrt(diag(vcovFWB(m, cluster = ~firm)))
 )
 #>                     BS        FWB BS-cluster FWB-cluster
-#> (Intercept) 0.02834177 0.02862498 0.07244951  0.06554226
-#> x           0.02642269 0.02837431 0.04724351  0.04789381
+#> (Intercept) 0.02698853 0.02807288 0.06656130  0.06624835
+#> x           0.02704580 0.02774800 0.04854799  0.04914723
 
 # Using `wtype = "multinom"` exactly reproduces
 # `sandwich::vcovBS()`
@@ -240,7 +259,7 @@ set.seed(11)
 f <- vcovFWB(m, R = 200, wtype = "multinom")
 
 all.equal(s, f)
-#> [1] TRUE
+#> [1] "Mean relative difference: 0.3294052"
 # Using a custom argument to `.coef`
 set.seed(123)
 data("infert")
@@ -270,13 +289,13 @@ coef_multinom(fit) # returns a vector
 
 vcovFWB(fit, R = 200, .coef = coef_multinom)
 #>                     6-11yrs:(Intercept)  6-11yrs:age 12+ yrs:(Intercept)
-#> 6-11yrs:(Intercept)           7.1290604 -0.202821220           6.7927253
-#> 6-11yrs:age                  -0.2028212  0.005837787          -0.1923858
-#> 12+ yrs:(Intercept)           6.7927253 -0.192385799           7.1922051
-#> 12+ yrs:age                  -0.1922646  0.005504376          -0.2046696
+#> 6-11yrs:(Intercept)           7.8222618 -0.218836364           7.2118467
+#> 6-11yrs:age                  -0.2188364  0.006207432          -0.2015247
+#> 12+ yrs:(Intercept)           7.2118467 -0.201524717           7.4204504
+#> 12+ yrs:age                  -0.2003089  0.005675118          -0.2080932
 #>                      12+ yrs:age
-#> 6-11yrs:(Intercept) -0.192264594
-#> 6-11yrs:age          0.005504376
-#> 12+ yrs:(Intercept) -0.204669617
-#> 12+ yrs:age          0.005897351
+#> 6-11yrs:(Intercept) -0.200308895
+#> 6-11yrs:age          0.005675118
+#> 12+ yrs:(Intercept) -0.208093239
+#> 12+ yrs:age          0.005929822
 ```

@@ -60,7 +60,7 @@ traditional bootstrap.
 ``` r
 # Performing a Weibull analysis of the Bearing Cage
 # failure data as done in Xu et al. (2020)
-set.seed(123, "L'Ecuyer-CMRG")
+set.seed(123)
 data("bearingcage")
 
 #Set fwb type to "beta"
@@ -84,8 +84,8 @@ boot_est
 #> 
 #> Bootstrap Statistics :
 #>          original         bias   std. error
-#> eta  11792.178173 1.158849e+04 33691.048135
-#> beta     2.035319 2.312647e-01     1.000479
+#> eta  11792.178173 14292.864684 53929.165455
+#> beta     2.035319     0.314054     1.144012
 
 #Get the fwb type used in the bootstrap
 get_fwb_wtype(boot_est)

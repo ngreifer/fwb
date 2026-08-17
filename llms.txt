@@ -46,15 +46,15 @@ pak::pak("ngreifer/fwb")
 ## Examples
 
 Below are some examples of how to use *fwb*. We set a seed to ensure all
-results are replicable. (Note that when parallel processing is used, a
-special kind of seed needs to be set; see
+results are replicable; this is all that is required, including when
+parallel processing is used. See
 [`vignette("fwb-rep")`](https://ngreifer.github.io/fwb/articles/fwb-rep.md)
-for details.)
+for details.
 
 ``` r
 
 library("fwb")
-set.seed(123456, "L'Ecuyer-CMRG")
+set.seed(123456)
 ```
 
 ### Bearing cage field failure Weibull analysis from Xu et al. (2020)
@@ -95,15 +95,15 @@ fwb_est
 #> 
 #> Bootstrap Statistics :
 #>          original         bias   std. error
-#> eta  11792.178173 7722.5390790 2.652048e+04
-#> beta     2.035319    0.2326988 8.790395e-01
+#> eta  11792.178173 7242.5535414 2.128739e+04
+#> beta     2.035319    0.2251982 8.686697e-01
 
 # Bias-corrected accelerated percentile
 # confidence interval
 summary(fwb_est, ci.type = "bca")
 #>      Estimate Std. Error CI 2.5 % CI 97.5 %
-#> eta  1.18e+04   2.65e+04 3.15e+03  7.17e+04
-#> beta 2.04e+00   8.79e-01 1.24e+00  4.55e+00
+#> eta  1.18e+04   2.13e+04 3.14e+03  7.49e+04
+#> beta 2.04e+00   8.69e-01 1.21e+00  4.61e+00
 
 # Plot the bootstrap distribution
 plot(fwb_est, index = "beta")
@@ -138,16 +138,16 @@ library("lmtest")
 # The traditional bootstrap fails
 coeftest(fit, vcov = sandwich::vcovBS)[1:3, ]
 #>              Estimate   Std. Error       z value Pr(>|z|)
-#> (Intercept) -6.904101 3.967764e+14 -1.740048e-14        1
-#> spontaneous  3.230286 1.915285e+14  1.686583e-14        1
-#> induced      2.190303 1.289215e+14  1.698943e-14        1
+#> (Intercept) -6.904101 3.792059e+14 -1.820673e-14        1
+#> spontaneous  3.230286 9.391400e+13  3.439621e-14        1
+#> induced      2.190303 8.963798e+13  2.443499e-14        1
 
 # The fractional weighted bootstrap succeeds
 coeftest(fit, vcov = vcovFWB)[1:3, ]
 #>              Estimate Std. Error   z value     Pr(>|z|)
-#> (Intercept) -6.904101  1.8325484 -3.767486 1.648995e-04
-#> spontaneous  3.230286  0.7493112  4.311007 1.625127e-05
-#> induced      2.190303  0.6880744  3.183235 1.456391e-03
+#> (Intercept) -6.904101  1.8390671 -3.754132 1.739429e-04
+#> spontaneous  3.230286  0.7459298  4.330549 1.487379e-05
+#> induced      2.190303  0.6597813  3.319741 9.010114e-04
 ```
 
 We can also perform cluster-robust inference by bootstrapping the
@@ -159,9 +159,9 @@ FWB is still more accurate.)
 # Including stratum membership as a clustering variable
 coeftest(fit, vcov = vcovFWB, cluster = ~stratum)[1:3, ]
 #>              Estimate Std. Error   z value     Pr(>|z|)
-#> (Intercept) -6.904101  1.6343290 -4.224426 2.395510e-05
-#> spontaneous  3.230286  0.7317966  4.414185 1.013912e-05
-#> induced      2.190303  0.6745283  3.247162 1.165621e-03
+#> (Intercept) -6.904101  1.5774022 -4.376881 1.203898e-05
+#> spontaneous  3.230286  0.7181843  4.497851 6.864390e-06
+#> induced      2.190303  0.6497947  3.370761 7.496078e-04
 ```
 
 Let’s look more in-depth at the results of the traditional and
@@ -193,9 +193,9 @@ boot_est
 #> 
 #> Bootstrap Statistics :
 #>      original        bias     std. error
-#> t1* -6.904101 -2.878435e+19 9.411095e+20
-#> t2*  3.230286  3.386823e+13 3.219334e+14
-#> t3*  2.190303  2.385851e+13 2.316350e+14
+#> t1* -6.904101 -2.224173e+20 6.851108e+21
+#> t2*  3.230286  4.061618e+13 3.237388e+14
+#> t3*  2.190303  2.903494e+13 2.359882e+14
 
 fwb_est <- fwb(infert, fit_fun, R = 999, verbose = FALSE)
 fwb_est
@@ -206,9 +206,9 @@ fwb_est
 #> 
 #> Bootstrap Statistics :
 #>              original       bias std. error
-#> (Intercept) -6.904101 -1.7026157  1.8743631
-#> spontaneous  3.230286  0.7069076  0.7657147
-#> induced      2.190303  0.5690742  0.7096401
+#> (Intercept) -6.904101 -1.5837476  1.8647559
+#> spontaneous  3.230286  0.6385297  0.7591470
+#> induced      2.190303  0.5013784  0.6798933
 ```
 
 Already the bias and standard errors indicate problems with the

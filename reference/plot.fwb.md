@@ -43,8 +43,8 @@ plot(
 
   when a histogram is requested (as it is by default; see `type`
   argument below), the number of classes to be used. The default is the
-  integer between 10 and 100 closest to `ceiling(length(R)/25)` where
-  `R` is the number of bootstrap replicates.
+  integer between 10 and 100 closest to `ceiling(R / 25)` where `R` is
+  the number of bootstrap replicates.
 
 - df:
 

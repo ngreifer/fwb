@@ -37,13 +37,14 @@ confint(object, parm, level = 0.95, ci.type = "bc", simultaneous = FALSE, ...)
 - conf, level:
 
   the desired confidence level. Default is .95 for 95% confidence
-  intervals. Set to 0 to prevent calculation of confidence intervals.
+  intervals. Set `conf` to 0 to prevent calculation of confidence
+  intervals.
 
 - ci.type:
 
   the type of confidence interval desired. Allowable options include
   `"wald"` (Wald interval), `"norm"` (normal approximation), `"cheap"`
-  (basic interval), `"cheap"` (basic interval), `"perc"` (percentile
+  (cheap interval), `"basic"` (basic interval), `"perc"` (percentile
   interval), `"bc"` (bias-corrected percentile interval), and `"bca"`
   (bias-corrected and accelerated \[BCa\] interval). Only one is
   allowed. BCa intervals require the number of bootstrap replications to
@@ -151,7 +152,7 @@ quantity
 ## Examples
 
 ``` r
-set.seed(123, "L'Ecuyer-CMRG")
+set.seed(123)
 data("infert")
 
 fit_fun <- function(data, w) {
@@ -166,16 +167,16 @@ fwb_out <- fwb(infert, fit_fun, R = 199,
 # Basic confidence interval for both estimates
 summary(fwb_out, ci.type = "basic")
 #>             Estimate Std. Error CI 2.5 % CI 97.5 %
-#> (Intercept)  -1.7079     0.2647  -2.2118   -1.2074
-#> spontaneous   1.1972     0.2185   0.7532    1.6483
-#> induced       0.4181     0.1975   0.0331    0.8116
+#> (Intercept)  -1.7079     0.2501  -2.1425   -1.1648
+#> spontaneous   1.1972     0.1979   0.7827    1.5488
+#> induced       0.4181     0.1952   0.0338    0.8196
 
 # Just for "induced" coefficient; p-values requested,
 # no confidence intervals
 summary(fwb_out, ci.type = "norm", conf = 0,
         index = "induced", p.value = TRUE)
 #>         Estimate Std. Error Pr(>|z|)  
-#> induced    0.418      0.197    0.035 *
+#> induced    0.418      0.195     0.03 *
 #> ---
 #> Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
 ```

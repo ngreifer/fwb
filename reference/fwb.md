@@ -35,7 +35,8 @@ print(
 
 - data:
 
-  the dataset used to compute the statistic
+  the dataset used to compute the statistic; must contain more than one
+  unit
 
 - statistic:
 
@@ -43,19 +44,26 @@ print(
   the statistic(s) of interest. The function should take at least two
   arguments; the first argument should correspond to the dataset and the
   second argument should correspond to a vector of weights. Any further
-  arguments can be passed to `statistic` through the `...` argument.
+  arguments can be passed to `statistic` through the `...` argument, but
+  they cannot share a name with an argument of `fwb()`, which would
+  claim them instead. These requirements are checked unless `statistic`
+  has a `...` argument, in which case no assumption is made about what
+  it accepts.
 
 - R:
 
   the number of bootstrap replicates. Default is 999 but more is always
   better. For the percentile bootstrap confidence interval to be exact,
-  it can be beneficial to use one less than a multiple of 100.
+  it can be beneficial to use one less than a multiple of 100. When
+  `wtype = "multinom"` and `R` is at least the number of distinct
+  bootstrap samples of `data`, it is ignored; see the description of
+  `"multinom"` below.
 
 - cluster:
 
   optional; a vector containing cluster membership. If supplied, will
-  run the cluster bootstrap. See Details. Evaluated first in `data` and
-  then in the global environment.
+  run the cluster bootstrap. Must contain more than one cluster. See
+  Details. Evaluated first in `data` and then in the global environment.
 
 - simple:
 
@@ -103,8 +111,11 @@ print(
   are ignored on Windows) for parallel evaluations, or the string
   `"future"` to use a `future` backend. See the `cl` argument of
   [`pbapply::pblapply()`](https://peter.solymos.org/pbapply/reference/pbapply.html)
-  for details. If `NULL`, no parallelization will take place. See the
-  section "Parallel Processing" in Details.
+  for details. If `NULL`, no parallelization will take place.
+  Alternatively, the
+  [futurize](https://CRAN.R-project.org/package=futurize) package can be
+  used to incorporate a `future` backend. See the section "Parallel
+  Processing" in Details.
 
 - ...:
 
@@ -141,16 +152,13 @@ components:
 
 - R:
 
-  The value of `R` as passed to `fwb()`.
+  The value of `R` as passed to `fwb()`, except in the exhaustive
+  multinomial case described under `"multinom"` below, where it is the
+  number of distinct bootstrap samples.
 
 - data:
 
   The `data` as passed to `fwb()`.
-
-- seed:
-
-  The value of `.Random.seed` just prior to generating the weights
-  (after the first call to `statistic` with uniform weights).
 
 - statistic:
 
@@ -171,6 +179,12 @@ components:
 - wtype:
 
   The type of weights used as determined by the `wtype` argument.
+
+The seed (when `simple = FALSE`) or seeds (when `simple = TRUE`) used to
+re-generate the weights is stored in the `"seeds"` attribute of the
+returned object. In the exhaustive multinomial case described under
+`"multinom"` below, no random numbers are used and the `"exhaustive"`
+attribute is `TRUE`.
 
 `<fwb>` objects have [`coef()`](https://rdrr.io/r/stats/coef.html) and
 [`vcov()`](https://rdrr.io/r/stats/vcov.html) methods, which extract the
@@ -203,10 +217,10 @@ the `family` to a "quasi" variety (e.g.,
 [`quasibinomial()`](https://rdrr.io/r/stats/family.html)) to avoid a
 spurious warning about "non-integer \#successes".
 
-The cluster bootstrap can be requested by supplying a vector of cluster
-membership to `cluster`. Rather than generating a weight for each unit,
-a weight is generated for each cluster and then applied to all units in
-that cluster.
+The cluster/block bootstrap can be requested by supplying a vector of
+cluster membership to `cluster`. Rather than generating a weight for
+each unit, a weight is generated for each cluster and then applied to
+all units in that cluster.
 
 Bootstrapping can be performed within strata by supplying a vector of
 stratum membership to `strata`. This essentially rescales the weights
@@ -216,13 +230,23 @@ weights, using strata is equivalent to drawing samples with replacement
 from each stratum. Strata do not affect bootstrapping when using Poisson
 weights.
 
-Ideally, `statistic` should not involve a random element, or else it
-will not be straightforward to replicate the bootstrap results using the
-`seed` included in the output object. Setting a seed using
-[`set.seed()`](https://rdrr.io/r/base/Random.html) is always advised.
-See
+The bootstrap weights depend only on the state of the random number
+generator when `fwb()` is called, so calling
+[`set.seed()`](https://rdrr.io/r/base/Random.html) beforehand is all
+that is required to make a run reproducible. In particular, the weights
+do not depend on `cl`, on the number of workers, on `verbose`, or on
+whether `statistic` itself draws random numbers, and no particular
+[`RNGkind()`](https://rdrr.io/r/base/Random.html) is required. See
 [`vignette("fwb-rep")`](https://ngreifer.github.io/fwb/articles/fwb-rep.md)
 for details.
+
+Note that `simple` does affect the weights: `simple = FALSE` draws them
+in a single call before `statistic` is applied, whereas `simple = TRUE`
+draws each replicate's weights from a random number stream reserved for
+that replicate. Both are reproducible, but they are not interchangeable,
+so you will get different results depending on whether `simple` is
+`TRUE` or `FALSE`. It's recommended to leave `simple` at its default
+value.
 
 The [`print()`](https://rdrr.io/r/base/print.html) method displays the
 value of the statistics, the bias (the difference between the statistic
@@ -259,6 +283,19 @@ The allowable weight types are described below.
   resulting estimates will be identical). When `strata` is supplied,
   unit indices are drawn with replacement within each stratum so that
   the sum of the weights in each stratum is equal to the stratum size.
+
+  Unlike the other weight types, the multinomial weights have only
+  finitely many possible values: there are \\n^n\\ distinct bootstrap
+  samples of \\n\\ units (or \\\prod_s n_s^{n_s}\\ with strata, and
+  computed at the cluster level when `cluster` is supplied). When `R` is
+  at least that many, `fwb()` enumerates every one of them exactly once
+  instead of sampling, sets `R` to that number, and reports this in a
+  message. The resulting estimates are then the exact bootstrap
+  distribution rather than a sample from it, and they no longer depend
+  on the seed. This is the one respect in which `wtype = "multinom"`
+  differs from `boot::boot(., stype = "f")`, which always samples; it
+  only applies to very small samples, as \\n = 6\\ already has 46656
+  distinct samples.
 
 - `"poisson"`:
 
@@ -314,15 +351,39 @@ comparison purposes or as an alternative interface to boot.
 
 To speed up evaluation, parallel processing can be enabled. One way to
 do so is to supply an argument to `cl`. This can be either an integer
-(not available on Windows), a cluster object created by
+(not available on Windows), a `<cluster>` object created by
 [`parallel::makeCluster()`](https://rdrr.io/r/parallel/makeCluster.html)
-, or the string `"future"`. Another general way is to use functionality
-in the [futurize](https://CRAN.R-project.org/package=futurize) package,
-which is compatible with fwb. See
+, or the string `"future"` (combined with setting a parallelization
+scheme with
+[`future::plan()`](https://future.futureverse.org/reference/plan.html) .
+Another general way is to use functionality in the
+[futurize](https://CRAN.R-project.org/package=futurize) package, which
+is compatible with fwb. See
 [`vignette("futurize-81-fwb", package = "futurize")`](https://futurize.futureverse.org/articles/futurize-81-fwb.html)
-for details. See also
+for details.
+
+Parallel processing does not change the results: the same seed gives the
+same bootstrap replicates whatever `cl` is set to. See
 [`vignette("fwb-rep")`](https://ngreifer.github.io/fwb/articles/fwb-rep.md)
-for information on replicability with (and without) parallel processing.
+for details.
+
+When `cl` is a `<cluster>` object, fwb is attached on each worker so
+that the `w_*()` functions (e.g.,
+[`w_mean()`](https://ngreifer.github.io/fwb/reference/w_mean.md),
+[`w_std()`](https://ngreifer.github.io/fwb/reference/w_mean.md)) can be
+used inside `statistic`. Other packages needed by `statistic` must be
+attached by the user, e.g., with
+[`parallel::clusterEvalQ()`](https://rdrr.io/r/parallel/clusterApply.html)
+.
+
+When parallel processing is used, a
+[progressr](https://CRAN.R-project.org/package=progressr) progress bar
+via the [progressify](https://CRAN.R-project.org/package=progressify)
+package requires a future backend (i.e., `cl = "future"` or the
+`futurize()` pipe); with other values of `cl` no progress is reported.
+The pbapply progress bar controlled by `verbose` works with all of them,
+but may slow down evaluation and so is not recommended. progressify
+progress bars work as normal with no parallelization.
 
 ## Methods (by generic)
 
@@ -377,7 +438,7 @@ for information on reproducibility.
 ``` r
 # Performing a Weibull analysis of the Bearing Cage
 # failure data as done in Xu et al. (2020)
-set.seed(123, "L'Ecuyer-CMRG")
+set.seed(123)
 data("bearingcage")
 
 weibull_est <- function(data, w) {
@@ -398,15 +459,15 @@ boot_est
 #> 
 #> Bootstrap Statistics :
 #>          original         bias   std. error
-#> eta  11792.178173 6576.7323747 2.102547e+04
-#> beta     2.035319    0.2416885 8.668478e-01
+#> eta  11792.178173 7240.2183068 2.243515e+04
+#> beta     2.035319    0.2665026 9.365437e-01
 
 #Get standard errors and CIs; uses bias-corrected
 #percentile CI by default
 summary(boot_est, ci.type = "bc")
 #>      Estimate Std. Error CI 2.5 % CI 97.5 %
-#> eta  1.18e+04   2.10e+04 3.08e+03  6.83e+04
-#> beta 2.04e+00   8.67e-01 1.23e+00  4.66e+00
+#> eta  1.18e+04   2.24e+04 3.35e+03  8.33e+04
+#> beta 2.04e+00   9.37e-01 1.17e+00  4.17e+00
 
 #Plot statistic distributions
 plot(boot_est, index = "beta", type = "hist")

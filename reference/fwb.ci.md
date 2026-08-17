@@ -189,10 +189,7 @@ the bootstrap estimates, \\t^{(i)}\\ the set of ordered estimates with
   \\a=0\\, the `"bca"` and `"bc"` intervals coincide. The acceleration
   parameter corrects for bias and skewness in the statistic. It can only
   be used when clusters are absent and the number of bootstrap
-  replications is larger than the sample size. Note that BCa intervals
-  cannot be requested when `simple = TRUE` and there is randomness in
-  the `statistic` supplied to
-  [`fwb()`](https://ngreifer.github.io/fwb/reference/fwb.md).
+  replications is larger than the sample size.
 
 Interpolation on the normal quantile scale is used when a non-integer
 order statistic is required, as in
@@ -238,7 +235,7 @@ Statistician*, 74(4), 345–358.
 ## Examples
 
 ``` r
-set.seed(123, "L'Ecuyer-CMRG")
+set.seed(123)
 data("infert")
 
 fit_fun <- function(data, w) {
@@ -263,7 +260,7 @@ bcci
 #> Intervals :
 #> 
 #> Level BC Percentile 
-#>  95%  (0.745, 1.638)
+#>  95%  (0.767, 1.590)
 #> 
 #> Calculations and Intervals on Original Scale
 #> Some bias-corrected percentile intervals may be unstable
@@ -273,7 +270,7 @@ bcci
 get_ci(bcci)
 #> $bc
 #>         L         U 
-#> 0.7453669 1.6378339 
+#> 0.7669207 1.5897374 
 #> 
 #> attr(,"conf")
 #> [1] 0.95
@@ -291,7 +288,7 @@ fwb.ci(fwb_out, index = "induced", type = "norm",
 #> Intervals :
 #> 
 #> Level     Normal    
-#>  95%  (1.029, 2.232)
+#>  95%  (1.041, 2.237)
 #> 
 #> Calculations on Original Scale but Intervals Transformed
 ```

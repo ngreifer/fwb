@@ -24,8 +24,14 @@ bootstrap replications and `n` is the number of observations in
 
 ## Details
 
-The original seed is used to recover the bootstrap weights before being
-reset.
+[`fwb()`](https://ngreifer.github.io/fwb/reference/fwb.md) records what
+is needed to reproduce the weights it drew, and `fwb.array()` reads that
+record: the saved `seed` when `simple = FALSE`, or the random number
+stream reserved for each replicate when `simple = TRUE`. Either way the
+weights are recovered in the calling session, so nothing needs to be set
+up beforehand and the result does not depend on how the original call
+was parallelized or on whether `statistic` drew random numbers of its
+own. The state of the random number generator is left unchanged.
 
 Bootstrap weights are used in computing BCa confidence intervals by
 approximating the empirical influence function for each unit with
@@ -46,7 +52,7 @@ for information on replicability.
 ## Examples
 
 ``` r
-set.seed(123, "L'Ecuyer-CMRG")
+set.seed(123)
 data("infert")
 
 fit_fun <- function(data, w) {

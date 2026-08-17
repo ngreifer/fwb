@@ -11,12 +11,12 @@ Source:
 [`DESCRIPTION`](https://github.com/ngreifer/fwb/blob/master/DESCRIPTION)
 
 Greifer N (2026). *fwb: Fractional Weighted Bootstrap*. R package
-version 0.6.0.9000, <https://ngreifer.github.io/fwb/>.
+version 0.6.0.9001, <https://ngreifer.github.io/fwb/>.
 
     @Manual{,
       title = {fwb: Fractional Weighted Bootstrap},
       author = {Noah Greifer},
       year = {2026},
-      note = {R package version 0.6.0.9000},
+      note = {R package version 0.6.0.9001},
       url = {https://ngreifer.github.io/fwb/},
     }

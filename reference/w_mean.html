@@ -13,7 +13,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">fwb</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.0.9000</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.0.9001</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -57,7 +57,7 @@
 <span></span>
 <span><span class="fu">w_cov</span><span class="op">(</span><span class="va">x</span>, w <span class="op">=</span> <span class="cn">NULL</span>, na.rm <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
 <span></span>
-<span><span class="fu">w_cor</span><span class="op">(</span><span class="va">x</span>, w <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span></span>
+<span><span class="fu">w_cor</span><span class="op">(</span><span class="va">x</span>, w <span class="op">=</span> <span class="cn">NULL</span>, na.rm <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu">w_quantile</span><span class="op">(</span></span>
 <span>  <span class="va">x</span>,</span>
@@ -160,11 +160,11 @@ $$x_{c,w} = x - \bar{x}_w$$</p></dd>
 $$x_{s,w} = x / s_{x,w}$$</p></dd>
 
 <dt><code>w_std()</code></dt>
-<dd><p>Centers and scales the variable by its (weighted) mean and standard deviation.
+<dd><p>Centers and scales the variable by its (weighted) mean and (weighted) standard deviation.
 $$x_{z,w} = (x - \bar{x}_w) / s_{x,w}$$</p></dd>
 
 
-</dl><p><code>w_scale()</code> and <code>w_center()</code> are efficient wrappers to <code>w_std()</code> with <code>center = FALSE</code> and <code>scale = FALSE</code>, respectively.</p>
+</dl><p><code>w_scale()</code> and <code>w_center()</code> are wrappers to <code>w_std()</code> with <code>center = FALSE</code> and <code>scale = FALSE</code>, respectively.</p>
 </div>
 
     </div>
@@ -201,14 +201,14 @@ $$x_{z,w} = (x - \bar{x}_w) / s_{x,w}$$</p></dd>
 <span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>m0 <span class="op">=</span> <span class="va">m0</span>, m1 <span class="op">=</span> <span class="va">m1</span>, ATE <span class="op">=</span> <span class="va">m1</span> <span class="op">-</span> <span class="va">m0</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="op">}</span></span></span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">123</span>, <span class="st">"L'Ecuyer-CMRG"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">123</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">boot_est</span> <span class="op">&lt;-</span> <span class="fu"><a href="fwb.html">fwb</a></span><span class="op">(</span><span class="va">lalonde</span>, statistic <span class="op">=</span> <span class="va">ate_est</span>,</span></span>
 <span class="r-in"><span>                R <span class="op">=</span> <span class="fl">199</span>, verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">boot_est</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     Estimate Std. Error CI 2.5 % CI 97.5 %</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> m0      6296        344     5587      6978</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> m1      7371        974     5702      9688</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> ATE     1075        987     -672      3167</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> m0      6296        383     5575      7002</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> m1      7371        980     5576      9807</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> ATE     1075       1048     -548      3900</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Using `w_*()` data transformations inside a model</span></span></span>
 <span class="r-in"><span><span class="co"># supplied to vcovFWB():</span></span></span>
@@ -220,10 +220,10 @@ $$x_{z,w} = (x - \bar{x}_w) / s_{x,w}$$</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span> t test of coefficients:</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>                     Estimate Std. Error t value Pr(&gt;|t|)    </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> (Intercept)         6934.358    366.357 18.9279  &lt; 2e-16 ***</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> treat               -436.121    682.525 -0.6390  0.52307    </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> w_center(age)         74.667     37.289  2.0024  0.04569 *  </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> treat:w_center(age)   21.710     72.651  0.2988  0.76517    </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> (Intercept)         6934.358    328.802 21.0898  &lt; 2e-16 ***</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> treat               -436.121    674.748 -0.6463  0.51830    </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> w_center(age)         74.667     35.295  2.1155  0.03479 *  </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> treat:w_center(age)   21.710     72.817  0.2982  0.76569    </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> ---</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
