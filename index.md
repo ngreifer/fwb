@@ -86,12 +86,12 @@ weibull_est <- function(data, w) {
 
 # 1999 bootstrap replications; more is always better
 fwb_est <- fwb(bearingcage, statistic = weibull_est,
-               R = 1999, verbose = FALSE)
+               R = 1999)
 fwb_est
 #> FRACTIONAL WEIGHTED BOOTSTRAP
 #> 
 #> Call:
-#> fwb(data = bearingcage, statistic = weibull_est, R = 1999, verbose = FALSE)
+#> fwb(data = bearingcage, statistic = weibull_est, R = 1999)
 #> 
 #> Bootstrap Statistics :
 #>          original         bias   std. error
@@ -197,12 +197,12 @@ boot_est
 #> t2*  3.230286  4.061618e+13 3.237388e+14
 #> t3*  2.190303  2.903494e+13 2.359882e+14
 
-fwb_est <- fwb(infert, fit_fun, R = 999, verbose = FALSE)
+fwb_est <- fwb(infert, fit_fun, R = 999)
 fwb_est
 #> FRACTIONAL WEIGHTED BOOTSTRAP
 #> 
 #> Call:
-#> fwb(data = infert, statistic = fit_fun, R = 999, verbose = FALSE)
+#> fwb(data = infert, statistic = fit_fun, R = 999)
 #> 
 #> Bootstrap Statistics :
 #>              original       bias std. error
