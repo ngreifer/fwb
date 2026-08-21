@@ -1,12 +1,12 @@
-url: https://ngreifer.github.io/fwb/
-
 template:
   bootstrap: 5
   light-switch: true
   math-rendering: mathjax
   bslib:
-    primary: "#C6551E"
-    secondary: "#E9AB92"
+    primary: "#c6551e"
+    secondary: "#e9ab92"
+
+url: https://ngreifer.github.io/fwb/
 
 reference:
   - contents:
