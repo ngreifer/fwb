@@ -517,3 +517,43 @@ test_that("`statistic` is validated, but only when its formals allow it", {
     function(..., ...FUN, .progressr_progressor) 1
   ))
 })
+
+test_that("`fwb()` works in a session that has not yet used the RNG", {
+  #A fresh `Rscript` process has no `.Random.seed` until something draws a random
+  #number, and `simple = FALSE` reads it to record how the weights were generated. If
+  #nothing has drawn one -- a `statistic` that does no sampling, in a script that has
+  #not called `set.seed()` -- reading it fails with "object '.Random.seed' not found".
+  #
+  #Simulated here by removing `.Random.seed` and restoring it afterwards, since the test
+  #session has certainly used the RNG already.
+  had_seed <- exists(".Random.seed", envir = globalenv(), inherits = FALSE)
+
+  if (had_seed) {
+    old_seed <- get(".Random.seed", envir = globalenv(), inherits = FALSE)
+    defer_call(quote(assign(".Random.seed", ., globalenv())), old_seed)
+    rm(list = ".Random.seed", envir = globalenv())
+  }
+
+  st <- function(data, w) c(m = w_mean(data[["x"]], w))
+
+  d <- data.frame(x = c(1, 2, 4, 7))
+
+  #`simple = FALSE` is the branch that reads the seed directly; `"multinom"` reaches it
+  #by default. Both are checked because only one of them was guarded.
+  for (simple in c(FALSE, TRUE)) {
+    if (had_seed && exists(".Random.seed", envir = globalenv(), inherits = FALSE)) {
+      rm(list = ".Random.seed", envir = globalenv())
+    }
+
+    expect_no_error(fwb(d, st, R = 10L, simple = simple, verbose = FALSE),
+                    message = sprintf("simple = %s", simple))
+  }
+
+  if (had_seed && exists(".Random.seed", envir = globalenv(), inherits = FALSE)) {
+    rm(list = ".Random.seed", envir = globalenv())
+  }
+
+  expect_no_error(vcovFWB(lm(y ~ x, data = data.frame(x = c(1, 2, 4, 7),
+                                                     y = c(2, 3, 6, 8))),
+                          R = 10L))
+})

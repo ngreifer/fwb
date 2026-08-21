@@ -223,11 +223,27 @@ set_stream_seed <- function(seed) {
   assign(".Random.seed", value = seed, envir = globalenv())
 }
 
-with_seed_preserved <- function(expr, new_seed = NULL) {
-
+#Make sure `.Random.seed` exists before anything tries to read it.
+#
+#A session has no `.Random.seed` until the RNG is first used, so reading it in a fresh
+#`Rscript` process fails with "object '.Random.seed' not found" -- reachable whenever
+#nothing has drawn a random number yet, including a `statistic` that never does. Any RNG
+#use initializes it from the current kind.
+#
+#Every read of `.Random.seed` in the package must be preceded by this, either directly or
+#by being inside `with_seed_preserved()`. Keeping the check in one place is deliberate: it
+#was previously inlined in two, and one copy was lost in a refactor.
+ensure_random_seed <- function() {
   if (!exists(".Random.seed", envir = globalenv(), inherits = FALSE)) {
     runif(1L)
   }
+
+  invisible(NULL)
+}
+
+with_seed_preserved <- function(expr, new_seed = NULL) {
+
+  ensure_random_seed()
 
   old_seed <- list(random_seed = get(".Random.seed", globalenv(), mode = "integer",
                                      inherits = FALSE),

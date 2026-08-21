@@ -361,6 +361,8 @@ fwb <- function(data, statistic, R = 999, cluster = NULL, simple = NULL,
     }
   }
   else {
+    ensure_random_seed()
+
     seeds <- get(".Random.seed", envir = globalenv(), inherits = FALSE)
 
     w <- {
