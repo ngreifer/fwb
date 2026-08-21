@@ -1,17 +1,22 @@
 url: https://ngreifer.github.io/fwb/
+
 template:
   bootstrap: 5
+  light-switch: true
   math-rendering: mathjax
+  bslib:
+    primary: "#C6551E"
+    secondary: "#E9AB92"
 
 reference:
   - contents:
     - fwb
-    - fwb.ci
     - summary.fwb
-    - plot.fwb
     - vcovFWB
-    - w_mean
-    - set_fwb_wtype
+    - fwb.ci
+    - plot.fwb
     - get_ci
+    - set_fwb_wtype
+    - w_mean
     - fwb.array
     - bearingcage
