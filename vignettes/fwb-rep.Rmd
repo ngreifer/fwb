@@ -43,7 +43,7 @@ Two useful things follow. First, the weights for a given replication depend on t
 
 ## What changed, and reproducing older results
 
-**Results from *fwb* 0.6.0 and earlier cannot be reproduced with version 0.7.0 or later** when `simple = TRUE`, which is the default for every `wtype` except `"multinom"`. If you need to reproduce a specific earlier analysis, install the version it was run under. Results with `simple = FALSE` are unchanged.
+**Results from *fwb* 0.6.0 and earlier cannot be reproduced with version 0.7.0 or later** when `simple = TRUE`, which is the default for every `wtype` except `"multinom"`. If you need to reproduce a specific earlier analysis, install the version it was run under^[To install a prior version of *fwb*, you can use, e.g., `pak::pak("fwb@0.6.0")`]. Results with `simple = FALSE` are unchanged.
 
 Before version 0.7.0, weights were drawn inside each bootstrap replication, from whatever random number stream the worker running it happened to have. That made the results depend on how the work was distributed, and reproducing them required arranging the workers' streams by hand. The guidance was correspondingly involved: it depended on `cl`, on `simple`, on whether `statistic` was random, and on `verbose`, and with a `cluster` object it required `parallel::clusterSetRNGStream()` *instead of* `set.seed()`.
 
@@ -56,7 +56,7 @@ None of that applies now, and two pieces of it are worth calling out because fol
 
 `simple` controls when the weights are drawn. With `simple = FALSE`, the entire `R` × *n* weight matrix is drawn in one step before `statistic` is applied to anything; with `simple = TRUE`, each replication draws its own weights as it runs, which avoids holding the whole matrix in memory.
 
-Both settings are fully reproducible, and both draw from the same weight distribution, so either supports valid inference. But they consume their random number streams differently, and so `simple = TRUE` and `simple = FALSE` do not give the same replicates as each other, even with the same seed. Prior to version 0.7.0 they did coincide for the continuous weight types, so this is worth knowing if you have code that switched between them freely^[To install a prior version of *fwb*, you can use, e.g., `pak::pak("fwb@0.6.0")`].
+Both settings are fully reproducible, and both draw from the same weight distribution, so either supports valid inference. But they consume their random number streams differently, and so `simple = TRUE` and `simple = FALSE` do not give the same replicates as each other, even with the same seed. Prior to version 0.7.0 they did coincide for the continuous weight types, so this is worth knowing if you have code that switched between them freely.
 
 The default is `simple = TRUE` except when `wtype = "multinom"`, where `simple = FALSE` is used so that results match `boot::boot(., stype = "f")` exactly.
 
