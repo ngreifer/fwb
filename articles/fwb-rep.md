@@ -78,7 +78,7 @@ them.
 **Results from *fwb* 0.6.0 and earlier cannot be reproduced with version
 0.7.0 or later** when `simple = TRUE`, which is the default for every
 `wtype` except `"multinom"`. If you need to reproduce a specific earlier
-analysis, install the version it was run under. Results with
+analysis, install the version it was run under[^1]. Results with
 `simple = FALSE` are unchanged.
 
 Before version 0.7.0, weights were drawn inside each bootstrap
@@ -121,7 +121,7 @@ random number streams differently, and so `simple = TRUE` and
 `simple = FALSE` do not give the same replicates as each other, even
 with the same seed. Prior to version 0.7.0 they did coincide for the
 continuous weight types, so this is worth knowing if you have code that
-switched between them freely[^1].
+switched between them freely.
 
 The default is `simple = TRUE` except when `wtype = "multinom"`, where
 `simple = FALSE` is used so that results match
