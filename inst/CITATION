@@ -1,0 +1,11 @@
+bibentry(
+  "Article",
+  title = "{fwb}: An {R} package for the fractional weighted bootstrap",
+  author = person("Noah", "Greifer"),
+  year = 2026,
+  journal = "Journal of Open Source Software",
+  volume = 11,
+  number = 124,
+  pages = "8880",
+  doi = "10.21105/joss.08880"
+)

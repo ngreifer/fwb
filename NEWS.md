@@ -1,7 +1,7 @@
 *fwb* News and Updates
 ======
 
-# *fwb* 0.7.0
+# *fwb* (development version)
 
 ### New Features
 
@@ -19,13 +19,15 @@
 
 * **The multinomial bootstrap is now exhaustive when it can be.** There are only $n^n$ distinct multinomial bootstrap samples of $n$ units, so when `R` is at least that many, `fwb()` and `vcovFWB()` now use each of them exactly once instead of sampling, and set `R` to that number (reporting this in a message). The estimates are then the exact bootstrap distribution rather than a sample from it, and they no longer depend on the seed. This applies with `strata` (where the count is $\prod_s n_s^{n_s}$) and with `cluster` (where it is computed over clusters). It is the one respect in which `wtype = "multinom"` no longer matches `boot::boot(., stype = "f")`, which always samples; it reaches only very small samples, as $n = 6$ already has 46656 distinct samples.
 
-### Other fixes
+### Other changes
+
+* Added a `CITATION` file, so `citation("fwb")` now returns the *Journal of Open Source Software* article describing *fwb* ([doi:10.21105/joss.08880](https://doi.org/10.21105/joss.08880)).
 
 * Simultaneous inference with `ci.type = "perc"` is much faster and now exact. Previously the confidence level was found by numerical search, which could return a band whose coverage fell short of the one requested; it is now computed directly.
 
 * Simultaneous inference now produces an error rather than `NA` when some of the bootstrap estimates are `NA` or non-finite.
 
-* BCa confidence intervals and `fwb.array()` now work in every case. Previously, when `simple = TRUE` and the function supplied to `statistic` involved a random element, the weights could not be recovered: `fwb.array()` warned and returned weights that were not the ones used, and `fwb.ci()` and `summary()` refused to compute BCa intervals. Recovering the weights no longer involves replaying the random number stream, so these restrictions are gone.
+* BCa confidence intervals and `fwb.array()` now work regardless of `simple`, the use of parallel processing, or the presence of randomness in `statistic`. Previously, when `simple = TRUE` and the function supplied to `statistic` involved a random element, the weights could not be recovered: `fwb.array()` warned and returned weights that were not the ones used, and `fwb.ci()` and `summary()` refused to compute BCa intervals. Recovering the weights no longer involves replaying the random number stream, so these restrictions are gone.
 
 * Fixed a bug in `fwb.array()` where the bootstrap weights were computed as if `cluster` had not been supplied, returning weights unrelated to those used in the cluster bootstrap.
 

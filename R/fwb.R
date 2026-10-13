@@ -1,6 +1,6 @@
 #' Fractional Weighted Bootstrap
 #'
-#' `fwb()` implements the fractional (random) weighted bootstrap, also known as the Bayesian bootstrap. Rather than resampling units to include in bootstrap samples, weights are drawn to be applied to a weighted estimator.
+#' `fwb()` implements the fractional weighted bootstrap, also known as the Bayesian bootstrap. Rather than resampling units to include in bootstrap samples, weights are drawn to be applied to a weighted estimator.
 #'
 #' @param data the dataset used to compute the statistic; must contain more than one unit
 #' @param statistic a function, which, when applied to `data`, returns a vector containing the statistic(s) of interest. The function should take at least two arguments; the first argument should correspond to the dataset and the second argument should correspond to a vector of weights. Any further arguments can be passed to `statistic` through the `...` argument, but they cannot share a name with an argument of `fwb()`, which would claim them instead. These requirements are checked unless `statistic` has a `...` argument, in which case no assumption is made about what it accepts.
@@ -587,7 +587,7 @@ gen_all_multinom_weights <- function(n, strata = NULL) {
     return(tabulate_rows(all_resamples(n), n))
   }
 
-  in_s <- lapply(levels(strata), function(s) which(strata == s))
+  in_s <- split(seq_along(strata), strata)
   in_s <- in_s[lengths(in_s) > 0L]
 
   w_s <- lapply(in_s, function(u) tabulate_rows(all_resamples(length(u)), length(u)))
@@ -625,8 +625,7 @@ make_gen_weights <- function(wtype) {
                     return(w / rowMeans(w))
                   }
 
-                  for (s in levels(strata)) {
-                    in_s <- which(strata == s)
+                  for (in_s in split(seq_along(strata), strata)) {
                     w[, in_s] <- w[, in_s, drop = FALSE] / rowMeans(w[, in_s, drop = FALSE])
                   }
 
@@ -643,8 +642,7 @@ make_gen_weights <- function(wtype) {
                   }
                   else {
                     i <- matrix(NA_integer_, nrow = R, ncol = n)
-                    for (s in levels(strata)) {
-                      in_s <- which(strata == s)
+                    for (in_s in split(seq_along(strata), strata)) {
                       n_s <- length(in_s)
                       i[, in_s] <- in_s[sample.int(n_s, n_s * R, replace = TRUE)]
                     }
@@ -661,8 +659,7 @@ make_gen_weights <- function(wtype) {
                     return(w / rowMeans(w))
                   }
 
-                  for (s in levels(strata)) {
-                    in_s <- which(strata == s)
+                  for (in_s in split(seq_along(strata), strata)) {
                     w[, in_s] <- w[, in_s, drop = FALSE] / rowMeans(w[, in_s, drop = FALSE])
                   }
 
@@ -676,8 +673,7 @@ make_gen_weights <- function(wtype) {
                     return(w / rowMeans(w))
                   }
 
-                  for (s in levels(strata)) {
-                    in_s <- which(strata == s)
+                  for (in_s in split(seq_along(strata), strata)) {
                     w[, in_s] <- w[, in_s, drop = FALSE] / rowMeans(w[, in_s, drop = FALSE])
                   }
 
@@ -691,8 +687,7 @@ make_gen_weights <- function(wtype) {
                     return(w / rowMeans(w))
                   }
 
-                  for (s in levels(strata)) {
-                    in_s <- which(strata == s)
+                  for (in_s in split(seq_along(strata), strata)) {
                     w[, in_s] <- w[, in_s, drop = FALSE] / rowMeans(w[, in_s, drop = FALSE])
                   }
 

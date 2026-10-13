@@ -17,7 +17,7 @@ knitr::opts_chunk$set(
 # *fwb*: Fractional Weighted Bootstrap <img src="man/figures/logo.png" align="right" width="150"/>
 
 <!-- badges: start -->
-[![CRAN_Status_Badge](https://r-pkg.org/badges/version/fwb?color=C6551E)](https://cran.r-project.org/package=fwb) [![CRAN_Downloads_Badge](https://cranlogs.r-pkg.org/badges/fwb?color=C6551E)](https://cran.r-project.org/package=fwb)
+[![CRAN_Status_Badge](https://r-pkg.org/badges/version/fwb?color=C6551E)](https://cran.r-project.org/package=fwb) [![CRAN_Downloads_Badge](https://cranlogs.r-pkg.org/badges/fwb?color=C6551E)](https://cran.r-project.org/package=fwb) [![JOSS_Badge](https://joss.theoj.org/papers/10.21105/joss.08880/status.svg)](https://doi.org/10.21105/joss.08880)
 <!-- badges: end -->
 
 *fwb* implements the fractional weighted bootstrap (FWB), also known as the Bayesian bootstrap, following the treatment by Xu et al. (2020). The FWB involves generating sets of weights from a continuous distribution to be used in estimating statistics of interest, which yields a posterior distribution that can be interpreted in the same way the traditional (resampling-based) bootstrap distribution can be. The primary function is `fwb()`, which is essentially a drop-in for `boot::boot()` in that it takes in a dataset and a function and applies that function to the dataset and a randomly generated set of case weights. Also included are `fwb.ci()`, a drop-in for `boot::boot.ci()` for computing various kinds of confidence intervals (e.g., percentile, normal, bias-corrected percentile, etc.), and `vcovFWB()`, a drop-in for `sandwich::vcovBS()` for computing a coefficient covariance matrix from a regression model using the FWB.
@@ -153,7 +153,11 @@ The FWB is typically more reliable than the traditional bootstrap when a weighte
 
 ## Citing *fwb*
 
-To cite *fwb*, please use `citation("fwb")`, which generates a package citation.
+Please cite *fwb* when using it for analysis presented in publications, which you can do by citing the *Journal of Open Source Software* article below:
+
+Greifer, N. (2026). fwb: An R package for the fractional weighted bootstrap. *Journal of Open Source Software*, 11(124), 8880. [doi:10.21105/joss.08880](https://doi.org/10.21105/joss.08880)
+
+This citation can also be accessed using `citation("fwb")` in R. For reproducibility purposes, it is also important to include the version number for the version used.
 
 ## Community guidelines
 

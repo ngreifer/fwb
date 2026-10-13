@@ -7,6 +7,7 @@
 
 [![CRAN_Status_Badge](https://r-pkg.org/badges/version/fwb?color=C6551E)](https://cran.r-project.org/package=fwb)
 [![CRAN_Downloads_Badge](https://cranlogs.r-pkg.org/badges/fwb?color=C6551E)](https://cran.r-project.org/package=fwb)
+[![JOSS_Badge](https://joss.theoj.org/papers/10.21105/joss.08880/status.svg)](https://doi.org/10.21105/joss.08880)
 <!-- badges: end -->
 
 *fwb* implements the fractional weighted bootstrap (FWB), also known as
@@ -266,8 +267,17 @@ it. Still, though, the FWB deserves a place in an analyst’s toolbox.
 
 ## Citing *fwb*
 
-To cite *fwb*, please use `citation("fwb")`, which generates a package
-citation.
+Please cite *fwb* when using it for analysis presented in publications,
+which you can do by citing the *Journal of Open Source Software* article
+below:
+
+Greifer, N. (2026). fwb: An R package for the fractional weighted
+bootstrap. *Journal of Open Source Software*, 11(124), 8880.
+[doi:10.21105/joss.08880](https://doi.org/10.21105/joss.08880)
+
+This citation can also be accessed using `citation("fwb")` in R. For
+reproducibility purposes, it is also important to include the version
+number for the version used.
 
 ## Community guidelines
 
