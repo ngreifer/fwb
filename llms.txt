@@ -293,8 +293,17 @@ it. Still, though, the FWB deserves a place in an analyst’s toolbox.
 
 ## Citing *fwb*
 
-To cite *fwb*, please use `citation("fwb")`, which generates a package
-citation.
+Please cite *fwb* when using it for analysis presented in publications,
+which you can do by citing the *Journal of Open Source Software* article
+below:
+
+Greifer, N. (2026). fwb: An R package for the fractional weighted
+bootstrap. *Journal of Open Source Software*, 11(124), 8880.
+[doi:10.21105/joss.08880](https://doi.org/10.21105/joss.08880)
+
+This citation can also be accessed using `citation("fwb")` in R. For
+reproducibility purposes, it is also important to include the version
+number for the version used.
 
 ## Community guidelines
 

@@ -8,15 +8,19 @@
 ## Citation
 
 Source:
-[`DESCRIPTION`](https://github.com/ngreifer/fwb/blob/master/DESCRIPTION)
+[`inst/CITATION`](https://github.com/ngreifer/fwb/blob/master/inst/CITATION)
 
-Greifer N (2026). *fwb: Fractional Weighted Bootstrap*. R package
-version 0.7.0, <https://ngreifer.github.io/fwb/>.
+Greifer N (2026). “fwb: An R package for the fractional weighted
+bootstrap.” *Journal of Open Source Software*, **11**(124), 8880.
+[doi:10.21105/joss.08880](https://doi.org/10.21105/joss.08880).
 
-    @Manual{,
-      title = {fwb: Fractional Weighted Bootstrap},
+    @Article{,
+      title = {{fwb}: An {R} package for the fractional weighted bootstrap},
       author = {Noah Greifer},
       year = {2026},
-      note = {R package version 0.7.0},
-      url = {https://ngreifer.github.io/fwb/},
+      journal = {Journal of Open Source Software},
+      volume = {11},
+      number = {124},
+      pages = {8880},
+      doi = {10.21105/joss.08880},
     }

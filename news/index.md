@@ -1,6 +1,6 @@
 # Changelog
 
-## *fwb* 0.7.0
+## *fwb* (development version)
 
 #### New Features
 
@@ -70,7 +70,11 @@
   reaches only very small samples, as \\n = 6\\ already has 46656
   distinct samples.
 
-#### Other fixes
+#### Other changes
+
+- Added a `CITATION` file, so `citation("fwb")` now returns the *Journal
+  of Open Source Software* article describing *fwb*
+  ([doi:10.21105/joss.08880](https://doi.org/10.21105/joss.08880)).
 
 - Simultaneous inference with `ci.type = "perc"` is much faster and now
   exact. Previously the confidence level was found by numerical search,
@@ -82,9 +86,10 @@
 
 - BCa confidence intervals and
   [`fwb.array()`](https://ngreifer.github.io/fwb/reference/fwb.array.md)
-  now work in every case. Previously, when `simple = TRUE` and the
-  function supplied to `statistic` involved a random element, the
-  weights could not be recovered:
+  now work regardless of `simple`, the use of parallel processing, or
+  the presence of randomness in `statistic`. Previously, when
+  `simple = TRUE` and the function supplied to `statistic` involved a
+  random element, the weights could not be recovered:
   [`fwb.array()`](https://ngreifer.github.io/fwb/reference/fwb.array.md)
   warned and returned weights that were not the ones used, and
   [`fwb.ci()`](https://ngreifer.github.io/fwb/reference/fwb.ci.md) and

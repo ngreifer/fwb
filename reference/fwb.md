@@ -1,9 +1,8 @@
 # Fractional Weighted Bootstrap
 
-`fwb()` implements the fractional (random) weighted bootstrap, also
-known as the Bayesian bootstrap. Rather than resampling units to include
-in bootstrap samples, weights are drawn to be applied to a weighted
-estimator.
+`fwb()` implements the fractional weighted bootstrap, also known as the
+Bayesian bootstrap. Rather than resampling units to include in bootstrap
+samples, weights are drawn to be applied to a weighted estimator.
 
 ## Usage
 
