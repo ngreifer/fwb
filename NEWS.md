@@ -1,7 +1,7 @@
 *fwb* News and Updates
 ======
 
-# *fwb* (development version)
+# *fwb* 1.0.0
 
 ### New Features
 

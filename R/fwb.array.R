@@ -117,7 +117,7 @@ fwb.array <- function(fwb.out) {
 #`statistic` did to the random number stream.
 replay_stream_weights <- function(gen_weights, seeds, n, R, strata) {
   if (is_null(seeds)) {
-    arg::err("the bootstrap weights cannot be recovered from an {.cls fwb} object created by {.pkg fwb} before version 0.7.0; re-run {.fun fwb} to compute this quantity")
+    arg::err("the bootstrap weights cannot be recovered from an {.cls fwb} object created by {.pkg fwb} before version 1.0.0; re-run {.fun fwb} to compute this quantity")
   }
 
   w <- matrix(0, nrow = R, ncol = n)

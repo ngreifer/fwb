@@ -7,7 +7,7 @@ vignette: >
   %\VignetteEncoding{UTF-8}
 ---
 
-Reproducibility ensures re-running the same analysis yields identical results. Because a random process is involved in generating the bootstrap weights with `fwb::fwb()`, steps must be taken to ensure reproducibility is possible. As of version 0.7.0, all that is required is to call `set.seed()` before `fwb()`, replacing `{N}` with your favorite integer:
+Reproducibility ensures re-running the same analysis yields identical results. Because a random process is involved in generating the bootstrap weights with `fwb::fwb()`, steps must be taken to ensure reproducibility is possible. As of version 1.0.0, all that is required is to call `set.seed()` before `fwb()`, replacing `{N}` with your favorite integer:
 
 ```r
 set.seed({N})
@@ -41,7 +41,7 @@ Two useful things follow. The weights for a given replication depend on the seed
 
 ### Reproducing results from earlier versions {#earlier}
 
-Results from *fwb* 0.6.0 and earlier cannot be reproduced with version 0.7.0 or later when `simple = TRUE`, which is the default for every `wtype` except `"multinom"`. To reproduce a specific earlier analysis, install the version it was run under[^install]. Results with `simple = FALSE` are unchanged.
+Results from *fwb* 0.6.0 and earlier cannot be reproduced with version 1.0.0 or later when `simple = TRUE`, which is the default for every `wtype` except `"multinom"`. To reproduce a specific earlier analysis, install the version it was run under[^install]. Results with `simple = FALSE` are unchanged.
 
 [^install]: To install a prior version of *fwb*, you can use, e.g., `pak::pak("fwb@0.6.0")`.
 

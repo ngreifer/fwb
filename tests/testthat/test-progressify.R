@@ -87,7 +87,7 @@ test_that("`progressify()` counts every replicate when `simple = TRUE`", {
   #
   #    .progressr_skip_count <- if (.progressr_simple) 2L else 1L
   #
-  #The `2L` matched `fwb()` before version 0.7.0, which called `statistic` on unit
+  #The `2L` matched `fwb()` before version 1.0.0, which called `statistic` on unit
   #weights twice when `simple = TRUE` -- once for `t0` and once more to detect whether
   #`statistic` was random. Recording a stream per replicate made that detection
   #unnecessary, so there is now exactly one unit-weight call whatever `simple` is, and

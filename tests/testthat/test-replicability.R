@@ -1,6 +1,6 @@
 #Replicability of `fwb()` and `vcovFWB()` across parallel backends.
 #
-#Since version 0.7.0 the contract is a single sentence: **the replicates depend on the
+#Since version 1.0.0 the contract is a single sentence: **the replicates depend on the
 #seed and nothing else.** Neither `cl`, nor the worker count, nor `verbose`, nor the
 #caller's RNG kind, nor randomness inside `statistic` can change them.
 #
@@ -150,7 +150,7 @@ test_that("the replicates are the same under every backend, with clusters and st
 })
 
 test_that("a plain `set.seed()` is enough, under any RNG kind", {
-  #Before 0.7.0 the weights were drawn inside the workers, so reproducing a parallel run
+  #Before 1.0.0 the weights were drawn inside the workers, so reproducing a parallel run
   #meant `set.seed(n, "L'Ecuyer-CMRG")` -- and with a `cluster` object, not `set.seed()`
   #at all but `parallel::clusterSetRNGStream()`. Neither is needed now: the streams are
   #derived in the calling session, and their derivation does not depend on the caller's
@@ -291,7 +291,7 @@ test_that("`simple` changes the replicates but not their distribution", {
   #`simple = FALSE` draws the whole matrix in one call, which is what keeps
   #`wtype = "multinom"` identical to `boot::boot(., stype = "f")`; `simple = TRUE` draws
   #each replicate from its own stream. The two consume the stream differently, so they
-  #no longer agree -- worth pinning, because before 0.7.0 they did for the continuous
+  #no longer agree -- worth pinning, because before 1.0.0 they did for the continuous
   #weight types and someone may remember that.
   set.seed(41, "L'Ecuyer-CMRG")
   a <- fwb(d, w_identity_stat, R = 400L, verbose = FALSE, simple = TRUE)
