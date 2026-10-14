@@ -1,6 +1,6 @@
 test_that("`w_*()` functions work like base R weighted functions", {
   set.seed(123456)
-  eps <- if (capabilities("long.double")) 1e-8 else 1e-1
+  eps <- fwb_eps()
 
   test_data <- readRDS(test_path("fixtures", "test_data.rds"))
 
@@ -115,7 +115,7 @@ test_that("`w_*()` functions work like base R weighted functions", {
 
 test_that("`w_*()` functions automatically capture weights inside `fwb()`", {
   set.seed(12345)
-  eps <- if (capabilities("long.double")) 1e-8 else 1e-1
+  eps <- fwb_eps()
 
   test_data <- readRDS(test_path("fixtures", "test_data.rds"))
 

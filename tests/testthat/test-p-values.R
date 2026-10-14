@@ -1,5 +1,5 @@
 test_that("p-values correctly invert CIs", {
-  eps <- if (capabilities("long.double")) 1e-8 else 1e-1
+  eps <- fwb_eps()
 
   test_data <- readRDS(test_path("fixtures", "test_data.rds"))
 
@@ -71,7 +71,7 @@ test_that("p-values correctly invert CIs", {
 test_that("p-values correctly invert simultaneous CIs", {
   skip_if_not_installed("mvtnorm")
 
-  eps <- if (capabilities("long.double")) 1e-8 else 1e-1
+  eps <- fwb_eps()
 
   test_data <- readRDS(test_path("fixtures", "test_data.rds"))
 

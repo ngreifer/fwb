@@ -2,10 +2,6 @@ expect_not_equal <- function(object, expected, ...,
                              tolerance = if (edition_get() >= 3) testthat_tolerance(),
                              info = NULL, label = NULL, expected.label = NULL) {
 
-  if (!capabilities("long.double")) {
-    return(NULL)
-  }
-
   act <- quasi_label(rlang::enquo(object), label, arg = "object")
   exp <- quasi_label(rlang::enquo(expected), expected.label, arg = "expected")
 
@@ -211,10 +207,15 @@ expect_wrn <- function(object, text = NULL) {
 # ---------------------------------------------------------------------------
 
 #The tolerance used throughout. Bootstrap replicability comparisons are exact in
-#principle -- the same weights fed to the same estimator -- so the only slack
-#needed is for platforms without extended precision.
+#principle (the same weights fed to the same estimator), so the only slack needed is
+#for floating point error. This holds without extended precision too: on a platform
+#without long doubles (Apple silicon, like CRAN's noLD checks), every comparison that
+#uses this tolerance agreed to within 1e-13 in October 2026. A looser tolerance there
+#is not harmless, because a tolerance larger than the values being compared makes the
+#comparison absolute rather than relative, and so nearly vacuous for small quantities
+#such as covariances.
 fwb_eps <- function() {
-  if (capabilities("long.double")) 1e-8 else 1e-3
+  1e-8
 }
 
 #A small deterministic dataset. Built without the RNG on purpose: a fixture that
