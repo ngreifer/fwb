@@ -58,14 +58,14 @@
 #'   "FWB-cluster" = sqrt(diag(vcovFWB(m, cluster = ~firm)))
 #' )
 #'
-#' # Using `wtype = "multinom"` exactly reproduces
-#' # `sandwich::vcovBS()`
+#' # Using `wtype = "multinom"` performs the traditional
+#' # bootstrap, as `sandwich::vcovBS()` does; the two
+#' # differ only by Monte Carlo error
 #' set.seed(11)
-#' s <- sandwich::vcovBS(m, R = 200)
-#' set.seed(11)
-#' f <- vcovFWB(m, R = 200, wtype = "multinom")
-#'
-#' all.equal(s, f)
+#' cbind(
+#'   "BS" = sqrt(diag(sandwich::vcovBS(m, R = 200))),
+#'   "FWB-multinom" = sqrt(diag(vcovFWB(m, R = 200, wtype = "multinom")))
+#' )
 #' @examplesIf rlang::is_installed("nnet")
 #' # Using a custom argument to `.coef`
 #' set.seed(123)

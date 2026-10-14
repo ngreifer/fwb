@@ -13,6 +13,8 @@
 
 * **This changes the bootstrap estimates when `simple = TRUE`** (the default for every `wtype` except `"multinom"`). Analyses that need to reproduce results from *fwb* 0.6.0 or earlier should install that version (e.g., using `pak::pak("fwb@0.6.0")`). Results with `simple = FALSE` are unchanged, so `wtype = "multinom"` continues to match `boot::boot(., stype = "f")` exactly. Note also that `simple = TRUE` and `simple = FALSE` no longer give the same estimates as each other, even for the weight types where they previously did.
 
+* **`vcovFWB()` no longer reproduces `sandwich::vcovBS()`** when the same seed is set, and its results from earlier versions cannot be reproduced. Each replicate now draws its weights from its own random number stream, as in `fwb()` with `simple = TRUE`, so `vcovFWB()` gives the same results as `vcov()` applied to the output of `fwb(., simple = TRUE)` for every `wtype`, without holding the weights for all replicates in memory at once.
+
 * `<fwb>` objects no longer store the `cl` argument, since nothing about the backend is needed to recover the weights any more. Previously, a `cluster` object kept in the result made the object unusable after `parallel::stopCluster()` or after being saved and reloaded.
 
 * `vignette("fwb-rep")` has been rewritten around the new behavior. It no longer describes the several cases that used to require different treatment, and it explains how to reproduce results from earlier versions.

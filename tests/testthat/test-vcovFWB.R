@@ -1,11 +1,12 @@
 test_that("vcovFWB() works", {
-  eps <- if (capabilities("long.double")) 1e-8 else 1e-1
+  eps <- fwb_eps()
 
   test_data <- readRDS(test_path("fixtures", "test_data.rds"))
 
   test_data$clus <- sample(1:50, nrow(test_data), replace = TRUE)
 
-  #vcovFWB produces same estimates as fwb()
+  #vcovFWB produces same estimates as fwb(). Each replicate draws its weights from its
+  #own stream, as in fwb(), so the draws do not reproduce those of sandwich::vcovBS().
 
   #lm()
   fit <- lm(Y_C ~ A + X1 + X2 + X3 + X4, data = test_data)
@@ -29,13 +30,6 @@ test_that("vcovFWB() works", {
 
   expect_equal(v0, vcov(f0), tolerance = eps)
 
-  set.seed(1234, "L")
-  expect_no_condition({
-    vs <- sandwich::vcovBS(fit, R = 100, type = "fractional")
-  })
-
-  expect_equal(v0, vs, tolerance = eps)
-
   # With wtype = "multinom"
   set.seed(1234, "L")
   expect_no_condition({
@@ -50,13 +44,6 @@ test_that("vcovFWB() works", {
   })
 
   expect_equal(v0, vcov(f0), tolerance = eps)
-
-  set.seed(1234, "L")
-  expect_no_condition({
-    vs <- sandwich::vcovBS(fit, R = 100)
-  })
-
-  expect_equal(v0, vs, tolerance = eps)
 
 
   # glm()
@@ -82,13 +69,6 @@ test_that("vcovFWB() works", {
 
   expect_equal(v0, vcov(f0), tolerance = eps)
 
-  set.seed(1234, "L")
-  expect_no_condition({
-    vs <- sandwich::vcovBS(fit, R = 100, type = "fractional")
-  })
-
-  expect_equal(v0, vs, tolerance = eps)
-
   # With wtype = "multinom"
   set.seed(1234, "L")
   expect_no_condition({
@@ -103,15 +83,6 @@ test_that("vcovFWB() works", {
   })
 
   expect_equal(v0, vcov(f0), tolerance = eps)
-
-  set.seed(1234, "L")
-  expect_no_condition({
-    vs <- sandwich::vcovBS(fit, R = 100)
-  })
-
-  # Note: only approximate, possibly due to reordering?
-  # Can get equivalent to eps by setting start = TRUE in both
-  expect_equal(v0, vs, tolerance = max(1e-4, eps))
 
   # coxph()
   library(survival)
