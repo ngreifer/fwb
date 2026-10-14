@@ -251,15 +251,17 @@ cbind(
 #> (Intercept) 0.02698853 0.02807288 0.06656130  0.06624835
 #> x           0.02704580 0.02774800 0.04854799  0.04914723
 
-# Using `wtype = "multinom"` exactly reproduces
-# `sandwich::vcovBS()`
+# Using `wtype = "multinom"` performs the traditional
+# bootstrap, as `sandwich::vcovBS()` does; the two
+# differ only by Monte Carlo error
 set.seed(11)
-s <- sandwich::vcovBS(m, R = 200)
-set.seed(11)
-f <- vcovFWB(m, R = 200, wtype = "multinom")
-
-all.equal(s, f)
-#> [1] "Mean relative difference: 0.3294052"
+cbind(
+  "BS" = sqrt(diag(sandwich::vcovBS(m, R = 200))),
+  "FWB-multinom" = sqrt(diag(vcovFWB(m, R = 200, wtype = "multinom")))
+)
+#>                     BS FWB-multinom
+#> (Intercept) 0.02640636   0.02760456
+#> x           0.02655911   0.02762329
 # Using a custom argument to `.coef`
 set.seed(123)
 data("infert")

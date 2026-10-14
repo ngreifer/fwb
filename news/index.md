@@ -44,6 +44,20 @@
   `simple = TRUE` and `simple = FALSE` no longer give the same estimates
   as each other, even for the weight types where they previously did.
 
+- **[`vcovFWB()`](https://ngreifer.github.io/fwb/reference/vcovFWB.md)
+  no longer reproduces
+  [`sandwich::vcovBS()`](https://zeileis.codeberg.page/sandwich/reference/vcovBS.html)**
+  when the same seed is set, and its results from earlier versions
+  cannot be reproduced. Each replicate now draws its weights from its
+  own random number stream, as in
+  [`fwb()`](https://ngreifer.github.io/fwb/reference/fwb.md) with
+  `simple = TRUE`, so
+  [`vcovFWB()`](https://ngreifer.github.io/fwb/reference/vcovFWB.md)
+  gives the same results as
+  [`vcov()`](https://rdrr.io/r/stats/vcov.html) applied to the output of
+  `fwb(., simple = TRUE)` for every `wtype`, without holding the weights
+  for all replicates in memory at once.
+
 - `<fwb>` objects no longer store the `cl` argument, since nothing about
   the backend is needed to recover the weights any more. Previously, a
   `cluster` object kept in the result made the object unusable after

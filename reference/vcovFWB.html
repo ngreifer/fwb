@@ -198,15 +198,17 @@
 <span class="r-out co"><span class="r-pr">#&gt;</span> (Intercept) 0.02698853 0.02807288 0.06656130  0.06624835</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> x           0.02704580 0.02774800 0.04854799  0.04914723</span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># Using `wtype = "multinom"` exactly reproduces</span></span></span>
-<span class="r-in"><span><span class="co"># `sandwich::vcovBS()`</span></span></span>
+<span class="r-in"><span><span class="co"># Using `wtype = "multinom"` performs the traditional</span></span></span>
+<span class="r-in"><span><span class="co"># bootstrap, as `sandwich::vcovBS()` does; the two</span></span></span>
+<span class="r-in"><span><span class="co"># differ only by Monte Carlo error</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">11</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">s</span> <span class="op">&lt;-</span> <span class="fu">sandwich</span><span class="fu">::</span><span class="fu"><a href="https://zeileis.codeberg.page/sandwich/reference/vcovBS.html" class="external-link">vcovBS</a></span><span class="op">(</span><span class="va">m</span>, R <span class="op">=</span> <span class="fl">200</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">11</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">f</span> <span class="op">&lt;-</span> <span class="fu">vcovFWB</span><span class="op">(</span><span class="va">m</span>, R <span class="op">=</span> <span class="fl">200</span>, wtype <span class="op">=</span> <span class="st">"multinom"</span><span class="op">)</span></span></span>
-<span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/all.equal.html" class="external-link">all.equal</a></span><span class="op">(</span><span class="va">s</span>, <span class="va">f</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "Mean relative difference: 0.3294052"</span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">cbind</a></span><span class="op">(</span></span></span>
+<span class="r-in"><span>  <span class="st">"BS"</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">sqrt</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/diag.html" class="external-link">diag</a></span><span class="op">(</span><span class="fu">sandwich</span><span class="fu">::</span><span class="fu"><a href="https://zeileis.codeberg.page/sandwich/reference/vcovBS.html" class="external-link">vcovBS</a></span><span class="op">(</span><span class="va">m</span>, R <span class="op">=</span> <span class="fl">200</span><span class="op">)</span><span class="op">)</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>  <span class="st">"FWB-multinom"</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">sqrt</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/diag.html" class="external-link">diag</a></span><span class="op">(</span><span class="fu">vcovFWB</span><span class="op">(</span><span class="va">m</span>, R <span class="op">=</span> <span class="fl">200</span>, wtype <span class="op">=</span> <span class="st">"multinom"</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                     BS FWB-multinom</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> (Intercept) 0.02640636   0.02760456</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> x           0.02655911   0.02762329</span>
 <span class="r-in"><span><span class="co"># Using a custom argument to `.coef`</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">123</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"infert"</span><span class="op">)</span></span></span>
