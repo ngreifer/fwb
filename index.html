@@ -80,7 +80,7 @@
 </div>
 <!-- badges: start -->
 
-<p><em>fwb</em> implements the fractional weighted bootstrap (FWB), also known as the Bayesian bootstrap, following the treatment by Xu et al. (2020). The FWB involves generating sets of weights from a continuous distribution to be used in estimating statistics of interest, which yields a posterior distribution that can be interpreted in the same way the traditional (resampling-based) bootstrap distribution can be. The primary function is <code><a href="reference/fwb.html">fwb()</a></code>, which is essentially a drop-in for <code><a href="https://rdrr.io/pkg/boot/man/boot.html" class="external-link">boot::boot()</a></code> in that it takes in a dataset and a function and applies that function to the dataset and a randomly generated set of case weights. Also included are <code><a href="reference/fwb.ci.html">fwb.ci()</a></code>, a drop-in for <code><a href="https://rdrr.io/pkg/boot/man/boot.ci.html" class="external-link">boot::boot.ci()</a></code> for computing various kinds of confidence intervals (e.g., percentile, normal, bias-corrected percentile, etc.), and <code><a href="reference/vcovFWB.html">vcovFWB()</a></code>, a drop-in for <code><a href="https://zeileis.codeberg.page/sandwich/reference/vcovBS.html" class="external-link">sandwich::vcovBS()</a></code> for computing a coefficient covariance matrix from a regression model using the FWB.</p>
+<p><em>fwb</em> implements the fractional weighted bootstrap (FWB), also known as the Bayesian bootstrap, following the treatment by Xu et al. (<a href="#ref-xuApplicationsFractionalRandomWeightBootstrap2020">2020</a>). The FWB involves generating sets of weights from a continuous distribution to be used in estimating statistics of interest, which yields a posterior distribution that can be interpreted in the same way the traditional (resampling-based) bootstrap distribution can be. The primary function is <code><a href="reference/fwb.html">fwb()</a></code>, which is essentially a drop-in for <code><a href="https://rdrr.io/pkg/boot/man/boot.html" class="external-link">boot::boot()</a></code> in that it takes in a dataset and a function and applies that function to the dataset and a randomly generated set of case weights. Also included are <code><a href="reference/fwb.ci.html">fwb.ci()</a></code>, a drop-in for <code><a href="https://rdrr.io/pkg/boot/man/boot.ci.html" class="external-link">boot::boot.ci()</a></code> for computing various kinds of confidence intervals (e.g., percentile, normal, bias-corrected percentile, etc.), and <code><a href="reference/vcovFWB.html">vcovFWB()</a></code>, a drop-in for <code><a href="https://zeileis.codeberg.page/sandwich/reference/vcovBS.html" class="external-link">sandwich::vcovBS()</a></code> for computing a coefficient covariance matrix from a regression model using the FWB.</p>
 <p>Check out the <em>fwb</em> <a href="https://ngreifer.github.io/fwb/">website</a>!</p>
 <div class="section level2">
 <h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
@@ -101,7 +101,7 @@
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="st"><a href="https://ngreifer.github.io/fwb/">"fwb"</a></span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">123456</span><span class="op">)</span></span></code></pre></div>
 <div class="section level3">
-<h3 id="bearing-cage-field-failure-weibull-analysis-from-xu-et-al-2020">Bearing cage field failure Weibull analysis from Xu et al. (2020)<a class="anchor" aria-label="anchor" href="#bearing-cage-field-failure-weibull-analysis-from-xu-et-al-2020"></a>
+<h3 id="bearing-cage-field-failure-weibull-analysis-from-xu-et-al-2020">Bearing cage field failure Weibull analysis from Xu et al. (<a href="#ref-xuApplicationsFractionalRandomWeightBootstrap2020">2020</a>)<a class="anchor" aria-label="anchor" href="#bearing-cage-field-failure-weibull-analysis-from-xu-et-al-2020"></a>
 </h3>
 <p>This example involves performing a Weibull analysis to estimate the <span class="math inline">\(\beta\)</span> (shape) parameter of the Weibull distribution characterizing the time to failure of a set of aircraft engines. Among the 1703 engines, there were only 6 failures and 1697 right-censored observations. The traditional (resampling-based) bootstrap would fail if a bootstrap replication omitted the 6 failures, but all failures are retained when using the FWB, which makes it particularly effective for this analysis.</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
@@ -147,7 +147,7 @@
 <div class="section level3">
 <h3 id="infertility-logistic-regression-analysis-using-infert-dataset">Infertility logistic regression analysis using <code>infert</code> dataset<a class="anchor" aria-label="anchor" href="#infertility-logistic-regression-analysis-using-infert-dataset"></a>
 </h3>
-<p>This example demonstrates using <code><a href="reference/vcovFWB.html">vcovFWB()</a></code> to estimate standard errors for the effect of spontaneous and induced abortions on infertility as analyzed in Trichopoulos et al. (1976). Patients are organized into matched sets of 3 patients each. We use a fixed effects logistic regression to adjust for matched set membership (ignoring the potential bias in this approach for the sake of the example). The traditional bootstrap fails because many matched sets will fully omit either cases or non-cases, leading to perfect prediction and the failure of the model to converge, yielding invalid estimates. Because all units are retained when using the FWB, the model always converges and the estimates are reasonable.</p>
+<p>This example demonstrates using <code><a href="reference/vcovFWB.html">vcovFWB()</a></code> to estimate standard errors for the effect of spontaneous and induced abortions on infertility as analyzed in Trichopoulos et al. (<a href="#ref-trichopoulosInducedAbortionSecondary1976">1976</a>). Patients are organized into matched sets of 3 patients each. We use a fixed effects logistic regression to adjust for matched set membership (ignoring the potential bias in this approach for the sake of the example). The traditional bootstrap fails because many matched sets will fully omit either cases or non-cases, leading to perfect prediction and the failure of the model to converge, yielding invalid estimates. Because all units are retained when using the FWB, the model always converges and the estimates are reasonable.</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"infert"</span><span class="op">)</span></span>
 <span></span>
@@ -255,8 +255,7 @@
 <h2 id="citing-fwb">Citing <em>fwb</em>
 <a class="anchor" aria-label="anchor" href="#citing-fwb"></a>
 </h2>
-<p>Please cite <em>fwb</em> when using it for analysis presented in publications, which you can do by citing the <em>Journal of Open Source Software</em> article below:</p>
-<p>Greifer, N. (2026). fwb: An R package for the fractional weighted bootstrap. <em>Journal of Open Source Software</em>, 11(124), 8880. <a href="https://doi.org/10.21105/joss.08880" class="external-link">doi:10.21105/joss.08880</a></p>
+<p>Please cite <em>fwb</em> when using it for analysis presented in publications, which you can do by citing the <em>Journal of Open Source Software</em> article describing it (<a href="#ref-greiferFwbPackageFractional2026">Greifer 2026</a>).</p>
 <p>This citation can also be accessed using <code>citation("fwb")</code> in R. For reproducibility purposes, it is also important to include the version number for the version used.</p>
 </div>
 <div class="section level2">
@@ -268,8 +267,17 @@
 <div class="section level2">
 <h2 id="references">References<a class="anchor" aria-label="anchor" href="#references"></a>
 </h2>
-<p>Trichopoulos, D., Handanos, N., Danezis, J., Kalandidi, A. and Kalapothaki, V. (1976), Induced Abortion and Secondary Infertility. <em>BJOG: An International Journal of Obstetrics &amp; Gynaecology</em>, 83, 645-650. <a href="https://doi.org/10.1111/j.1471-0528.1976.tb00904.x" class="external-link uri">https://doi.org/10.1111/j.1471-0528.1976.tb00904.x</a></p>
-<p>Xu, L., Gotwalt, C., Hong, Y., King, C. B., &amp; Meeker, W. Q. (2020). Applications of the Fractional-Random-Weight Bootstrap. <em>The American Statistician</em>, 74(4), 345–358. <a href="https://doi.org/10.1080/00031305.2020.1731599" class="external-link uri">https://doi.org/10.1080/00031305.2020.1731599</a></p>
+<div id="refs" class="references csl-bib-body hanging-indent">
+<div id="ref-greiferFwbPackageFractional2026" class="csl-entry">
+Greifer, Noah. 2026. “<span class="nocase">fwb</span>: An R Package for the Fractional Weighted Bootstrap.” <em>Journal of Open Source Software</em> 11 (124): 8880. <a href="https://doi.org/10.21105/joss.08880" class="external-link uri">https://doi.org/10.21105/joss.08880</a>.
+</div>
+<div id="ref-trichopoulosInducedAbortionSecondary1976" class="csl-entry">
+Trichopoulos, D., N. Handanos, J. Danezis, Anna Kalandidi, and Victoria Kalapothaki. 1976. “Induced Abortion and Secondary Infertility.” <em>BJOG: An International Journal of Obstetrics &amp; Gynaecology</em> 83 (8): 645–50. <a href="https://doi.org/10.1111/j.1471-0528.1976.tb00904.x" class="external-link uri">https://doi.org/10.1111/j.1471-0528.1976.tb00904.x</a>.
+</div>
+<div id="ref-xuApplicationsFractionalRandomWeightBootstrap2020" class="csl-entry">
+Xu, Li, Chris Gotwalt, Yili Hong, Caleb B. King, and William Q. Meeker. 2020. “Applications of the Fractional-Random-Weight Bootstrap.” <em>The American Statistician</em> 74 (4): 345–58. <a href="https://doi.org/10.1080/00031305.2020.1731599" class="external-link uri">https://doi.org/10.1080/00031305.2020.1731599</a>.
+</div>
+</div>
 </div>
 </div>
   </main><aside class="col-md-3"><div class="links">
