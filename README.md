@@ -11,7 +11,8 @@
 <!-- badges: end -->
 
 *fwb* implements the fractional weighted bootstrap (FWB), also known as
-the Bayesian bootstrap, following the treatment by Xu et al. (2020). The
+the Bayesian bootstrap, following the treatment by Xu et al.
+([2020](#ref-xuApplicationsFractionalRandomWeightBootstrap2020)). The
 FWB involves generating sets of weights from a continuous distribution
 to be used in estimating statistics of interest, which yields a
 posterior distribution that can be interpreted in the same way the
@@ -54,7 +55,7 @@ library("fwb")
 set.seed(123456)
 ```
 
-### Bearing cage field failure Weibull analysis from Xu et al. (2020)
+### Bearing cage field failure Weibull analysis from Xu et al. ([2020](#ref-xuApplicationsFractionalRandomWeightBootstrap2020))
 
 This example involves performing a Weibull analysis to estimate the
 $\beta$ (shape) parameter of the Weibull distribution characterizing the
@@ -110,15 +111,16 @@ plot(fwb_est, index = "beta")
 
 This example demonstrates using `vcovFWB()` to estimate standard errors
 for the effect of spontaneous and induced abortions on infertility as
-analyzed in Trichopoulos et al. (1976). Patients are organized into
-matched sets of 3 patients each. We use a fixed effects logistic
-regression to adjust for matched set membership (ignoring the potential
-bias in this approach for the sake of the example). The traditional
-bootstrap fails because many matched sets will fully omit either cases
-or non-cases, leading to perfect prediction and the failure of the model
-to converge, yielding invalid estimates. Because all units are retained
-when using the FWB, the model always converges and the estimates are
-reasonable.
+analyzed in Trichopoulos et al.
+([1976](#ref-trichopoulosInducedAbortionSecondary1976)). Patients are
+organized into matched sets of 3 patients each. We use a fixed effects
+logistic regression to adjust for matched set membership (ignoring the
+potential bias in this approach for the sake of the example). The
+traditional bootstrap fails because many matched sets will fully omit
+either cases or non-cases, leading to perfect prediction and the failure
+of the model to converge, yielding invalid estimates. Because all units
+are retained when using the FWB, the model always converges and the
+estimates are reasonable.
 
 ``` r
 data("infert")
@@ -269,11 +271,7 @@ it. Still, though, the FWB deserves a place in an analyst’s toolbox.
 
 Please cite *fwb* when using it for analysis presented in publications,
 which you can do by citing the *Journal of Open Source Software* article
-below:
-
-Greifer, N. (2026). fwb: An R package for the fractional weighted
-bootstrap. *Journal of Open Source Software*, 11(124), 8880.
-[doi:10.21105/joss.08880](https://doi.org/10.21105/joss.08880)
+describing it ([Greifer 2026](#ref-greiferFwbPackageFractional2026)).
 
 This citation can also be accessed using `citation("fwb")` in R. For
 reproducibility purposes, it is also important to include the version
@@ -294,12 +292,34 @@ issue over a pull request (except for typos in the documentation).
 
 ## References
 
-Trichopoulos, D., Handanos, N., Danezis, J., Kalandidi, A. and
-Kalapothaki, V. (1976), Induced Abortion and Secondary Infertility.
-*BJOG: An International Journal of Obstetrics & Gynaecology*, 83,
-645-650. <https://doi.org/10.1111/j.1471-0528.1976.tb00904.x>
+<div id="refs" class="references csl-bib-body hanging-indent">
 
-Xu, L., Gotwalt, C., Hong, Y., King, C. B., & Meeker, W. Q. (2020).
-Applications of the Fractional-Random-Weight Bootstrap. *The American
-Statistician*, 74(4), 345–358.
-<https://doi.org/10.1080/00031305.2020.1731599>
+<div id="ref-greiferFwbPackageFractional2026" class="csl-entry">
+
+Greifer, Noah. 2026. “<span class="nocase">fwb</span>: An R Package for
+the Fractional Weighted Bootstrap.” *Journal of Open Source Software* 11
+(124): 8880. <https://doi.org/10.21105/joss.08880>.
+
+</div>
+
+<div id="ref-trichopoulosInducedAbortionSecondary1976"
+class="csl-entry">
+
+Trichopoulos, D., N. Handanos, J. Danezis, Anna Kalandidi, and Victoria
+Kalapothaki. 1976. “Induced Abortion and Secondary Infertility.” *BJOG:
+An International Journal of Obstetrics & Gynaecology* 83 (8): 645–50.
+<https://doi.org/10.1111/j.1471-0528.1976.tb00904.x>.
+
+</div>
+
+<div id="ref-xuApplicationsFractionalRandomWeightBootstrap2020"
+class="csl-entry">
+
+Xu, Li, Chris Gotwalt, Yili Hong, Caleb B. King, and William Q. Meeker.
+2020. “Applications of the Fractional-Random-Weight Bootstrap.” *The
+American Statistician* 74 (4): 345–58.
+<https://doi.org/10.1080/00031305.2020.1731599>.
+
+</div>
+
+</div>
