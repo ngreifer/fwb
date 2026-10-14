@@ -1,6 +1,6 @@
 # Changelog
 
-## *fwb* (development version)
+## *fwb* 1.0.0
 
 #### New Features
 

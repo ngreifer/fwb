@@ -5,7 +5,7 @@ results. Because a random process is involved in generating the
 bootstrap weights with
 [`fwb::fwb()`](https://ngreifer.github.io/fwb/reference/fwb.md), steps
 must be taken to ensure reproducibility is possible. As of version
-0.7.0, all that is required is to call
+1.0.0, all that is required is to call
 [`set.seed()`](https://rdrr.io/r/base/Random.html) before
 [`fwb()`](https://ngreifer.github.io/fwb/reference/fwb.md), replacing
 `{N}` with your favorite integer:
@@ -81,7 +81,7 @@ confidence intervals](#bca)).
 ### Reproducing results from earlier versions
 
 Results from *fwb* 0.6.0 and earlier cannot be reproduced with version
-0.7.0 or later when `simple = TRUE`, which is the default for every
+1.0.0 or later when `simple = TRUE`, which is the default for every
 `wtype` except `"multinom"`. To reproduce a specific earlier analysis,
 install the version it was run under[^1]. Results with `simple = FALSE`
 are unchanged.
