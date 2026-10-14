@@ -2,6 +2,8 @@
 
 ## *fwb* 1.0.0
 
+CRAN release: 2026-10-14
+
 #### New Features
 
 - Added a new confidence interval type for
